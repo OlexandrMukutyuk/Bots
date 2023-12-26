@@ -1,6 +1,21 @@
 from aiogram.fsm.state import StatesGroup, State
 
 
+class StartState(StatesGroup):
+    waiting_greeting = State()
+    waiting_auth_type = State()
+
+
+class AuthState(StatesGroup):
+    waiting_email = State()
+    answering_if_register = State()
+    answering_if_confirmed_email = State()
+
+
+class LoginState(StatesGroup):
+    waiting_code = State()
+
+
 class AdvancedRegisterState(StatesGroup):
     waiting_phone = State()
     waiting_street_typing = State()

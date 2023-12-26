@@ -2,9 +2,8 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.user.register.common import generate_inline_street_list
-from keyboards.default.user.register import (
-    phone_share_kb,
+from handlers.common import generate_inline_street_list
+from keyboards.default.auth.register import (
     change_street_kb,
     without_flat_kb,
     without_flat_text,
@@ -13,18 +12,9 @@ from keyboards.default.user.register import (
 from keyboards.inline.callbacks import StreetCallbackFactory
 from keyboards.inline.streets import choose_street_kb
 from services.http_client import fetch_streets, verify_address
-from states.user import AdvancedRegisterState
+from states.auth import AdvancedRegisterState
 
 MAX_INLINE_RESULT = 50
-
-
-async def start(message: types.Message, state: FSMContext):
-    await message.answer('Потрібно зареєструватись')
-
-    await message.answer('Поділіться вашим номером телефону', reply_markup=phone_share_kb)
-    await message.answer('Або впишіть його вручну у форматі 380123456789')
-
-    await state.set_state(AdvancedRegisterState.waiting_phone)
 
 
 async def save_phone(message: types.Message, state: FSMContext):

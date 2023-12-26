@@ -1,6 +1,11 @@
 from aiogram import types
 
-from keyboards.default.user.register import choose_gender_kb
+from keyboards.default.auth.register import choose_gender_kb
+
+
+async def not_valid_email(message: types.Message):
+    await message.answer("Це не схоже на електронну пошту")
+    await message.answer("Впишіть, будь-ласка, валідний email")
 
 
 async def not_valid_phone(message: types.Message):

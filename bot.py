@@ -5,7 +5,8 @@ from aiogram import Dispatcher, Bot
 from aiogram.fsm.storage.memory import MemoryStorage
 
 import data.config
-import handlers.user
+from handlers import auth
+from handlers.auth import start
 
 
 async def main():
@@ -27,7 +28,8 @@ def setup_aiogram(dp: Dispatcher) -> None:
 
 
 def setup_handlers(dp: Dispatcher) -> None:
-    dp.include_routers(handlers.user.prepare_router())
+    dp.include_routers(auth.prepare_router())
+    dp.include_routers(start.prepare_router())
 
 
 def setup_middlewares(dp: Dispatcher) -> None:

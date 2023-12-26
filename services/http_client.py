@@ -33,7 +33,7 @@ async def fetch_streets(street: str) -> list:
 
     response = await HttpClient.post('/SearchStreets', data)
 
-    return response['Streets']
+    return response.get('Streets')
 
 
 async def verify_address(street_id: int, house: str) -> bool:
@@ -45,3 +45,44 @@ async def verify_address(street_id: int, house: str) -> bool:
     response = await HttpClient.post('/VerifyAddress', data)
 
     return response.get('Correct')
+
+
+async def register(data: dict) -> bool:
+    data = {
+        "FirstName": data['FirstName'],
+        "MiddleName": data['MiddleName'],
+        "LastName": data['LastName'],
+        "Gender": data['Phone'],
+        "Phone": data['Password'],
+        "CityId": data['StreetId'],
+        "StreetId": data['House'],
+        "House": data['House'],
+        "Flat": data['Flat'],
+        "Password": data['Password'],
+        "Email": "data"
+    }
+
+    response = await HttpClient.post('/Register', data)
+
+    return response.get('Correct')
+
+
+async def check_email(email: str) -> bool:
+    data = {
+        "Email": email,
+        "Platform": "telegram"
+    }
+
+    response = await HttpClient.post('/CheckEmail', data)
+
+    return response.get('Registration')
+
+
+async def send_code_to_email(email: str) -> dict:
+    data = {
+        "Email": email
+    }
+
+    response = await HttpClient.post('/SendCode', data)
+
+    return response

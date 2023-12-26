@@ -1,13 +1,13 @@
 from aiogram import Router, F
-from aiogram.filters import StateFilter, Command
+from aiogram.filters import Command
 
 from filters.strong_password import StrongPasswordFilter
 from filters.valid_name import ValidNameFilter
 from filters.valid_phone import ValidPhoneFilter
-from keyboards.default.user.edit_info import edit_text
-from keyboards.default.user.register import change_street_text, without_flat_text, gender_dict, agreement_text
+from keyboards.default.auth.edit_info import edit_text
+from keyboards.default.auth.register import change_street_text, without_flat_text, gender_dict, agreement_text
 from keyboards.inline.callbacks import StreetCallbackFactory
-from states.user import AdvancedRegisterState, EditRegisterState
+from states.auth import AdvancedRegisterState, EditRegisterState
 from . import edit_info
 from . import register
 from .. import validation
@@ -15,9 +15,6 @@ from .. import validation
 
 def prepare_router() -> Router:
     router = Router()
-
-    # Start register
-    router.message.register(register.start, StateFilter(None), Command('register'))
 
     # Get phone
     router.message.register(register.save_phone, AdvancedRegisterState.waiting_phone, F.contact)
@@ -79,6 +76,10 @@ def prepare_router() -> Router:
 
     router.message.register(edit_info.fill_data, Command('fill'))
 
+    # All done
+    router.message.register(edit_info.accept_info, EditRegisterState.waiting_accepting,
+                            F.text == edit_text['accept_info_text'])
+
     # Showing typed info
 
     router.message.register(edit_info.handle_buttons, EditRegisterState.waiting_accepting,
@@ -113,9 +114,5 @@ def prepare_router() -> Router:
     router.message.register(edit_info.edit_flat, EditRegisterState.waiting_flat, F.text == without_flat_text)
 
     router.message.register(edit_info.edit_password, EditRegisterState.waiting_password, StrongPasswordFilter())
-
-    # All done
-    router.message.register(edit_info.accept_info, EditRegisterState.waiting_accepting,
-                            F.text == edit_text['accept_info_text'])
 
     return router
