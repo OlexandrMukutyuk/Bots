@@ -1,8 +1,8 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from services.http_client import send_code_to_email
-from states.auth import LoginState
+from app.tgbot.services.http_client import send_code_to_email
+from app.tgbot.states.auth import LoginState
 
 
 async def perform_sending_email_code(message: Message, state: FSMContext, email: str):

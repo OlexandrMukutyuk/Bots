@@ -1,6 +1,6 @@
 from aiogram import types
 
-from keyboards.inline.streets import confirm_street_kb
+from app.tgbot.keyboards.inline.streets import confirm_street_kb
 
 MAX_INLINE_RESULT = 50
 

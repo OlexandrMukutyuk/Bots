@@ -1,4 +1,4 @@
-from keyboards.default.consts import DefaultConstructor
+from app.tgbot.keyboards.default.consts import DefaultConstructor
 
 hello_text = "Привіт! 👋"
 yes_text = "Так ✅"

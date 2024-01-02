@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from handlers.auth.common import perform_sending_email_code
+from app.tgbot.handlers.auth.common import perform_sending_email_code
 
 
 async def check_email_code(message: Message, state: FSMContext):

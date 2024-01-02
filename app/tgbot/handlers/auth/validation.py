@@ -1,6 +1,6 @@
 from aiogram import types
 
-from keyboards.default.auth.register import choose_gender_kb
+from app.tgbot.keyboards.default.auth.register import choose_gender_kb
 
 
 async def not_valid_email(message: types.Message):

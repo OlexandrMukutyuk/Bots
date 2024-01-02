@@ -1,13 +1,13 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 
-from filters.strong_password import StrongPasswordFilter
-from filters.valid_name import ValidNameFilter
-from filters.valid_phone import ValidPhoneFilter
-from keyboards.default.auth.edit_info import edit_text
-from keyboards.default.auth.register import change_street_text, without_flat_text, gender_dict, agreement_text
-from keyboards.inline.callbacks import StreetCallbackFactory
-from states.auth import AdvancedRegisterState, EditRegisterState
+from app.tgbot.filters.strong_password import StrongPasswordFilter
+from app.tgbot.filters.valid_name import ValidNameFilter
+from app.tgbot.filters.valid_phone import ValidPhoneFilter
+from app.tgbot.keyboards.default.auth.edit_info import edit_text
+from app.tgbot.keyboards.default.auth.register import change_street_text, without_flat_text, gender_dict, agreement_text
+from app.tgbot.keyboards.inline.callbacks import StreetCallbackFactory
+from app.tgbot.states.auth import AdvancedRegisterState, EditRegisterState
 from . import edit_info
 from . import register
 from .. import validation

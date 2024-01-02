@@ -4,7 +4,7 @@ env = Env()
 
 env.read_env()
 
-BOT_TOKEN: str = env.str("BOT_TOKEN")
+BOT_TOKEN: str = env.str("TELEGRAM_BOT_TOKEN")
 
 SERVER_BASE_URL: str = env.str("SERVER_BASE_URL")
 SERVER_TOKEN: str = env.str("SERVER_TOKEN")

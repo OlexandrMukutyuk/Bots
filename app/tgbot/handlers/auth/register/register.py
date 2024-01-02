@@ -2,17 +2,17 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.common import generate_inline_street_list
-from keyboards.default.auth.register import (
+from app.tgbot.handlers.common import generate_inline_street_list
+from app.tgbot.keyboards.default.auth.register import (
     change_street_kb,
     without_flat_kb,
     without_flat_text,
     choose_gender_kb, gender_dict, registration_agreement_kb
 )
-from keyboards.inline.callbacks import StreetCallbackFactory
-from keyboards.inline.streets import choose_street_kb
-from services.http_client import fetch_streets, verify_address
-from states.auth import AdvancedRegisterState
+from app.tgbot.keyboards.inline.callbacks import StreetCallbackFactory
+from app.tgbot.keyboards.inline.streets import choose_street_kb
+from app.tgbot.services.http_client import fetch_streets, verify_address
+from app.tgbot.states.auth import AdvancedRegisterState
 
 MAX_INLINE_RESULT = 50
 

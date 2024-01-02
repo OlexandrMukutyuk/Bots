@@ -7,14 +7,14 @@ from aiogram.utils.formatting import as_marked_section
 from aiogram.utils.markdown import hlink
 from aiohttp import ContentTypeError
 
-from data.config import WEBSITE_URL
-from handlers.auth.common import perform_sending_email_code
-from keyboards.default.auth.register import phone_share_kb
-from keyboards.default.auth.start import hello_kb, auth_types_kb
-from keyboards.default.auth.start import is_register_on_site, start_again_kb, yes_text, no_text
-from keyboards.default.basic import yes_n_no
-from services.http_client import check_email
-from states.auth import StartState, AuthState, AdvancedRegisterState
+from app.tgbot.data.config import WEBSITE_URL
+from app.tgbot.handlers.auth.common import perform_sending_email_code
+from app.tgbot.keyboards.default.auth.register import phone_share_kb
+from app.tgbot.keyboards.default.auth.start import hello_kb, auth_types_kb
+from app.tgbot.keyboards.default.auth.start import is_register_on_site, start_again_kb, yes_text, no_text
+from app.tgbot.keyboards.default.basic import yes_n_no
+from app.tgbot.services.http_client import check_email
+from app.tgbot.states.auth import StartState, AuthState, AdvancedRegisterState
 
 
 async def start(message: types.Message, state: FSMContext):
