@@ -1,7 +1,11 @@
+import logging
+
 from aiogram import types
 from aiogram.fsm.context import FSMContext
+from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.formatting import as_marked_section
 from aiogram.utils.markdown import hlink
+from aiohttp import ContentTypeError
 
 from data.config import WEBSITE_URL
 from handlers.auth.common import perform_sending_email_code
@@ -54,7 +58,11 @@ async def check_user_email(message: types.Message, state: FSMContext):
 
     temp_message = await message.answer("Зачекайте, будь-ласка, отримую дані")
 
-    is_user_exist = await check_email(email)
+    try:
+        is_user_exist = await check_email(email)
+    except ContentTypeError as e:
+        logging.error(e)
+        return await message.answer("Сталася помилка на сервері, спробуйте ще раз")
 
     await temp_message.delete()
 
@@ -102,7 +110,7 @@ async def start_again(message: types.Message, state: FSMContext):
 
 
 async def asking_email(message: types.Message, state: FSMContext):
-    await message.answer("Пропишіть свій e-mail 📧")
+    await message.answer("Пропишіть свій e-mail 📧", reply_markup=ReplyKeyboardRemove())
     await state.set_state(AuthState.waiting_email)
 
 
@@ -119,5 +127,7 @@ async def asking_if_email_confirmed(message: types.Message, state: FSMContext):
 '''For other time'''
 
 
-async def subscription_auth(message: types.Message):
-    await message.answer("Subscription")
+async def subscription_auth(message: types.Message, state: FSMContext):
+    await message.answer("Підписка - В розробці")
+    await message.answer("Перейдено на розширену реєстрацію", reply_markup=ReplyKeyboardRemove())
+    await asking_email(message, state)

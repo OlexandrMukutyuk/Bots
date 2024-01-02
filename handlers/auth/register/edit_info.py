@@ -13,14 +13,14 @@ from states.auth import EditRegisterState
 
 async def fill_data(message: types.Message, state: FSMContext):
     await state.update_data(
-        Email="siifsfj@gmail.com",
-        FirstName="Dima",
-        MiddleName="Kacev",
-        LastName="Bot",
+        Email="test@test.com",
+        FirstName="Test",
+        MiddleName="Test",
+        LastName="Test",
         Phone="+380874084248",
-        Password="SHIT",
+        Password="Password",
         StreetId="2424",
-        House="fsjief",
+        House="23",
     )
 
     await state.set_state(EditRegisterState.waiting_accepting)
@@ -84,6 +84,8 @@ async def first_time_showing_user_info(message: types.Message, state: FSMContext
 
 async def send_user_info(state: FSMContext, **kwargs):
     user_data = await state.get_data()
+
+    await state.set_state(EditRegisterState.waiting_accepting)
 
     for key, value in user_data.items():
         print(f"{key}: {value}")
@@ -246,3 +248,7 @@ async def accept_info(message: types.Message, state: FSMContext):
     # TODO Register auth
     for key, value in data.items():
         print(f"{key}: {value}")
+
+    await message.answer("Ми відправили посилання вам на пошту. Перейдіть по ньому")
+    await message.answer("(Треба сервер, щоб доробити реєстрацію, зараз працювати не буде)",
+                         reply_markup=ReplyKeyboardRemove())

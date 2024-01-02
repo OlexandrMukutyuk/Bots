@@ -56,24 +56,9 @@ def prepare_router() -> Router:
     router.message.register(register.save_password, AdvancedRegisterState.waiting_password, StrongPasswordFilter())
     router.message.register(register.show_agreement, AdvancedRegisterState.waiting_agreement, F.text != agreement_text)
 
-    # Validation messages
-
-    router.message.register(validation.not_valid_phone, AdvancedRegisterState.waiting_phone)
-
-    router.message.register(validation.not_valid_street_name, AdvancedRegisterState.waiting_street_typing)
-    router.message.register(validation.not_valid_street_name, AdvancedRegisterState.waiting_street_selected, ~F.via_bot)
-
-    router.message.register(validation.not_valid_flat, AdvancedRegisterState.waiting_flat)
-    router.message.register(validation.not_valid_gender, AdvancedRegisterState.waiting_gender)
-
-    router.message.register(validation.not_valid_first_name, AdvancedRegisterState.waiting_first_name)
-    router.message.register(validation.not_valid_middle_name, AdvancedRegisterState.waiting_middle_name)
-    router.message.register(validation.not_valid_last_name, AdvancedRegisterState.waiting_last_name)
-
-    router.message.register(validation.weak_password, AdvancedRegisterState.waiting_password)
-
     # Testing
 
+    # TODO Remove
     router.message.register(edit_info.fill_data, Command('fill'))
 
     # All done
@@ -114,5 +99,31 @@ def prepare_router() -> Router:
     router.message.register(edit_info.edit_flat, EditRegisterState.waiting_flat, F.text == without_flat_text)
 
     router.message.register(edit_info.edit_password, EditRegisterState.waiting_password, StrongPasswordFilter())
+
+    # Validation messages
+
+    router.message.register(validation.not_valid_phone, AdvancedRegisterState.waiting_phone)
+    router.message.register(validation.not_valid_phone, EditRegisterState.waiting_phone)
+
+    router.message.register(validation.not_valid_street_name, AdvancedRegisterState.waiting_street_typing)
+    router.message.register(validation.not_valid_street_name, AdvancedRegisterState.waiting_street_selected, ~F.via_bot)
+    router.message.register(validation.not_valid_street_name, EditRegisterState.waiting_street_typing)
+    router.message.register(validation.not_valid_street_name, EditRegisterState.waiting_street_selected, ~F.via_bot)
+
+    router.message.register(validation.not_valid_flat, AdvancedRegisterState.waiting_flat)
+    router.message.register(validation.not_valid_flat, EditRegisterState.waiting_flat)
+
+    router.message.register(validation.not_valid_gender, AdvancedRegisterState.waiting_gender)
+
+    router.message.register(validation.not_valid_first_name, AdvancedRegisterState.waiting_first_name)
+    router.message.register(validation.not_valid_middle_name, AdvancedRegisterState.waiting_middle_name)
+    router.message.register(validation.not_valid_last_name, AdvancedRegisterState.waiting_last_name)
+
+    router.message.register(validation.not_valid_first_name, EditRegisterState.waiting_first_name)
+    router.message.register(validation.not_valid_middle_name, EditRegisterState.waiting_middle_name)
+    router.message.register(validation.not_valid_last_name, EditRegisterState.waiting_last_name)
+
+    router.message.register(validation.weak_password, AdvancedRegisterState.waiting_password)
+    router.message.register(validation.weak_password, EditRegisterState.waiting_password)
 
     return router
