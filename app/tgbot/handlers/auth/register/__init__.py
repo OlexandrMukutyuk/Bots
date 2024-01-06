@@ -116,12 +116,12 @@ def prepare_router() -> Router:
     router.message.register(validation.not_valid_gender, AdvancedRegisterState.waiting_gender)
 
     router.message.register(validation.not_valid_first_name, AdvancedRegisterState.waiting_first_name)
-    router.message.register(validation.not_valid_middle_name, AdvancedRegisterState.waiting_middle_name)
-    router.message.register(validation.not_valid_last_name, AdvancedRegisterState.waiting_last_name)
+    router.message.register(validation.not_valid_last_name, AdvancedRegisterState.waiting_middle_name)
+    router.message.register(validation.not_valid_middle_name, AdvancedRegisterState.waiting_last_name)
 
     router.message.register(validation.not_valid_first_name, EditRegisterState.waiting_first_name)
-    router.message.register(validation.not_valid_middle_name, EditRegisterState.waiting_middle_name)
-    router.message.register(validation.not_valid_last_name, EditRegisterState.waiting_last_name)
+    router.message.register(validation.not_valid_last_name, EditRegisterState.waiting_middle_name)
+    router.message.register(validation.not_valid_middle_name, EditRegisterState.waiting_last_name)
 
     router.message.register(validation.weak_password, AdvancedRegisterState.waiting_password)
     router.message.register(validation.weak_password, EditRegisterState.waiting_password)

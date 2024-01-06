@@ -44,12 +44,12 @@ async def not_valid_first_name(message: types.Message):
     await message.answer("Впишіть будь-ласка ваше ім'я")
 
 
-async def not_valid_middle_name(message: types.Message):
+async def not_valid_last_name(message: types.Message):
     await message.answer("Некоректний формат. Можуть бути тільки букви, апострофи та тире.")
     await message.answer("Впишіть будь-ласка ваше прізвище")
 
 
-async def not_valid_last_name(message: types.Message):
+async def not_valid_middle_name(message: types.Message):
     await message.answer("Некоректний формат. Можуть бути тільки букви, апострофи та тире.")
     await message.answer("Впишіть будь-ласка ваше по батькові")
 
