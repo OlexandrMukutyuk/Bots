@@ -6,7 +6,7 @@ from app.tgbot.keyboards.default.auth.start import yes_text, no_text, start_agai
     other_mail_text
 from app.tgbot.states.auth import StartState, AuthState
 from . import handlers
-from .. import validation
+from ... import validation
 
 
 def prepare_router() -> Router:

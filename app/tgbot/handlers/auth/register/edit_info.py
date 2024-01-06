@@ -12,6 +12,8 @@ from app.tgbot.states.auth import EditRegisterState
 
 
 async def fill_data(message: types.Message, state: FSMContext):
+    # TODO Remove this
+
     await state.update_data(
         Email="test@test.com",
         FirstName="Test",

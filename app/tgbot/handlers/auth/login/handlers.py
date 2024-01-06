@@ -2,6 +2,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from app.tgbot.handlers.auth.common import perform_sending_email_code
+from app.tgbot.handlers.cabinet.menu.handlers import give_cabinet_menu
+from app.tgbot.handlers.common import update_user_state_data
 
 
 async def check_email_code(message: Message, state: FSMContext):
@@ -17,5 +19,7 @@ async def check_email_code(message: Message, state: FSMContext):
         return await perform_sending_email_code(message, state, email)
 
     await message.answer("Вітаю, ви успішно увійшли у свій аккаунт")
-    # End here: Get user info and login user
-    full_user_info = None
+
+    await update_user_state_data(state)
+
+    return await give_cabinet_menu(message=message, state=state)

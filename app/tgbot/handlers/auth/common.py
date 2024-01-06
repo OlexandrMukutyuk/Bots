@@ -9,6 +9,8 @@ async def perform_sending_email_code(message: Message, state: FSMContext, email:
     data = await send_code_to_email(email)
 
     await state.update_data(EmailCode=data.get("Code"))
+    await state.update_data(UserId=data.get("UserId"))
+    
     await message.answer("Ми відправили вам код на пошту. Впишіть його будь ласка ⬇️")
 
     return await state.set_state(LoginState.waiting_code)

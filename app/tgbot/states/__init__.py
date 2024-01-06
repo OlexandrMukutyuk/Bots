@@ -1,2 +1,2 @@
 from . import auth as auth
-# from . import menu.StartState as menu
+from . import cabinet as cabinet

@@ -3,7 +3,7 @@ from app.tgbot.keyboards.inline.consts import InlineConstructor
 
 choose_street_kb = InlineConstructor.create_kb(
     actions=[{
-        "text": "Обрати вулицю",
+        "text": "Обрати вулицю ↗️",
         "switch_inline_query_current_chat": "streets_for_carousel"
     }],
     schema=[1]

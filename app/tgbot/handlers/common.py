@@ -1,6 +1,10 @@
+import os
+
 from aiogram import types
+from aiogram.fsm.context import FSMContext
 
 from app.tgbot.keyboards.inline.streets import confirm_street_kb
+from app.tgbot.services.http_client import get_user_params
 
 MAX_INLINE_RESULT = 50
 
@@ -23,12 +27,12 @@ def build_inline_street_list(streets: list, offset: int) -> list[types.InlineQue
     results = []
 
     for item in streets[offset: offset + MAX_INLINE_RESULT - 1]:
-        results.append(buidl_inline_street_item(item))
+        results.append(build_inline_street_item(item))
 
     return results
 
 
-def buidl_inline_street_item(item: dict) -> types.InlineQueryResultArticle:
+def build_inline_street_item(item: dict) -> types.InlineQueryResultArticle:
     id = item['Id']
     title = item['Type'] + " " + item['Name']
 
@@ -41,3 +45,33 @@ def buidl_inline_street_item(item: dict) -> types.InlineQueryResultArticle:
         ),
         reply_markup=confirm_street_kb(street_id=id, city_id=item['CityId'])
     )
+
+
+async def update_user_state_data(state: FSMContext):
+    data = await state.get_data()
+
+    user_id = data.get("UserId")
+
+    user_params = await get_user_params(user_id)
+
+    await state.set_data({
+        "UserId": user_id,
+        **user_params
+    })
+
+
+def delete_tmp_media(media_ids):
+    if not media_ids or not len(media_ids):
+        return
+
+    for media_id in media_ids:
+        file_path = f'{os.getcwd()}/tmp/{media_id}'
+
+        if os.path.isfile(file_path):
+            try:
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}")
+            except OSError as e:
+                print(f"Error deleting file {file_path}: {e}")
+        else:
+            print(f"File not found: {file_path}")

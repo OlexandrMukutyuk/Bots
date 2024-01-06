@@ -52,3 +52,12 @@ async def not_valid_middle_name(message: types.Message):
 async def not_valid_last_name(message: types.Message):
     await message.answer("Некоректний формат. Можуть бути тільки букви, апострофи та тире.")
     await message.answer("Впишіть будь-ласка ваше по батькові")
+
+
+async def not_valid_text(message: types.Message):
+    await message.answer("Ви ввели невалідний текст")
+
+
+async def not_valid_comment(message: types.Message):
+    await message.answer("Ви ввели невалідний коментар")
+    await message.answer("Напишіть, будь-ласка, мінімум 10 символів")

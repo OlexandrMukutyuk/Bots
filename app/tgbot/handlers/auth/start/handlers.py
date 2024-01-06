@@ -67,7 +67,7 @@ async def check_user_email(message: types.Message, state: FSMContext):
     await temp_message.delete()
 
     if is_user_exist:
-        await perform_sending_email_code(message, state, email)
+        return await perform_sending_email_code(message, state, email)
 
     await asking_if_register(message, state)
 

@@ -10,7 +10,7 @@ from app.tgbot.keyboards.inline.callbacks import StreetCallbackFactory
 from app.tgbot.states.auth import AdvancedRegisterState, EditRegisterState
 from . import edit_info
 from . import register
-from .. import validation
+from ... import validation
 
 
 def prepare_router() -> Router:
