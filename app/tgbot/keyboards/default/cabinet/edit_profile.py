@@ -1,6 +1,6 @@
-from app.tgbot.keyboards.default.auth.register import gender_dict
-from app.tgbot.keyboards.default.cabinet.create_request import back_text
-from app.tgbot.keyboards.default.consts import DefaultConstructor
+from keyboards.default.auth.register import gender_dict
+from keyboards.default.cabinet.create_request import back_text
+from keyboards.default.consts import DefaultConstructor
 
 edit_text = {
     "accept_info_text": "Все вірно ✅",

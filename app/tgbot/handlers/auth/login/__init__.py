@@ -1,7 +1,7 @@
 from aiogram import Router
 
-from app.tgbot.handlers.auth.login import handlers
-from app.tgbot.states.auth import LoginState
+from handlers.auth.login import handlers
+from states.auth import LoginState
 
 
 def prepare_router() -> Router:

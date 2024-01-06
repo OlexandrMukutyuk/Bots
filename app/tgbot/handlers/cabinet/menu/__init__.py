@@ -1,8 +1,8 @@
 from aiogram import Router, F
 
-from app.tgbot.handlers.cabinet.menu import handlers
-from app.tgbot.keyboards.default.cabinet import cabinet_menu_text
-from app.tgbot.states.cabinet import CabinetStates
+from handlers.cabinet.menu import handlers
+from keyboards.default.cabinet import cabinet_menu_text
+from states.cabinet import CabinetStates
 
 
 def prepare_router() -> Router:

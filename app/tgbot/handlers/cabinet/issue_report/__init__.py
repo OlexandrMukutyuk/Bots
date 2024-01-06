@@ -1,8 +1,8 @@
 from aiogram import Router, F
 
-from app.tgbot.handlers import validation
-from app.tgbot.handlers.cabinet.issue_report import handlers
-from app.tgbot.states.cabinet import IssueReportStates
+from handlers import validation
+from handlers.cabinet.issue_report import handlers
+from states.cabinet import IssueReportStates
 
 
 def prepare_router() -> Router:

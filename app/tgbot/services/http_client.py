@@ -3,7 +3,7 @@ from typing import Sequence, TypeVar
 
 import aiohttp
 
-from app.tgbot.data.config import SERVER_TOKEN, SERVER_BASE_URL, SERVER_BASE_SERVICE
+from data.config import SERVER_TOKEN, SERVER_BASE_URL, SERVER_BASE_SERVICE
 
 T = TypeVar("T")
 

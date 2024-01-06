@@ -1,12 +1,12 @@
 from aiogram import Router, F
 
-from app.tgbot.filters.valid_name import ValidNameFilter
-from app.tgbot.handlers import validation
-from app.tgbot.handlers.cabinet.edit_profile import handlers
-from app.tgbot.keyboards.default.cabinet.create_request import back_text
-from app.tgbot.keyboards.default.cabinet.edit_profile import edit_text
-from app.tgbot.keyboards.inline.callbacks import StreetCallbackFactory
-from app.tgbot.states.cabinet import EditInfo
+from filters.valid_name import ValidNameFilter
+from handlers import validation
+from handlers.cabinet.edit_profile import handlers
+from keyboards.default.cabinet.create_request import back_text
+from keyboards.default.cabinet.edit_profile import edit_text
+from keyboards.inline.callbacks import StreetCallbackFactory
+from states.cabinet import EditInfo
 
 
 def prepare_router() -> Router():

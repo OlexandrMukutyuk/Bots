@@ -1,11 +1,11 @@
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
-from app.tgbot.handlers.cabinet.menu.handlers import give_cabinet_menu
-from app.tgbot.keyboards.inline.cabinet.rate_enterprises import enterprises_rates_kb, enterprises_list_kb
-from app.tgbot.keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
-from app.tgbot.services import http_client
-from app.tgbot.states.cabinet import RateEnterprise
+from handlers.cabinet.menu.handlers import give_cabinet_menu
+from keyboards.inline.cabinet.rate_enterprises import enterprises_rates_kb, enterprises_list_kb
+from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
+from services import http_client
+from states.cabinet import RateEnterprise
 
 
 async def show_rate_for_enterprises(
@@ -31,7 +31,7 @@ async def show_rate_for_enterprises(
     await state.set_state(RateEnterprise.enterprise_selected)
 
     await bot.edit_message_text(
-        text=f'Будь ласка, оцініть підприємство {enterprise_name}',
+        text=f"Будь ласка, оцініть підприємство {enterprise_name}",
         message_id=message_id,
         chat_id=chat_id,
         reply_markup=enterprises_rates_kb(enterprise_id=enterprise_id)
@@ -56,7 +56,7 @@ async def rate_enterprise(
         "Rate": rate,
     })
 
-    await bot.send_message(chat_id=chat_id, text=f'Оцінка {rate} ⭐️')
+    await bot.send_message(chat_id=chat_id, text=f"Оцінка {rate} ⭐️")
     await bot.send_message(chat_id=chat_id, text='Ваша оцінка відправлена успішно')
 
     await callback.message.delete()

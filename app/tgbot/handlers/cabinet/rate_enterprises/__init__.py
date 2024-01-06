@@ -1,8 +1,8 @@
 from aiogram import Router, F
 
-from app.tgbot.handlers.cabinet.rate_enterprises import handlers
-from app.tgbot.keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
-from app.tgbot.states.cabinet import RateEnterprise
+from handlers.cabinet.rate_enterprises import handlers
+from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
+from states.cabinet import RateEnterprise
 
 
 def prepare_router() -> Router:

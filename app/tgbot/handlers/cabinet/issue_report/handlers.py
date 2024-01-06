@@ -1,8 +1,8 @@
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 
-from app.tgbot.handlers.cabinet.menu.handlers import give_cabinet_menu
-from app.tgbot.services import http_client
+from handlers.cabinet.menu.handlers import give_cabinet_menu
+from services import http_client
 
 
 async def report_tech_issue(message: types.Message, state: FSMContext):

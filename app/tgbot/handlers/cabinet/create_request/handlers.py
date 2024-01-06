@@ -4,20 +4,20 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from app.tgbot.data import config
-from app.tgbot.handlers.cabinet.handlers import back_to_menu
-from app.tgbot.handlers.cabinet.menu.handlers import give_cabinet_menu
-from app.tgbot.handlers.common import delete_tmp_media, update_user_state_data, generate_inline_street_list
-from app.tgbot.keyboards.default.basic import yes_n_no, yes
-from app.tgbot.keyboards.default.cabinet.create_request import request_yes_no_kb, request_flat_kb, \
+from data import config
+from handlers.cabinet.handlers import back_to_menu
+from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.common import delete_tmp_media, update_user_state_data, generate_inline_street_list
+from keyboards.default.basic import yes_n_no, yes
+from keyboards.default.cabinet.create_request import request_yes_no_kb, request_flat_kb, \
     request_images_kb, living_in_house, request_comment_kb, request_house_kb, back_text, no_need, enough_text, \
     request_manual_address_kb, request_back_and_main_kb, request_enough_kb
-from app.tgbot.keyboards.inline.cabinet.create_request import confirm_problem_kb, pick_reason_kb, confirm_reason_kb
-from app.tgbot.keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
-from app.tgbot.keyboards.inline.streets import choose_street_kb
-from app.tgbot.services import http_client
-from app.tgbot.services.http_client import fetch_streets
-from app.tgbot.states.cabinet import CabinetStates, CreateRequest
+from keyboards.inline.cabinet.create_request import confirm_problem_kb, pick_reason_kb, confirm_reason_kb
+from keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
+from keyboards.inline.streets import choose_street_kb
+from services import http_client
+from services.http_client import fetch_streets
+from states.cabinet import CabinetStates, CreateRequest
 
 
 # Choose problem from list
@@ -171,7 +171,7 @@ async def confirm_reason(
 
     await bot.send_message(
         chat_id=chat_id,
-        text=f'Місце де все трапилось {street} {house}?',
+        text=f"Місце де все трапилось {street} {house}?",
         reply_markup=request_yes_no_kb
     )
 
@@ -433,7 +433,7 @@ async def saving_images(message: types.Message, state: FSMContext, bot: Bot):
 
     images = data.get('RequestImages') or []
 
-    new_image = f'{message.photo[-1].file_id}.jpg'
+    new_image = f"{message.photo[-1].file_id}.jpg"
 
     await state.update_data(RequestImages=[*images, new_image])
 
@@ -456,17 +456,17 @@ async def showing_request_info(message: types.Message, state: FSMContext):
 
     flat_text = ''
     if data.get('RequestFlat'):
-        flat_text = f'Квартира: {data.get('RequestFlat')}'
+        flat_text = f"Квартира: {data.get('RequestFlat')}"
 
     text = [
         'Звернення:\n',
-        f'Проблема: {data.get('ProblemName')}',
-        f'Причина: {data.get('ReasonName')}',
-        f'Коментар: {data.get('Comment')}',
-        f'{photo_text}',
-        f'Завантажено {len(data.get('RequestImages') or [])} фото',
-        f'Вулиця: {data.get('RequestStreetName')}',
-        f'Будинок: {data.get('RequestHouse')}',
+        f"Проблема: {data.get('ProblemName')}",
+        f"Причина: {data.get('ReasonName')}",
+        f"Коментар: {data.get('Comment')}",
+        f"{photo_text}",
+        f"Завантажено {len(data.get('RequestImages') or [])} фото",
+        f"Вулиця: {data.get('RequestStreetName')}",
+        f"Будинок: {data.get('RequestHouse')}",
         flat_text
     ]
 
@@ -483,7 +483,7 @@ async def confirm_request(message: types.Message, state: FSMContext):
     photos_urls = []
 
     for photo in request_photos:
-        photos_urls.append(f'{config.WEBHOOK_ADDRESS}/media/{photo}')
+        photos_urls.append(f"{config.WEBHOOK_ADDRESS}/media/{photo}")
 
     request_id = await http_client.create_request({
         "UserId": user_data.get('UserId'),
@@ -506,7 +506,7 @@ async def confirm_request(message: types.Message, state: FSMContext):
             reply_markup=yes_n_no
         )
 
-    await message.answer(f'Звернення №{request_id} відправлено успішно!')
+    await message.answer(f"Звернення №{request_id} відправлено успішно!")
 
     await to_main_menu_reply(message, state)
 
@@ -559,7 +559,7 @@ async def manually_address_back(message: types.Message, state: FSMContext, bot: 
 
     await bot.send_message(
         chat_id=chat_id,
-        text=f'Місце де все трапилось {street} {house}?',
+        text=f"Місце де все трапилось {street} {house}?",
         reply_markup=request_yes_no_kb
     )
 

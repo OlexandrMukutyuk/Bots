@@ -1,4 +1,4 @@
-from app.tgbot.keyboards.default.consts import DefaultConstructor
+from keyboards.default.consts import DefaultConstructor
 
 cabinet_menu_text = {
     'create_request': 'Створити звернення ✍',

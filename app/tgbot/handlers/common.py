@@ -3,8 +3,8 @@ import os
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 
-from app.tgbot.keyboards.inline.streets import confirm_street_kb
-from app.tgbot.services.http_client import get_user_params
+from keyboards.inline.streets import confirm_street_kb
+from services.http_client import get_user_params
 
 MAX_INLINE_RESULT = 50
 
@@ -65,7 +65,7 @@ def delete_tmp_media(media_ids):
         return
 
     for media_id in media_ids:
-        file_path = f'{os.getcwd()}/tmp/{media_id}'
+        file_path = f"{os.getcwd()}/tmp/{media_id}"
 
         if os.path.isfile(file_path):
             try:

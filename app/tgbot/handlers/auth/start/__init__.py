@@ -1,10 +1,10 @@
 from aiogram import Router, F
 from aiogram.filters import StateFilter, CommandStart
 
-from app.tgbot.filters.valid_emal import ValidEmailFilter
-from app.tgbot.keyboards.default.auth.start import yes_text, no_text, start_again_text, auth_types, hello_text, \
+from filters.valid_emal import ValidEmailFilter
+from keyboards.default.auth.start import yes_text, no_text, start_again_text, auth_types, hello_text, \
     other_mail_text
-from app.tgbot.states.auth import StartState, AuthState
+from states.auth import StartState, AuthState
 from . import handlers
 from ... import validation
 

@@ -1,6 +1,6 @@
-from app.tgbot.keyboards.default.cabinet.create_request import main_menu_text
-from app.tgbot.keyboards.inline.callbacks import ProblemCallbackFactory
-from app.tgbot.keyboards.inline.consts import InlineConstructor
+from keyboards.default.cabinet.create_request import main_menu_text
+from keyboards.inline.callbacks import ProblemCallbackFactory
+from keyboards.inline.consts import InlineConstructor
 
 pick_problem_kb = InlineConstructor.create_kb(
     actions=[

@@ -1,13 +1,13 @@
 from aiogram import Router, F
 
-from app.tgbot.handlers import validation
-from app.tgbot.handlers.cabinet.create_request import handlers
-from app.tgbot.keyboards.default.auth.register import change_street_text
-from app.tgbot.keyboards.default.auth.start import yes_text, no_text
-from app.tgbot.keyboards.default.cabinet.create_request import enough_text, back_text, no_need, main_menu_text, \
+from handlers import validation
+from handlers.cabinet.create_request import handlers
+from keyboards.default.auth.register import change_street_text
+from keyboards.default.auth.start import yes_text, no_text
+from keyboards.default.cabinet.create_request import enough_text, back_text, no_need, main_menu_text, \
     manually_address_text, living_in_house
-from app.tgbot.keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
-from app.tgbot.states.cabinet import CreateRequest, IssueReportStates
+from keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
+from states.cabinet import CreateRequest, IssueReportStates
 
 
 def prepare_router() -> Router:

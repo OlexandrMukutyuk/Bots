@@ -1,8 +1,8 @@
 from aiogram import Router
 
-from app.tgbot.handlers.cabinet import handlers
-from app.tgbot.handlers.cabinet.menu import handlers as menu_handlers
-from app.tgbot.states.cabinet import ShareChatbot
+from handlers.cabinet import handlers
+from handlers.cabinet.menu import handlers as menu_handlers
+from states.cabinet import ShareChatbot
 
 
 def prepare_router() -> Router:

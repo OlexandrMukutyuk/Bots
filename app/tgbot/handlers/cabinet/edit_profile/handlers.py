@@ -1,15 +1,15 @@
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
-from app.tgbot.handlers.cabinet.menu.handlers import give_cabinet_menu, send_edit_user_info
-from app.tgbot.handlers.common import generate_inline_street_list
-from app.tgbot.keyboards.default.auth.register import gender_dict
-from app.tgbot.keyboards.default.cabinet.edit_profile import edit_text, change_gender_kb, back_kb
-from app.tgbot.keyboards.inline.callbacks import StreetCallbackFactory
-from app.tgbot.keyboards.inline.streets import choose_street_kb
-from app.tgbot.services import http_client
-from app.tgbot.services.http_client import verify_address, fetch_streets
-from app.tgbot.states.cabinet import EditInfo
+from handlers.cabinet.menu.handlers import give_cabinet_menu, send_edit_user_info
+from handlers.common import generate_inline_street_list
+from keyboards.default.auth.register import gender_dict
+from keyboards.default.cabinet.edit_profile import edit_text, change_gender_kb, back_kb
+from keyboards.inline.callbacks import StreetCallbackFactory
+from keyboards.inline.streets import choose_street_kb
+from services import http_client
+from services.http_client import verify_address, fetch_streets
+from states.cabinet import EditInfo
 
 
 async def handle_buttons(message: types.Message, state: FSMContext):

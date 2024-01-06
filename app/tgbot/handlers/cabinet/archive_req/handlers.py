@@ -2,13 +2,13 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from app.tgbot.handlers.cabinet.handlers import back_to_menu
-from app.tgbot.handlers.cabinet.menu.handlers import give_cabinet_menu
-from app.tgbot.keyboards.default.cabinet.archive_req import rate_request_kb
-from app.tgbot.keyboards.inline.cabinet.archived_req import confirm_archive_req_kb
-from app.tgbot.keyboards.inline.callbacks import ArchiveReqCallbackFactory
-from app.tgbot.services import http_client
-from app.tgbot.states.cabinet import ArchiveRequests
+from handlers.cabinet.handlers import back_to_menu
+from handlers.cabinet.menu.handlers import give_cabinet_menu
+from keyboards.default.cabinet.archive_req import rate_request_kb
+from keyboards.inline.cabinet.archived_req import confirm_archive_req_kb
+from keyboards.inline.callbacks import ArchiveReqCallbackFactory
+from services import http_client
+from states.cabinet import ArchiveRequests
 
 
 async def archive_req_list(callback: types.InlineQuery, state: FSMContext):
@@ -22,8 +22,8 @@ async def archive_req_list(callback: types.InlineQuery, state: FSMContext):
         comment = req.get('Text')
         reason = req.get('Reason')
 
-        title = f'{req.get('Problem')} #{id}'
-        address = f'{req.get('Street')}, {req.get('House')}'
+        title = f"{req.get('Problem')} #{id}"
+        address = f"{req.get('Street')}, {req.get('House')}"
 
         results.append(types.InlineQueryResultArticle(
             id=str(id),
@@ -31,9 +31,9 @@ async def archive_req_list(callback: types.InlineQuery, state: FSMContext):
             input_message_content=types.InputTextMessageContent(
                 message_text='\n'.join([
                     title,
-                    f'🏙️ {address}',
-                    f'📚 Причина: {reason}\n\n'
-                    f'{comment}\n',
+                    f"🏙️ {address}'"
+                    f"📚 Причина: {reason}\n\n"
+                    f"{comment}\n'"
                     'Підтверджуйте 👇'
                 ])
             ),
@@ -70,7 +70,7 @@ async def handdle_archive_req(
 
         await bot.send_message(
             chat_id=chat_id,
-            text=f'Дайте оцінку роботам по зверненню #{req_id}',
+            text=f"Дайте оцінку роботам по зверненню #{req_id}",
             reply_markup=rate_request_kb
         )
 
@@ -90,11 +90,11 @@ async def handdle_archive_req(
         await bot.send_message(
             chat_id=chat_id,
             text='\n'.join([
-                f'Деталі звернення #{current_req.get('Id')}',
-                f'Проблема: {current_req.get('Problem')}',
-                f'Причина: {current_req.get('Reason')}',
-                f'Адреса: {current_req.get('Street')}, {current_req.get('House')}',
-                f'{current_req.get('Text')}'
+                f"Деталі звернення #{current_req.get('Id')}",
+                f"Проблема: {current_req.get('Problem')}",
+                f"Причина: {current_req.get('Reason')}",
+                f"Адреса: {current_req.get('Street')}, {current_req.get('House')}",
+                f"{current_req.get('Text')}"
             ])
         )
 

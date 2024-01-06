@@ -1,10 +1,10 @@
 from aiogram import Router, F
 
-from app.tgbot.handlers import validation
-from app.tgbot.handlers.cabinet.archive_req import handlers
-from app.tgbot.keyboards.default.cabinet.archive_req import later_text
-from app.tgbot.keyboards.inline.callbacks import ArchiveReqCallbackFactory
-from app.tgbot.states.cabinet import ArchiveRequests
+from handlers import validation
+from handlers.cabinet.archive_req import handlers
+from keyboards.default.cabinet.archive_req import later_text
+from keyboards.inline.callbacks import ArchiveReqCallbackFactory
+from states.cabinet import ArchiveRequests
 
 
 def prepare_router() -> Router:

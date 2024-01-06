@@ -1,5 +1,5 @@
-from app.tgbot.keyboards.inline.callbacks import ArchiveReqCallbackFactory
-from app.tgbot.keyboards.inline.consts import InlineConstructor
+from keyboards.inline.callbacks import ArchiveReqCallbackFactory
+from keyboards.inline.consts import InlineConstructor
 
 to_menu = "До меню"
 

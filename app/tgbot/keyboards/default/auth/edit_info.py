@@ -1,4 +1,4 @@
-from app.tgbot.keyboards.default.consts import DefaultConstructor
+from keyboards.default.consts import DefaultConstructor
 
 edit_text = {
     "accept_info_text": "Все вірно ✅",

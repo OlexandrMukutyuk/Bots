@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.tgbot.keyboards.default.cabinet.create_request import back_text
-from app.tgbot.keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
+from keyboards.default.cabinet.create_request import back_text
+from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
 
 
 def enterprises_list_kb(enterprises: list[dict]):
@@ -30,7 +30,7 @@ def enterprises_rates_kb(enterprise_id: int):
 
     for rate in rates:
         builder.button(
-            text=f'{rate} ⭐',
+            text=f"{rate} ⭐",
             callback_data=EnterpriseRateCallbackFactory(rate=rate, enterprise_id=enterprise_id)
         )
 

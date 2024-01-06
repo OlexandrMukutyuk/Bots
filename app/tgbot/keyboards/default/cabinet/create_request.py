@@ -1,8 +1,8 @@
 from aiogram.types import ReplyKeyboardMarkup
 
-from app.tgbot.keyboards.default.auth.register import change_street_text
-from app.tgbot.keyboards.default.auth.start import yes_text, no_text
-from app.tgbot.keyboards.default.consts import DefaultConstructor
+from keyboards.default.auth.register import change_street_text
+from keyboards.default.auth.start import yes_text, no_text
+from keyboards.default.consts import DefaultConstructor
 
 main_menu_text = 'В головне меню'
 back_text = 'Назад 🔙'

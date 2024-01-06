@@ -1,5 +1,5 @@
-from app.tgbot.data import config
-from app.tgbot.keyboards.inline.consts import InlineConstructor
+from data import config
+from keyboards.inline.consts import InlineConstructor
 
 share_chatbot_kb = InlineConstructor.create_kb(
     actions=[

@@ -1,8 +1,8 @@
 from aiogram import Router
 
-from app.tgbot.handlers.cabinet import create_request, share_bot, issue_report, rate_enterprises, archive_req, \
+from handlers.cabinet import create_request, share_bot, issue_report, rate_enterprises, archive_req, \
     edit_profile
-from app.tgbot.handlers.cabinet.menu import handlers
+from handlers.cabinet.menu import handlers
 
 
 def prepare_router() -> Router:

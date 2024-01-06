@@ -2,14 +2,14 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from app.tgbot.keyboards.default.cabinet import cabinet_menu_text, cabinet_menu_kb
-from app.tgbot.keyboards.default.cabinet.edit_profile import edit_profile_kb
-from app.tgbot.keyboards.inline.cabinet.archived_req import pick_archive_req_kb
-from app.tgbot.keyboards.inline.cabinet.cabinet import share_chatbot_kb
-from app.tgbot.keyboards.inline.cabinet.create_request import pick_problem_kb
-from app.tgbot.keyboards.inline.cabinet.rate_enterprises import enterprises_list_kb
-from app.tgbot.services import http_client
-from app.tgbot.states.cabinet import IssueReportStates, ShareChatbot, CabinetStates, CreateRequest, RateEnterprise, \
+from keyboards.default.cabinet import cabinet_menu_text, cabinet_menu_kb
+from keyboards.default.cabinet.edit_profile import edit_profile_kb
+from keyboards.inline.cabinet.archived_req import pick_archive_req_kb
+from keyboards.inline.cabinet.cabinet import share_chatbot_kb
+from keyboards.inline.cabinet.create_request import pick_problem_kb
+from keyboards.inline.cabinet.rate_enterprises import enterprises_list_kb
+from services import http_client
+from states.cabinet import IssueReportStates, ShareChatbot, CabinetStates, CreateRequest, RateEnterprise, \
     ArchiveRequests, EditInfo
 
 
@@ -106,15 +106,15 @@ async def actual_requests(message: types.Message, state: FSMContext):
         id = request.get('Id')
         problem = request.get('Problem')
         reason = request.get('Reason')
-        address = f'{request.get('Street')} {request.get('House')}'
+        address = f"{request.get('Street')} {request.get('House')}"
         comment = request.get('Text')
 
         text = [
-            f'Звернення № {id}',
-            f'Проблема: {problem}',
-            f'Причина: {reason}\n',
-            f'Адреса: {address}\n',
-            f'{comment}',
+            f"Звернення № {id}",
+            f"Проблема: {problem}",
+            f"Причина: {reason}\n",
+            f"Адреса: {address}\n",
+            f"{comment}",
         ]
 
         await message.answer('\n'.join(text))
@@ -182,7 +182,7 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
 
     flat = ''
     if user_data.get('Flat'):
-        flat = f'Квартира: {user_data.get('Flat')}\n'
+        flat = f"Квартира: {user_data.get('Flat')}\n"
 
     if user_data.get('Gender') == 'male':
         gender = 'Чоловік'
@@ -198,7 +198,7 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
         f"По батькові: {user_data.get('MiddleName')}\n"
         f"Вулиця: {user_data.get('Street')}\n"
         f"Номер будинку: {user_data.get('House')}\n"
-        f'{flat}'
+        f"{flat}"
         f"Стать: {gender}\n"
     )
 

@@ -1,5 +1,5 @@
-from app.tgbot.keyboards.inline.callbacks import StreetCallbackFactory
-from app.tgbot.keyboards.inline.consts import InlineConstructor
+from keyboards.inline.callbacks import StreetCallbackFactory
+from keyboards.inline.consts import InlineConstructor
 
 choose_street_kb = InlineConstructor.create_kb(
     actions=[{

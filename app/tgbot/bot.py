@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 
@@ -8,8 +9,8 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 from aiohttp import web
 from redis.asyncio import Redis
 
-from app.tgbot.data import config
-from app.tgbot.data.config import (
+from data import config
+from data.config import (
     BOT_TOKEN,
     WEBHOOK_ADDRESS,
     WEBHOOK_PATH,
@@ -17,8 +18,8 @@ from app.tgbot.data.config import (
     WEBHOOK_LISTENING_PORT,
     WEBHOOK_SECRET_TOKEN,
 )
-from app.tgbot.handlers import auth, cabinet
-from app.tgbot.web_handlers.media import media
+from handlers import auth, cabinet
+from web_handlers.media import media
 
 
 def setup_web_handlers(app: web.Application) -> None:
@@ -48,7 +49,13 @@ async def on_startup(bot: Bot) -> None:
     )
 
 
+async def delete_updates(bot: Bot):
+    await bot.delete_webhook(drop_pending_updates=True)
+
+
 def main() -> None:
+    loop = asyncio.new_event_loop()
+    
     dp = Dispatcher(
         storage=RedisStorage(
             redis=Redis(
@@ -66,7 +73,10 @@ def main() -> None:
     dp.startup.register(on_startup)
 
     # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)   
+    
+    
+    loop.run_until_complete(delete_updates(bot))
 
     # Create aiohttp.web.Application instance
     app = web.Application()
@@ -88,8 +98,9 @@ def main() -> None:
 
     setup_web_handlers(app)
 
+
     # And finally start webserver
-    web.run_app(app, host=WEBHOOK_LISTENING_HOST, port=WEBHOOK_LISTENING_PORT)
+    web.run_app(app, host=WEBHOOK_LISTENING_HOST, port=WEBHOOK_LISTENING_PORT, loop=loop)
 
 
 if __name__ == "__main__":

@@ -2,13 +2,13 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from app.tgbot.handlers.common import generate_inline_street_list
-from app.tgbot.keyboards.default.auth.edit_info import edit_text, edit_register_info_kb
-from app.tgbot.keyboards.default.auth.register import without_flat_kb, phone_share_kb, without_flat_text
-from app.tgbot.keyboards.inline.callbacks import StreetCallbackFactory
-from app.tgbot.keyboards.inline.streets import choose_street_kb
-from app.tgbot.services.http_client import fetch_streets, verify_address
-from app.tgbot.states.auth import EditRegisterState
+from handlers.common import generate_inline_street_list
+from keyboards.default.auth.edit_info import edit_text, edit_register_info_kb
+from keyboards.default.auth.register import without_flat_kb, phone_share_kb, without_flat_text
+from keyboards.inline.callbacks import StreetCallbackFactory
+from keyboards.inline.streets import choose_street_kb
+from services.http_client import fetch_streets, verify_address
+from states.auth import EditRegisterState
 
 
 async def fill_data(message: types.Message, state: FSMContext):
