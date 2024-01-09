@@ -8,9 +8,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:8080
-    restart: on-failure
-    depends_on:
-      - redis
+    restart: always
+
   
   
   redis:

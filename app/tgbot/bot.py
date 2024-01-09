@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import sys
-
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
@@ -55,7 +54,7 @@ async def delete_updates(bot: Bot):
 
 def main() -> None:
     loop = asyncio.new_event_loop()
-    
+
     dp = Dispatcher(
         storage=RedisStorage(
             redis=Redis(
@@ -73,9 +72,8 @@ def main() -> None:
     dp.startup.register(on_startup)
 
     # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)   
-    
-    
+    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+
     loop.run_until_complete(delete_updates(bot))
 
     # Create aiohttp.web.Application instance
@@ -97,7 +95,6 @@ def main() -> None:
     setup_application(app, dp, bot=bot)
 
     setup_web_handlers(app)
-
 
     # And finally start webserver
     web.run_app(app, host=WEBHOOK_LISTENING_HOST, port=WEBHOOK_LISTENING_PORT, loop=loop)
