@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from data import config
-from handlers.cabinet.handlers import back_to_menu
+from handlers.cabinet.common import back_to_menu
 from handlers.cabinet.menu.handlers import give_cabinet_menu
 from handlers.common import delete_tmp_media, update_user_state_data, generate_inline_street_list
 from keyboards.default.basic import yes_n_no, yes

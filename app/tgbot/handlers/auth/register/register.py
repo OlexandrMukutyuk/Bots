@@ -2,7 +2,8 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.common import generate_inline_street_list
+import texts
+from handlers.common import StreetsHandlers
 from keyboards.default.auth.register import (
     change_street_kb,
     without_flat_kb,
@@ -10,11 +11,9 @@ from keyboards.default.auth.register import (
     choose_gender_kb, gender_dict, registration_agreement_kb
 )
 from keyboards.inline.callbacks import StreetCallbackFactory
-from keyboards.inline.streets import choose_street_kb
-from services.http_client import fetch_streets, verify_address
+from services.http_client import verify_address
 from states.auth import AdvancedRegisterState
-
-MAX_INLINE_RESULT = 50
+from utils.template_engine import render_template
 
 
 async def save_phone(message: types.Message, state: FSMContext):
@@ -24,27 +23,20 @@ async def save_phone(message: types.Message, state: FSMContext):
     await message.answer("Ваш номер успішно відправлено")
 
     await state.set_state(AdvancedRegisterState.waiting_street_typing)
-    await message.answer('Впишіть назву вашої вулиці (мінімум 3 літери) 🏙️', reply_markup=ReplyKeyboardRemove())
+    await message.answer(
+        text=texts.ASKING_STREET,
+        reply_markup=ReplyKeyboardRemove()
+    )
 
 
 async def choose_street(message: types.Message, state: FSMContext):
-    streets_data = await fetch_streets(message.text)
-
-    if len(streets_data) == 0:
-        await message.answer("Пошук не дав результатів")
-        return await message.answer("Впишіть назву вашої вулиці (мінімум 3 літери) 🏙️")
-
-    await message.answer('Виберіть вулицю з кнопок нижче! 👇', reply_markup=choose_street_kb)
-
-    await state.update_data(Streets=streets_data)
-
-    await state.set_state(AdvancedRegisterState.waiting_street_selected)
+    return await StreetsHandlers.choose_street(message, state, AdvancedRegisterState.waiting_street_selected)
 
 
 async def show_street_list(callback: types.InlineQuery, state: FSMContext):
-    data = await state.get_data()
+    streets_data = (await state.get_data()).get('Streets')
 
-    await generate_inline_street_list(data, callback)
+    return await StreetsHandlers.inline_list(callback, streets_data)
 
 
 async def confirm_street(
@@ -53,26 +45,28 @@ async def confirm_street(
         state: FSMContext,
         bot: Bot
 ):
-    await state.update_data(
-        Streets=None,
-        StreetId=callback_data.street_id,
-        CityId=callback_data.city_id,
+    async def action():
+        await bot.send_message(
+            chat_id=callback.from_user.id,
+            text=texts.ASKING_HOUSE,
+            reply_markup=change_street_kb
+        )
+        await state.set_state(AdvancedRegisterState.waiting_house)
+
+    await StreetsHandlers.confirm_street(
+        callback=callback,
+        callback_data=callback_data,
+        state=state,
+        action=action
     )
-
-    await bot.send_message(
-        chat_id=callback.from_user.id,
-        text="Впишіть будь ласка номер будинку 🏠",
-        reply_markup=change_street_kb
-    )
-
-    await state.set_state(AdvancedRegisterState.waiting_house)
-
-    return await callback.answer()
 
 
 async def change_street(message: types.Message, state: FSMContext):
     await state.set_state(AdvancedRegisterState.waiting_street_typing)
-    await message.answer('Впишіть назву вашої вулиці (мінімум 3 літери) 🏙️', reply_markup=ReplyKeyboardRemove())
+    await message.answer(
+        text=texts.ASKING_STREET,
+        reply_markup=ReplyKeyboardRemove()
+    )
 
 
 async def save_house(message: types.Message, state: FSMContext):
@@ -83,9 +77,9 @@ async def save_house(message: types.Message, state: FSMContext):
     is_address_correct = await verify_address(street_id=street_id, house=house)
 
     if not is_address_correct:
-        await message.answer("Такого будинку не знайдено")
+        await message.answer(texts.HOUSE_NOT_FOUND)
         return await message.answer(
-            text="Впишіть будь ласка номер будинку 🏠",
+            text=texts.ASKING_HOUSE,
             reply_markup=change_street_kb
         )
 
@@ -94,7 +88,7 @@ async def save_house(message: types.Message, state: FSMContext):
     await state.set_state(AdvancedRegisterState.waiting_flat)
 
     await message.answer(
-        text="Впишіть номер квартири. (Якщо мешкаєте у своєму домі, жміть кнопку знизу)",
+        text=texts.ASKING_FLAT,
         reply_markup=without_flat_kb
     )
 
@@ -108,7 +102,9 @@ async def save_flat(message: types.Message, state: FSMContext):
     await state.update_data(Flat=flat)
     await state.set_state(AdvancedRegisterState.waiting_first_name)
 
-    return await message.answer("Впишіть будь-ласка ваше ім'я", reply_markup=None)
+    return await message.answer(
+        text=texts.ASKING_FIRST_NAME,
+        reply_markup=None)
 
 
 async def save_first_name(message: types.Message, state: FSMContext):
@@ -117,7 +113,7 @@ async def save_first_name(message: types.Message, state: FSMContext):
     await state.update_data(FirstName=first_name)
     await state.set_state(AdvancedRegisterState.waiting_middle_name)
 
-    return await message.answer("Впишіть будь-ласка ваше прізвище")
+    return await message.answer(texts.ASKING_LAST_NAME)
 
 
 async def save_middle_name(message: types.Message, state: FSMContext):
@@ -126,7 +122,7 @@ async def save_middle_name(message: types.Message, state: FSMContext):
     await state.update_data(MiddleName=middle_name)
     await state.set_state(AdvancedRegisterState.waiting_last_name)
 
-    return await message.answer("Впишіть будь-ласка ваше по батькові")
+    return await message.answer(texts.ASKING_MIDDLE_NAME)
 
 
 async def save_last_name(message: types.Message, state: FSMContext):
@@ -136,7 +132,7 @@ async def save_last_name(message: types.Message, state: FSMContext):
     await state.set_state(AdvancedRegisterState.waiting_gender)
 
     return await message.answer(
-        text="Вкажіть вашу стать",
+        text=texts.ASKING_GENDER,
         reply_markup=choose_gender_kb
     )
 
@@ -150,10 +146,10 @@ async def save_gender(message: types.Message, state: FSMContext):
     await state.update_data(Gender=gender)
     await state.set_state(AdvancedRegisterState.waiting_password)
 
-    await message.answer("Будь ласка придумайте пароль 🔐")
-    return await message.answer(
-        "Вимоги до паролю:\n- латиниця\n- не менше 6 символів довжиною\n- хоча б одна велика буква\n- хоча б одна "
-        "маленька буква\n- хоча б одна цифра\n- хоча б один не алфавітно-буквений символ (~! @ # $% ...)")
+    await message.answer(texts.ASKING_PASSWORD)
+    await message.answer(texts.PASSWORD_REQS)
+
+    return
 
 
 async def save_password(message: types.Message, state: FSMContext):
@@ -165,10 +161,6 @@ async def save_password(message: types.Message, state: FSMContext):
 
 async def show_agreement(message: types.Message):
     return await message.answer(
-        text="Щоб продовжити користуватися чат-ботом ви погоджуєтесь зі збереженням та обробкою "
-             "персональних даних згідно Закону України «Про захист персональних даних» та "
-             "підтверджуєте, що не розміщуватимите інформацію з обмеженим доступом\n\n<a href= "
-             "'https://zakon.rada.gov.ua/laws/show/2297-17#Text'>https://zakon.rada.gov.ua/laws"
-             "/show/2297-17#Text</a>",
+        text=render_template('register/agreement.j2'),
         reply_markup=registration_agreement_kb
     )

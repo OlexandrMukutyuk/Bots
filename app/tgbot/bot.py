@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import sys
+
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
@@ -17,7 +19,7 @@ from data.config import (
     WEBHOOK_LISTENING_PORT,
     WEBHOOK_SECRET_TOKEN,
 )
-from handlers import auth, cabinet
+from handlers import auth, cabinet, start
 from web_handlers.media import media
 
 
@@ -26,6 +28,7 @@ def setup_web_handlers(app: web.Application) -> None:
 
 
 def setup_handlers(dp: Dispatcher) -> None:
+    dp.include_router(start.prepare_router())
     dp.include_router(auth.prepare_router())
     dp.include_router(cabinet.prepare_router())
 
@@ -55,16 +58,20 @@ async def delete_updates(bot: Bot):
 def main() -> None:
     loop = asyncio.new_event_loop()
 
+    redis_storage = RedisStorage(
+        redis=Redis(
+            host=config.FSM_HOST,
+            password=config.FSM_PASSWORD,
+            port=config.FSM_PORT,
+            db=0,
+        ),
+        key_builder=DefaultKeyBuilder(with_bot_id=True, with_destiny=True),
+    )
+
+    mem_storage = MemoryStorage()
+
     dp = Dispatcher(
-        storage=RedisStorage(
-            redis=Redis(
-                host=config.FSM_HOST,
-                password=config.FSM_PASSWORD,
-                port=config.FSM_PORT,
-                db=0,
-            ),
-            key_builder=DefaultKeyBuilder(with_bot_id=True, with_destiny=True),
-        )
+        storage=redis_storage
     )
 
     setup_aiogram(dp)

@@ -3,50 +3,37 @@ import logging
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.utils.formatting import as_marked_section
 from aiogram.utils.markdown import hlink
 from aiohttp import ContentTypeError
 
+import texts
 from data.config import WEBSITE_URL
-from handlers.auth.common import perform_sending_email_code
+from handlers.common import perform_sending_email_code
 from keyboards.default.auth.register import phone_share_kb
-from keyboards.default.auth.start import hello_kb, auth_types_kb
+from keyboards.default.auth.start import greeting_kb, auth_types_kb
 from keyboards.default.auth.start import is_register_on_site, start_again_kb, yes_text, no_text
 from keyboards.default.basic import yes_n_no
 from services.http_client import check_email
 from states.auth import StartState, AuthState, AdvancedRegisterState
-
-
-async def start(message: types.Message, state: FSMContext):
-    await message.answer(
-        text="😊Вас вітає Контакт Центр!🤝\n\n"
-             "Для продовження, натисніть кнопку внизу ⬇️",
-        reply_markup=hello_kb
-    )
-
-    await state.set_state(StartState.waiting_greeting)
+from utils.template_engine import render_template
 
 
 async def greeting(message: types.Message, state: FSMContext):
     await message.answer(
-        text=as_marked_section(
-            "Зі мною можна швидко та зручно 👇\n",
-
-            "дізнатися про ремонтні роботи міста;",
-            "відслідкувати статус актуальних звернень;",
-            "переглянути історію звернень;",
-            "оцінити роботу підприємств міста;",
-            "користуватися довідковою інформацією.",
-
-            marker="✅ ",
-        ).as_html()
+        text=texts.GREETING,
+        reply_markup=greeting_kb
     )
+    await state.set_state(StartState.waiting_greeting)
 
-    await message.answer("Оберіть тип реєстрації, розширена або підписка?", reply_markup=auth_types_kb)
-    await message.answer("Розширена реєстрація дозволяє робити звернення та відслідковувати їх статус.")
+
+async def introduction(message: types.Message, state: FSMContext):
+    await message.answer(texts.INTRODUCTION)
     await message.answer(
-        "Підписка дає можливість оцінити роботу комунальних підприємств, користуватись довідковою інформацією і "
-        "отримувати інформацію про проведення ремонтних робіт")
+        text=texts.PICK_AUTH_TYPE,
+        reply_markup=auth_types_kb
+    )
+    await message.answer(texts.ADVANCED_INFO)
+    await message.answer(texts.SUBSCRIPTION_INFO)
 
     await state.set_state(StartState.waiting_auth_type)
 
@@ -56,13 +43,13 @@ async def check_user_email(message: types.Message, state: FSMContext):
 
     await state.update_data(Email=email)
 
-    temp_message = await message.answer("Зачекайте, будь-ласка, отримую дані")
+    temp_message = await message.answer(render_template('services/loading.j2'))
 
     try:
         is_user_exist = await check_email(email)
     except ContentTypeError as e:
         logging.error(e)
-        return await message.answer("Сталася помилка на сервері, спробуйте ще раз")
+        return await message.answer(render_template('services/error.j2'))
 
     await temp_message.delete()
 
@@ -79,9 +66,12 @@ async def answer_if_register(message: types.Message, state: FSMContext):
         await asking_if_email_confirmed(message, state)
 
     if message_text == no_text:
-        await message.answer('Потрібно зареєструватись')
-        await message.answer('Поділіться вашим номером телефону', reply_markup=phone_share_kb)
-        await message.answer('Або впишіть його вручну у форматі 380123456789')
+        await message.answer(texts.NEED_REGISTER)
+        await message.answer(
+            text=texts.ASKING_PHONE,
+            reply_markup=phone_share_kb
+        )
+        await message.answer(texts.PHONE_EXAMPLE)
         await state.set_state(AdvancedRegisterState.waiting_phone)
 
 
@@ -90,7 +80,7 @@ async def answer_if_confirmed_email(message: types.Message, state: FSMContext):
 
     if message_text == yes_text:
         await message.answer(
-            text="Зверніться до служби підтримки",
+            text=texts.CALL_SUPPORT,
             reply_markup=start_again_kb
         )
 
@@ -110,18 +100,27 @@ async def start_again(message: types.Message, state: FSMContext):
 
 
 async def asking_email(message: types.Message, state: FSMContext):
-    await message.answer("Пропишіть свій e-mail 📧", reply_markup=ReplyKeyboardRemove())
+    await message.answer(
+        text=texts.ASKING_EMAIL,
+        reply_markup=ReplyKeyboardRemove()
+    )
     await state.set_state(AuthState.waiting_email)
 
 
 async def asking_if_register(message: types.Message, state: FSMContext):
-    await message.answer('Ви реєструвалися на сайті?', reply_markup=is_register_on_site)
+    await message.answer(
+        text=texts.IS_REGISTER_ON_SITE,
+        reply_markup=is_register_on_site
+    )
     await state.set_state(AuthState.answering_if_register)
 
 
 async def asking_if_email_confirmed(message: types.Message, state: FSMContext):
     await state.set_state(AuthState.answering_if_confirmed_email)
-    await message.answer("Ви підтверджували свій e-mail?", reply_markup=yes_n_no)
+    await message.answer(
+        text=texts.IS_EMAIL_CONFIRMED,
+        reply_markup=yes_n_no
+    )
 
 
 '''For other time'''

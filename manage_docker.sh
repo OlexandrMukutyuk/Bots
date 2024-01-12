@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-COMPOSE_FILE="./docker-compose.yaml"
+COMPOSE_FILE="./docker-compose-dev.yaml"
 
 up_services() {
     echo "Starting services..."

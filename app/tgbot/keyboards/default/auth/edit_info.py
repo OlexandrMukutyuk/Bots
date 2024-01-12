@@ -3,8 +3,8 @@ from keyboards.default.consts import DefaultConstructor
 edit_text = {
     "accept_info_text": "Все вірно ✅",
     "first_name_text": "Ім'я",
-    "middle_name_text": "Прізвище",
-    "last_name_text": "По батькові",
+    "last_name_text": "Прізвище",
+    "middle_name_text": "По батькові",
     "phone_text": "Телефон",
     "street_text": "Вулиця",
     "house_text": "Номер будинку",
@@ -16,8 +16,8 @@ edit_register_info_kb = DefaultConstructor.create_kb(
     actions=[
         edit_text['accept_info_text'],
         edit_text['first_name_text'],
-        edit_text['middle_name_text'],
         edit_text['last_name_text'],
+        edit_text['middle_name_text'],
         edit_text['phone_text'],
         edit_text['street_text'],
         edit_text['house_text'],

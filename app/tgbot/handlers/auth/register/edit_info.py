@@ -2,81 +2,70 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.common import generate_inline_street_list
+import texts
+from handlers.common import StreetsHandlers, independent_message
 from keyboards.default.auth.edit_info import edit_text, edit_register_info_kb
-from keyboards.default.auth.register import without_flat_kb, phone_share_kb, without_flat_text
+from keyboards.default.auth.register import (
+    without_flat_kb,
+    phone_share_kb,
+    without_flat_text,
+)
 from keyboards.inline.callbacks import StreetCallbackFactory
-from keyboards.inline.streets import choose_street_kb
-from services.http_client import fetch_streets, verify_address
+from services.http_client import verify_address
 from states.auth import EditRegisterState
-
-
-async def fill_data(message: types.Message, state: FSMContext):
-    # TODO Remove this
-
-    await state.update_data(
-        Email="test@test.com",
-        FirstName="Test",
-        MiddleName="Test",
-        LastName="Test",
-        Phone="+380874084248",
-        Password="Password",
-        StreetId="2424",
-        House="23",
-    )
-
-    await state.set_state(EditRegisterState.waiting_accepting)
-
-    await message.answer("Done")
+from utils.template_engine import render_template
 
 
 async def handle_buttons(message: types.Message, state: FSMContext):
     button_type = message.text
 
-    if button_type == edit_text['first_name_text']:
+    if button_type == edit_text["first_name_text"]:
         await state.set_state(EditRegisterState.waiting_first_name)
-        return await message.answer("Впишіть будь-ласка ваше ім'я", reply_markup=ReplyKeyboardRemove())
-
-    if button_type == edit_text['middle_name_text']:
-        await state.set_state(EditRegisterState.waiting_middle_name)
-        return await message.answer("Впишіть будь-ласка ваше прізвище", reply_markup=ReplyKeyboardRemove())
-
-    if button_type == edit_text['last_name_text']:
-        await state.set_state(EditRegisterState.waiting_last_name)
-        return await message.answer("Впишіть будь-ласка ваше по батькові", reply_markup=ReplyKeyboardRemove())
-
-    if button_type == edit_text['phone_text']:
-        await state.set_state(EditRegisterState.waiting_phone)
-        await message.answer('Поділіться вашим номером телефону', reply_markup=phone_share_kb)
-        return await message.answer('Або впишіть його вручну у форматі 380123456789')
-
-    if button_type == edit_text['password_text']:
-        await state.set_state(EditRegisterState.waiting_password)
-        await message.answer("Будь ласка придумайте пароль 🔐", reply_markup=ReplyKeyboardRemove())
         return await message.answer(
-            "Вимоги до паролю:\n"
-            "- латиниця\n"
-            "- не менше 6 символів довжиною\n"
-            "- хоча б одна велика буква\n"
-            "- хоча б одна маленька буква\n"
-            "- хоча б одна цифра\n"
-            "- хоча б один не алфавітно-буквений символ (~! @ # $% ...)"
+            text=texts.ASKING_FIRST_NAME, reply_markup=ReplyKeyboardRemove()
         )
 
-    if button_type == edit_text['street_text']:
+    if button_type == edit_text["middle_name_text"]:
+        await state.set_state(EditRegisterState.waiting_middle_name)
+        return await message.answer(
+            text=texts.ASKING_MIDDLE_NAME, reply_markup=ReplyKeyboardRemove()
+        )
+
+    if button_type == edit_text["last_name_text"]:
+        await state.set_state(EditRegisterState.waiting_last_name)
+        return await message.answer(
+            text=texts.ASKING_LAST_NAME, reply_markup=ReplyKeyboardRemove()
+        )
+
+    if button_type == edit_text["phone_text"]:
+        await state.set_state(EditRegisterState.waiting_phone)
+        await message.answer(text=texts.ASKING_PHONE, reply_markup=phone_share_kb)
+        return await message.answer(texts.PHONE_EXAMPLE)
+
+    if button_type == edit_text["password_text"]:
+        await state.set_state(EditRegisterState.waiting_password)
+        await message.answer(
+            text=texts.ASKING_PASSWORD, reply_markup=ReplyKeyboardRemove()
+        )
+
+        return await message.answer(texts.PASSWORD_REQS)
+
+    if button_type == edit_text["street_text"]:
         await state.set_state(EditRegisterState.waiting_street_typing)
-        return await message.answer('Впишіть назву вашої вулиці (мінімум 3 літери) 🏙️',
-                                    reply_markup=ReplyKeyboardRemove())
+        return await message.answer(
+            text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove()
+        )
 
-    if button_type == edit_text['house_text']:
+    if button_type == edit_text["house_text"]:
         await state.set_state(EditRegisterState.waiting_house)
-        return await message.answer("Впишіть будь ласка номер будинку 🏠", reply_markup=ReplyKeyboardRemove())
+        return await message.answer(
+            text=texts.ASKING_HOUSE, reply_markup=ReplyKeyboardRemove()
+        )
 
-    if button_type == edit_text['flat_text']:
+    if button_type == edit_text["flat_text"]:
         await state.set_state(EditRegisterState.waiting_flat)
         return await message.answer(
-            text="Впишіть номер квартири. (Якщо мешкаєте у своєму домі, жміть кнопку знизу)",
-            reply_markup=without_flat_kb
+            text=texts.ASKING_FLAT, reply_markup=without_flat_kb
         )
 
 
@@ -89,45 +78,14 @@ async def send_user_info(state: FSMContext, **kwargs):
 
     await state.set_state(EditRegisterState.waiting_accepting)
 
-    for key, value in user_data.items():
-        print(f"{key}: {value}")
+    info_template = render_template("register/confirming_info.j2", data=user_data)
 
-    info_text = (
-        f"Пошта: {user_data.get('Email')}\n\n"
-        f"Ім'я: {user_data.get('FirstName')}\n"
-        f"Прізвище: {user_data.get('MiddleName')}\n"
-        f"По батькові: {user_data.get('LastName')}\n"
-        f"Телефон: {user_data.get('Phone')}\n"
-        f"Пароль: {user_data.get('Password')}\n"
-        f"Вулиця: {user_data.get('StreetId')}\n"
-        f"Номер будинку: {user_data.get('House')}\n\n"
-        "Підтверджуйте 👇"
+    await independent_message(text=info_template)
+    await independent_message(
+        text=texts.IS_EVERYTHING_CORRECT, reply_markup=edit_register_info_kb
     )
 
-    asking_text = 'Все вірно, чи необхідно щось змінити?'
-
-    message: types.Message = kwargs.get('message')
-
-    if message:
-        await send_info_by_message(info_text, asking_text, message)
-    else:
-        await send_info_by_bot(info_text, asking_text, **kwargs)
-
-
-async def send_info_by_message(info_text: str, asking_text: str, message: types.Message):
-    await message.answer(text=info_text)
-    await message.answer(
-        text=asking_text,
-        reply_markup=edit_register_info_kb
-    )
-
-
-async def send_info_by_bot(info_text: str, asking_text: str, **kwargs):
-    bot: Bot = kwargs.get('bot')
-    chat_id = kwargs.get('chat_id')
-
-    await bot.send_message(chat_id=chat_id, text=info_text)
-    await bot.send_message(chat_id=chat_id, text=asking_text, reply_markup=edit_register_info_kb)
+    return
 
 
 async def edit_phone(message: types.Message, state: FSMContext):
@@ -140,59 +98,47 @@ async def edit_phone(message: types.Message, state: FSMContext):
 
 
 async def edit_street(message: types.Message, state: FSMContext):
-    streets_data = await fetch_streets(message.text)
-
-    if len(streets_data) == 0:
-        await message.answer("Пошук не дав результатів")
-        return await message.answer("Впишіть назву вашої вулиці (мінімум 3 літери) 🏙️")
-
-    await message.answer('Виберіть вулицю з кнопок нижче! 👇', reply_markup=choose_street_kb)
-
-    await state.update_data(Streets=streets_data)
-
-    await state.set_state(EditRegisterState.waiting_street_selected)
+    return await StreetsHandlers.choose_street(
+        message, state, EditRegisterState.waiting_street_selected
+    )
 
 
 async def show_street_list(callback: types.InlineQuery, state: FSMContext):
-    data = await state.get_data()
+    streets_data = (await state.get_data()).get("Streets")
 
-    await generate_inline_street_list(data, callback)
+    return await StreetsHandlers.inline_list(
+        callback=callback, streets_data=streets_data
+    )
 
 
 async def confirm_street(
-        callback: types.CallbackQuery,
-        callback_data: StreetCallbackFactory,
-        state: FSMContext,
-        bot: Bot
+    callback: types.CallbackQuery,
+    callback_data: StreetCallbackFactory,
+    state: FSMContext,
+    bot: Bot,
 ):
-    await state.update_data(
-        Streets=None,
-        StreetId=callback_data.street_id,
-        CityId=callback_data.city_id,
+    async def action():
+        await state.set_state(EditRegisterState.waiting_accepting)
+        await send_user_info(state, bot=bot, chat_id=callback.from_user.id)
+
+    await StreetsHandlers.confirm_street(
+        callback=callback, callback_data=callback_data, state=state, action=action
     )
-
-    await state.set_state(EditRegisterState.waiting_accepting)
-
-    await send_user_info(state, bot=bot, chat_id=callback.from_user.id)
-
-    return await callback.answer()
 
 
 async def edit_house(message: types.Message, state: FSMContext):
     house = message.text
 
-    street_id = (await state.get_data())["StreetId"]
+    street_id = (await state.get_data()).get("StreetId")
 
     is_address_correct = await verify_address(street_id=street_id, house=house)
 
     if not is_address_correct:
-        await message.answer("Такого будинку не знайдено")
-        return await message.answer(
-            text="Впишіть будь ласка номер будинку 🏠",
-        )
+        await message.answer(texts.HOUSE_NOT_FOUND)
+        await message.answer(texts.ASKING_HOUSE)
+        return
 
     await state.update_data(House=house)
-
     await state.set_state(EditRegisterState.waiting_accepting)
 
     await send_user_info(state, message=message)
@@ -252,5 +198,7 @@ async def accept_info(message: types.Message, state: FSMContext):
         print(f"{key}: {value}")
 
     await message.answer("Ми відправили посилання вам на пошту. Перейдіть по ньому")
-    await message.answer("(Треба сервер, щоб доробити реєстрацію, зараз працювати не буде)",
-                         reply_markup=ReplyKeyboardRemove())
+    await message.answer(
+        "(Треба сервер, щоб доробити реєстрацію, зараз працювати не буде)",
+        reply_markup=ReplyKeyboardRemove(),
+    )

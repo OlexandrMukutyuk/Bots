@@ -11,7 +11,7 @@ auth_types = {
     'advanced': "Розширена",
 }
 
-hello_kb = DefaultConstructor.create_kb(
+greeting_kb = DefaultConstructor.create_kb(
     actions=[hello_text],
     schema=[1]
 )

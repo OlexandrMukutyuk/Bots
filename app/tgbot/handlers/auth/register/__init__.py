@@ -1,129 +1,115 @@
 from aiogram import Router, F
-from aiogram.filters import Command
 
 from filters.strong_password import StrongPasswordFilter
 from filters.valid_name import ValidNameFilter
 from filters.valid_phone import ValidPhoneFilter
+from handlers import validation
+from handlers.auth.register import register, edit_info
+from handlers.common import Handler
 from keyboards.default.auth.edit_info import edit_text
 from keyboards.default.auth.register import change_street_text, without_flat_text, gender_dict, agreement_text
 from keyboards.inline.callbacks import StreetCallbackFactory
 from states.auth import AdvancedRegisterState, EditRegisterState
-from . import edit_info
-from . import register
-from ... import validation
 
 
 def prepare_router() -> Router:
     router = Router()
 
-    # Get phone
-    router.message.register(register.save_phone, AdvancedRegisterState.waiting_phone, F.contact)
-    router.message.register(register.save_phone, AdvancedRegisterState.waiting_phone, ValidPhoneFilter())
+    register_message_list = [
+        # Get phone
+        Handler(register.save_phone, [AdvancedRegisterState.waiting_phone, F.contact]),
+        Handler(register.save_phone, [AdvancedRegisterState.waiting_phone, ValidPhoneFilter()]),
 
-    # Get street
+        # Get street
+        Handler(register.choose_street, [AdvancedRegisterState.waiting_street_typing, F.text.len() >= 3]),
+        Handler(register.choose_street, [AdvancedRegisterState.waiting_street_selected, F.text.len() >= 3, ~F.via_bo]),
 
-    router.message.register(register.choose_street, AdvancedRegisterState.waiting_street_typing, F.text.len() >= 3)
-    router.message.register(register.choose_street, AdvancedRegisterState.waiting_street_selected, F.text.len() >= 3,
-                            ~F.via_bot)
+        # Change street
+        Handler(register.change_street, [AdvancedRegisterState.waiting_house, F.text == change_street_text]),
 
-    router.inline_query.register(register.show_street_list, AdvancedRegisterState.waiting_street_selected)
-    router.callback_query.register(register.confirm_street, StreetCallbackFactory.filter(),
-                                   AdvancedRegisterState.waiting_street_selected)
+        # Get house
+        Handler(register.save_house, [AdvancedRegisterState.waiting_house]),
 
-    # Change street
-    router.message.register(register.change_street, AdvancedRegisterState.waiting_house, F.text == change_street_text)
+        # Get flat
+        Handler(register.save_flat, [AdvancedRegisterState.waiting_flat, F.text.isdigit()]),
+        Handler(register.save_flat, [AdvancedRegisterState.waiting_flat, F.text.isdigit()]),
 
-    # Get house
-    router.message.register(register.save_house, AdvancedRegisterState.waiting_house)
+        # Get first, middle, last Names
+        Handler(register.save_first_name, [AdvancedRegisterState.waiting_first_name, ValidNameFilter()]),
+        Handler(register.save_middle_name, [AdvancedRegisterState.waiting_middle_name, ValidNameFilter()]),
+        Handler(register.save_last_name, [AdvancedRegisterState.waiting_last_name, ValidNameFilter()]),
 
-    # Get flat
-    router.message.register(register.save_flat, AdvancedRegisterState.waiting_flat, F.text.isdigit())
-    router.message.register(register.save_flat, AdvancedRegisterState.waiting_flat, F.text == without_flat_text)
+        # Get gender
+        Handler(register.save_gender, [AdvancedRegisterState.waiting_gender, F.text.in_(gender_dict.values())]),
 
-    # Get first, middle, last Names
+        # Get password & show agreement
+        Handler(register.save_password, [AdvancedRegisterState.waiting_password, StrongPasswordFilter()]),
+        Handler(register.show_agreement, [AdvancedRegisterState.waiting_password, F.text != agreement_text]),
+    ]
 
-    router.message.register(register.save_first_name, AdvancedRegisterState.waiting_first_name, ValidNameFilter())
-    router.message.register(register.save_middle_name, AdvancedRegisterState.waiting_middle_name, ValidNameFilter())
-    router.message.register(register.save_last_name, AdvancedRegisterState.waiting_last_name, ValidNameFilter())
+    edit_message_list = [
+        Handler(edit_info.first_time_showing_user_info,
+                [AdvancedRegisterState.waiting_agreement, F.text == agreement_text]),
 
-    # Get gender
+        # Showing typed info
+        Handler(edit_info.handle_buttons, [EditRegisterState.waiting_accepting, F.text.in_(edit_text.values())]),
+        Handler(edit_info.first_time_showing_user_info, [EditRegisterState.waiting_accepting]),
 
-    router.message.register(register.save_gender, AdvancedRegisterState.waiting_gender,
-                            F.text.in_(gender_dict.values()))
+        # Edit info
+        Handler(edit_info.edit_first_name, [EditRegisterState.waiting_first_name, ValidNameFilter()]),
+        Handler(edit_info.edit_middle_name, [EditRegisterState.waiting_middle_name, ValidNameFilter()]),
+        Handler(edit_info.edit_last_name, [EditRegisterState.waiting_last_name, ValidNameFilter()]),
+        Handler(edit_info.edit_phone, [EditRegisterState.waiting_phone, F.contact]),
+        Handler(edit_info.edit_phone, [EditRegisterState.waiting_phone, ValidPhoneFilter()]),
+        Handler(edit_info.edit_street, [EditRegisterState.waiting_street_typing, F.text.len() >= 3]),
+        Handler(edit_info.edit_street, [EditRegisterState.waiting_street_selected, F.text.len() >= 3, ~F.via_bot]),
+        Handler(edit_info.edit_house, [EditRegisterState.waiting_house]),
+        Handler(edit_info.edit_flat, [EditRegisterState.waiting_flat, F.text.isdigit()]),
+        Handler(edit_info.edit_flat, [EditRegisterState.waiting_flat, F.text == without_flat_text]),
+        Handler(edit_info.edit_password, [EditRegisterState.waiting_password, StrongPasswordFilter()]),
 
-    # Get password & show agreement
+        # All done
+        Handler(edit_info.accept_info, [EditRegisterState.waiting_accepting, F.text == edit_text['accept_info_text']]),
+    ]
 
-    router.message.register(register.save_password, AdvancedRegisterState.waiting_password, StrongPasswordFilter())
-    router.message.register(register.show_agreement, AdvancedRegisterState.waiting_agreement, F.text != agreement_text)
+    inline_list = [
+        Handler(register.show_street_list, [AdvancedRegisterState.waiting_street_selected]),
+        Handler(edit_info.show_street_list, [EditRegisterState.waiting_street_selected]),
+    ]
 
-    # Testing
+    callback_list = [
+        Handler(register.confirm_street,
+                [StreetCallbackFactory.filter(), AdvancedRegisterState.waiting_street_selected]),
+        Handler(edit_info.confirm_street, [StreetCallbackFactory.filter(), EditRegisterState.waiting_street_selected]),
+    ]
 
-    # TODO Remove
-    router.message.register(edit_info.fill_data, Command('fill'))
+    validation_message_list = [
+        Handler(validation.not_valid_phone, [AdvancedRegisterState.waiting_phone]),
+        Handler(validation.not_valid_phone, [EditRegisterState.waiting_phone]),
+        Handler(validation.not_valid_street_name, [AdvancedRegisterState.waiting_street_typing]),
+        Handler(validation.not_valid_street_name, [AdvancedRegisterState.waiting_street_selected, ~F.via_bot]),
+        Handler(validation.not_valid_street_name, [EditRegisterState.waiting_street_typing]),
+        Handler(validation.not_valid_street_name, [EditRegisterState.waiting_street_selected, ~F.via_bot]),
+        Handler(validation.not_valid_flat, [AdvancedRegisterState.waiting_flat]),
+        Handler(validation.not_valid_flat, [EditRegisterState.waiting_flat]),
+        Handler(validation.not_valid_gender, [AdvancedRegisterState.waiting_gender]),
+        Handler(validation.not_valid_first_name, [AdvancedRegisterState.waiting_first_name]),
+        Handler(validation.not_valid_last_name, [AdvancedRegisterState.waiting_middle_name]),
+        Handler(validation.not_valid_middle_name, [AdvancedRegisterState.waiting_last_name]),
+        Handler(validation.not_valid_first_name, [EditRegisterState.waiting_first_name]),
+        Handler(validation.not_valid_last_name, [EditRegisterState.waiting_middle_name]),
+        Handler(validation.not_valid_middle_name, [EditRegisterState.waiting_last_name]),
+        Handler(validation.weak_password, [AdvancedRegisterState.waiting_password]),
+        Handler(validation.weak_password, [EditRegisterState.waiting_password])
+    ]
 
-    # All done
-    router.message.register(edit_info.accept_info, EditRegisterState.waiting_accepting,
-                            F.text == edit_text['accept_info_text'])
+    for message in [*register_message_list, *edit_message_list, *validation_message_list]:
+        router.message.register(message.handler, *message.filters)
 
-    # Showing typed info
+    for inline in inline_list:
+        router.inline_query.register(inline.handler, *inline.filters)
 
-    router.message.register(edit_info.handle_buttons, EditRegisterState.waiting_accepting,
-                            F.text.in_(edit_text.values()))
-
-    router.message.register(edit_info.first_time_showing_user_info, EditRegisterState.waiting_accepting)
-
-    router.message.register(edit_info.first_time_showing_user_info, AdvancedRegisterState.waiting_agreement,
-                            F.text == agreement_text)
-    router.message.register(edit_info.first_time_showing_user_info, EditRegisterState.waiting_accepting)
-
-    # Edit info
-
-    router.message.register(edit_info.edit_first_name, EditRegisterState.waiting_first_name, ValidNameFilter())
-    router.message.register(edit_info.edit_middle_name, EditRegisterState.waiting_middle_name, ValidNameFilter())
-    router.message.register(edit_info.edit_last_name, EditRegisterState.waiting_last_name, ValidNameFilter())
-
-    router.message.register(edit_info.edit_phone, EditRegisterState.waiting_phone, F.contact)
-    router.message.register(edit_info.edit_phone, EditRegisterState.waiting_phone, ValidPhoneFilter())
-
-    router.message.register(edit_info.edit_street, EditRegisterState.waiting_street_typing, F.text.len() >= 3)
-    router.message.register(edit_info.edit_street, EditRegisterState.waiting_street_selected, F.text.len() >= 3,
-                            ~F.via_bot)
-
-    router.inline_query.register(edit_info.show_street_list, EditRegisterState.waiting_street_selected)
-    router.callback_query.register(edit_info.confirm_street, StreetCallbackFactory.filter(),
-                                   EditRegisterState.waiting_street_selected)
-
-    router.message.register(edit_info.edit_house, EditRegisterState.waiting_house)
-
-    router.message.register(edit_info.edit_flat, EditRegisterState.waiting_flat, F.text.isdigit())
-    router.message.register(edit_info.edit_flat, EditRegisterState.waiting_flat, F.text == without_flat_text)
-
-    router.message.register(edit_info.edit_password, EditRegisterState.waiting_password, StrongPasswordFilter())
-
-    # Validation messages
-
-    router.message.register(validation.not_valid_phone, AdvancedRegisterState.waiting_phone)
-    router.message.register(validation.not_valid_phone, EditRegisterState.waiting_phone)
-
-    router.message.register(validation.not_valid_street_name, AdvancedRegisterState.waiting_street_typing)
-    router.message.register(validation.not_valid_street_name, AdvancedRegisterState.waiting_street_selected, ~F.via_bot)
-    router.message.register(validation.not_valid_street_name, EditRegisterState.waiting_street_typing)
-    router.message.register(validation.not_valid_street_name, EditRegisterState.waiting_street_selected, ~F.via_bot)
-
-    router.message.register(validation.not_valid_flat, AdvancedRegisterState.waiting_flat)
-    router.message.register(validation.not_valid_flat, EditRegisterState.waiting_flat)
-
-    router.message.register(validation.not_valid_gender, AdvancedRegisterState.waiting_gender)
-
-    router.message.register(validation.not_valid_first_name, AdvancedRegisterState.waiting_first_name)
-    router.message.register(validation.not_valid_last_name, AdvancedRegisterState.waiting_middle_name)
-    router.message.register(validation.not_valid_middle_name, AdvancedRegisterState.waiting_last_name)
-
-    router.message.register(validation.not_valid_first_name, EditRegisterState.waiting_first_name)
-    router.message.register(validation.not_valid_last_name, EditRegisterState.waiting_middle_name)
-    router.message.register(validation.not_valid_middle_name, EditRegisterState.waiting_last_name)
-
-    router.message.register(validation.weak_password, AdvancedRegisterState.waiting_password)
-    router.message.register(validation.weak_password, EditRegisterState.waiting_password)
+    for callback in callback_list:
+        router.callback_query.register(callback.handler, *callback.filters)
 
     return router
