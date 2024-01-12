@@ -2,6 +2,16 @@ version: '3.8'
 
 services:
 
+
+  nginx: 
+    image: nginx:1.25.3-alpine-slim
+    ports:
+      - 8000:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./app/tgbot:/app/tgbot
+
+
   tgbot:
     build:
       context: app/tgbot
