@@ -1,7 +1,7 @@
 from aiogram.fsm.state import StatesGroup, State
 
 
-class SubscribeAuthState(StatesGroup):
+class AuthStates(StatesGroup):
     waiting_street_typing = State()
     waiting_street_selected = State()
 
@@ -13,7 +13,7 @@ class SubscribeCabinet(StatesGroup):
     waiting_issue_report = State()
 
 
-class SubscribeRateEnterprise(StatesGroup):
+class RateEnterpriseStates(StatesGroup):
     showing_list = State()
     enterprise_selected = State()
 

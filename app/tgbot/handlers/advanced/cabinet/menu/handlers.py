@@ -81,7 +81,7 @@ async def rate_enterprises(message: types.Message, state: FSMContext):
     user_data = await state.get_data()
     user_id = user_data.get("UserId")
 
-    loading_msg = await send_loading_message(message)
+    loading_msg = await send_loading_message(message=message)
 
     enterprises = await HttpChatBot.get_enterprises(UserIdDto(user_id=user_id))
     allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
@@ -102,7 +102,7 @@ async def rate_enterprises(message: types.Message, state: FSMContext):
 
 
 async def create_request(message: types.Message, state: FSMContext):
-    loading_msg = await send_loading_message(message)
+    loading_msg = await send_loading_message(message=message)
 
     user_id = (await state.get_data()).get("UserId")
 
@@ -121,7 +121,7 @@ async def create_request(message: types.Message, state: FSMContext):
 async def actual_requests(message: types.Message, state: FSMContext):
     user_data = await state.get_data()
 
-    loading_message = await send_loading_message(message)
+    loading_message = await send_loading_message(message=message)
 
     requests = await HttpChatBot.actual_requests(UserIdDto(user_id=user_data.get("UserId")))
 
@@ -145,7 +145,7 @@ async def actual_requests(message: types.Message, state: FSMContext):
 
 
 async def history_requests(message: types.Message, state: FSMContext):
-    loading_msg = await send_loading_message(message)
+    loading_msg = await send_loading_message(message=message)
 
     user_id = (await state.get_data()).get("UserId")
     archived_req = await HttpChatBot.archived_requests(UserIdDto(user_id=user_id))

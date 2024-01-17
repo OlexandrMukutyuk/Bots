@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.filters import StateFilter, CommandStart
+from aiogram.filters import CommandStart
 
 from filters.valid_emal import ValidEmailFilter
 from filters.yes_no import YesNoFilter
@@ -16,7 +16,7 @@ def prepare_router() -> Router:
 
     message_list = [
         # Start
-        Handler(handlers.greeting, [StateFilter(None), CommandStart()]),
+        Handler(handlers.greeting, [CommandStart()]),
         # Greeting
         Handler(handlers.introduction, [StartState.waiting_greeting, F.text == hello_text]),
         # Chose auth type

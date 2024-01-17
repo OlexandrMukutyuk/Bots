@@ -1,12 +1,11 @@
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
-from dto.chat_bot import UserIdDto, RateEnterpriseDto
-from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
-from keyboards.inline.cabinet.rate_enterprises import enterprises_rates_kb, enterprises_list_kb
+from dto.guest import GuestIdDto, RateEnterpriseGuestDto
+from handlers.common.enterprises import EnterprisesHandlers
+from handlers.subscription.cabinet.menu.handlers import give_cabinet_menu
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
-from services import http_client
-from services.http_client import HttpChatBot
+from services.http_client import HttpGuestBot
 from states.advanced import RateEnterpriseStates
 
 
@@ -17,26 +16,15 @@ async def show_rate_for_enterprises(
     bot: Bot,
 ):
     user_data = await state.get_data()
-    enterprise_id = callback_data.enterprise_id
+    enterprises = await HttpGuestBot.get_enterprises(GuestIdDto(guest_id=user_data.get("GuestId")))
 
-    message_id = callback.message.message_id
-
-    enterprises = await HttpChatBot.get_enterprises(UserIdDto(user_id=user_data.get("UserId")))
-
-    enterprise_name = ""
-    for enterprise in enterprises:
-        if enterprise.get("Id") == enterprise_id:
-            enterprise_name = enterprise.get("Name")
-
-    chat_id = callback.from_user.id
-
-    await state.set_state(RateEnterpriseStates.enterprise_selected)
-
-    await bot.edit_message_text(
-        text=f"Будь ласка, оцініть підприємство {enterprise_name}",
-        message_id=message_id,
-        chat_id=chat_id,
-        reply_markup=enterprises_rates_kb(enterprise_id=enterprise_id),
+    return await EnterprisesHandlers.show_rate_for_enterprises(
+        callback=callback,
+        callback_data=callback_data,
+        state=state,
+        bot=bot,
+        enterprises=enterprises,
+        new_state=RateEnterpriseStates.enterprise_selected,
     )
 
 
@@ -46,56 +34,48 @@ async def rate_enterprise(
     state: FSMContext,
     bot: Bot,
 ):
-    user_id = (await state.get_data()).get("UserId")
-    chat_id = callback.from_user.id
-
+    guest_id = (await state.get_data()).get("GuestId")
+    print(guest_id)
     rate = callback_data.rate
     enterprise_id = callback_data.enterprise_id
 
-    status = await HttpChatBot.rate_enterprise(
-        RateEnterpriseDto(user_id=user_id, enterprise_id=enterprise_id, rate=rate)
+    await HttpGuestBot.rate_enterprise(
+        RateEnterpriseGuestDto(guest_id=guest_id, enterprise_id=enterprise_id, rate=rate)
     )
 
-    await bot.send_message(chat_id=chat_id, text=f"Оцінка {rate} ⭐️")
-    await bot.send_message(chat_id=chat_id, text="Ваша оцінка відправлена успішно")
+    async def action():
+        await give_cabinet_menu(state, bot=bot, chat_id=callback.from_user.id)
 
-    await callback.message.delete()
-
-    return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
+    return await EnterprisesHandlers.rate_enterprise(
+        callback=callback, rate=rate, bot=bot, action=action
+    )
 
 
 # Back handlers
 
 
 async def to_menu(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    chat_id = callback.from_user.id
+    async def action():
+        await give_cabinet_menu(state, bot=bot, chat_id=callback.from_user.id)
 
-    await callback.message.delete()
-
-    return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
+    return await EnterprisesHandlers.to_menu(callback=callback, state=state, action=action)
 
 
 async def to_enterprise_list(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    user_data = await state.get_data()
-    chat_id = callback.from_user.id
+    async def menu_callback():
+        await give_cabinet_menu(state, bot=bot, chat_id=callback.from_user.id)
 
-    message_id = callback.message.message_id
-
-    enterprises = await http_client.get_enterprises(user_id=user_data.get("UserId"))
-
-    allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
-
-    if len(allowed_to_rate) == 0:
-        await bot.send_message(
-            chat_id=chat_id, text="Наразі для вас немає доступних для оцінювання підприємств"
+    async def get_enterprises():
+        return await HttpGuestBot.get_enterprises(
+            GuestIdDto(guest_id=(await state.get_data()).get("GuestId"))
         )
-        return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
 
-    await bot.edit_message_text(
-        text="Оберіть підприємство, яке ви хотіли би оцінити ⭐️",
-        message_id=message_id,
-        chat_id=chat_id,
-        reply_markup=enterprises_list_kb(allowed_to_rate),
+    return await EnterprisesHandlers.enterprises_list(
+        state=state,
+        menu_callback=menu_callback,
+        get_enterprises=get_enterprises,
+        new_state=RateEnterpriseStates.showing_list,
+        bot=bot,
+        chat_id=callback.from_user.id,
+        callback=callback,
     )
-
-    await state.set_state(RateEnterpriseStates.showing_list)

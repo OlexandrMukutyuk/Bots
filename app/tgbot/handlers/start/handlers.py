@@ -17,10 +17,12 @@ from keyboards.default.start import is_register_on_site, start_again_kb, yes_tex
 from services.http_client import HttpChatBot
 from states.advanced import AuthState, RegisterState
 from states.start import StartState
-from states.subscription import SubscribeAuthState
+from states.subscription import AuthStates
 
 
 async def greeting(message: types.Message, state: FSMContext):
+    await state.clear()
+
     await message.answer(text=texts.GREETING, reply_markup=greeting_kb)
     await state.set_state(StartState.waiting_greeting)
 
@@ -39,7 +41,7 @@ async def check_user_email(message: types.Message, state: FSMContext):
 
     await state.update_data(Email=email)
 
-    loading = await send_loading_message(message)
+    loading = await send_loading_message(message=message)
 
     try:
         is_user_exist = await HttpChatBot.check_email(CheckEmailDto(email=email))
@@ -107,4 +109,4 @@ async def asking_if_email_confirmed(message: types.Message, state: FSMContext):
 async def subscription_auth(message: types.Message, state: FSMContext):
     await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
-    await state.set_state(SubscribeAuthState.waiting_street_typing)
+    await state.set_state(AuthStates.waiting_street_typing)

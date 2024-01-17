@@ -31,7 +31,7 @@ def enterprises_rates_kb(enterprise_id: int):
             callback_data=EnterpriseRateCallbackFactory(rate=rate, enterprise_id=enterprise_id),
         )
 
-    builder.button(text=back_text, callback_data="back")
+    builder.button(text=BACK, callback_data="back")
 
     builder.adjust(1)
 

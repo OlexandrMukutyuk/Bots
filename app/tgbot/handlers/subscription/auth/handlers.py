@@ -6,16 +6,16 @@ import texts
 from dto.guest import RegisterGuestDto
 from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
-from handlers.subscription.cabinet.handlers import show_cabinet_menu
+from handlers.subscription.cabinet.menu.handlers import show_cabinet_menu
 from keyboards.default.common import change_street_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
 from services.http_client import HttpGuestBot
-from states.subscription import SubscribeAuthState, SubscribeCabinet
+from states.subscription import AuthStates, SubscribeCabinet
 
 
 async def type_street(message: types.Message, state: FSMContext, bot: Bot):
     return await StreetsHandlers.choose_street(
-        message=message, state=state, new_state=SubscribeAuthState.waiting_street_selected, bot=bot
+        message=message, state=state, new_state=AuthStates.waiting_street_selected, bot=bot
     )
 
 
@@ -33,7 +33,7 @@ async def confirm_street(
     callback: types.CallbackQuery, callback_data: StreetCallbackFactory, state: FSMContext, bot: Bot
 ):
     async def action():
-        await state.set_state(SubscribeAuthState.waiting_house)
+        await state.set_state(AuthStates.waiting_house)
         await bot.send_message(
             chat_id=callback.from_user.id, text=texts.ASKING_HOUSE, reply_markup=change_street_kb
         )
@@ -44,7 +44,7 @@ async def confirm_street(
 
 
 async def change_street(message: types.Message, state: FSMContext):
-    await state.set_state(SubscribeAuthState.waiting_street_typing)
+    await state.set_state(AuthStates.waiting_street_typing)
     await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
 

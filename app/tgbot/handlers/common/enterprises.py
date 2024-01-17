@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 
 import texts
-from handlers.common.helpers import send_loading_message
+from handlers.common.helpers import send_loading_message, independent_message
 from keyboards.inline.cabinet.rate_enterprises import enterprises_list_kb, enterprises_rates_kb
 from keyboards.inline.callbacks import EnterpriseCallbackFactory
 from utils.template_engine import render_template
@@ -14,28 +14,44 @@ from utils.template_engine import render_template
 class EnterprisesHandlers:
     @staticmethod
     async def enterprises_list(
-        message: types.Message,
         state: FSMContext,
         get_enterprises: Callable,
         new_state: State,
         menu_callback: Callable,
+        **kwargs,
     ):
-        loading_msg = await send_loading_message(message)
+        loading_msg = None
+
+        callback: types.CallbackQuery | None = kwargs.get("callback", None)
+        bot: Bot | None = kwargs.get("bot", None)
+
+        if not callback:
+            loading_msg = await send_loading_message(**kwargs)
 
         enterprises = await get_enterprises()
-
         allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
 
-        await loading_msg.delete()
+        if not callback and loading_msg:
+            await loading_msg.delete()
 
         if len(allowed_to_rate) == 0:
-            await message.answer(texts.NO_ENTERPRISES_TO_RATE)
+            await independent_message(texts.NO_ENTERPRISES_TO_RATE, **kwargs)
             return await menu_callback()
 
-        await message.answer(
-            text=texts.ASKGING_ENTERPRISE,
-            reply_markup=enterprises_list_kb(allowed_to_rate),
-        )
+        if callback:
+            await bot.edit_message_text(
+                text=texts.ASKGING_ENTERPRISE,
+                message_id=callback.message.message_id,
+                chat_id=callback.from_user.id,
+                reply_markup=enterprises_list_kb(allowed_to_rate),
+            )
+
+        else:
+            await independent_message(
+                text=texts.ASKGING_ENTERPRISE,
+                reply_markup=enterprises_list_kb(allowed_to_rate),
+                **kwargs,
+            )
 
         await state.set_state(new_state)
 
@@ -68,65 +84,22 @@ class EnterprisesHandlers:
             reply_markup=enterprises_rates_kb(enterprise_id=enterprise_id),
         )
 
+    @staticmethod
+    async def rate_enterprise(callback: types.CallbackQuery, rate: int, bot: Bot, action: Callable):
+        chat_id = callback.from_user.id
 
-#
-#
-# async def rate_enterprise(
-#     callback: types.CallbackQuery,
-#     callback_data: EnterpriseRateCallbackFactory,
-#     state: FSMContext,
-#     bot: Bot,
-# ):
-#     user_id = (await state.get_data()).get("UserId")
-#     chat_id = callback.from_user.id
-#
-#     rate = callback_data.rate
-#     enterprise_id = callback_data.enterprise_id
-#
-#     status = await HttpChatBot.rate_enterprise(
-#         RateEnterpriseDto(user_id=user_id, enterprise_id=enterprise_id, rate=rate)
-#     )
-#
-#     await bot.send_message(chat_id=chat_id, text=f"Оцінка {rate} ⭐️")
-#     await bot.send_message(chat_id=chat_id, text="Ваша оцінка відправлена успішно")
-#
-#     await callback.message.delete()
-#
-#     return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
-#
-#
-# # Back handlers
-#
-#
-# async def to_menu(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-#     chat_id = callback.from_user.id
-#
-#     await callback.message.delete()
-#
-#     return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
-#
-#
-# async def to_enterprise_list(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-#     user_data = await state.get_data()
-#     chat_id = callback.from_user.id
-#
-#     message_id = callback.message.message_id
-#
-#     enterprises = await http_client.get_enterprises(user_id=user_data.get("UserId"))
-#
-#     allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
-#
-#     if len(allowed_to_rate) == 0:
-#         await bot.send_message(
-#             chat_id=chat_id, text="Наразі для вас немає доступних для оцінювання підприємств"
-#         )
-#         return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
-#
-#     await bot.edit_message_text(
-#         text="Оберіть підприємство, яке ви хотіли би оцінити ⭐️",
-#         message_id=message_id,
-#         chat_id=chat_id,
-#         reply_markup=enterprises_list_kb(allowed_to_rate),
-#     )
-#
-#     await state.set_state(RateEnterprise.showing_list)
+        await bot.send_message(chat_id=chat_id, text=f"Оцінка {rate} ⭐️")
+        await bot.send_message(chat_id=chat_id, text="Ваша оцінка відправлена успішно")
+
+        await callback.message.delete()
+
+        return await action()
+
+    # Back handlers
+    @staticmethod
+    async def to_menu(callback: types.CallbackQuery, state: FSMContext, action: Callable):
+        chat_id = callback.from_user.id
+
+        await callback.message.delete()
+
+        return await action()

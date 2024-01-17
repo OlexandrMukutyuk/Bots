@@ -131,5 +131,5 @@ async def save_password(message: types.Message, state: FSMContext):
 
 async def show_agreement(message: types.Message):
     return await message.answer(
-        text=render_template("register/agreement.j2"), reply_markup=registration_agreement_kb
+        text=render_template("auth/agreement.j2"), reply_markup=registration_agreement_kb
     )

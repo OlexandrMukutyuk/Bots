@@ -28,7 +28,7 @@ class StreetsHandlers:
             chat_id=message.from_user.id, state=state, bot=bot, key=StreetsHandlers.ConfirmCallback
         )
 
-        loading = await send_loading_message(message)
+        loading = await send_loading_message(message=message)
 
         streets_data = await HttpChatBot.fetch_streets(SearchDto(search=message.text))
 

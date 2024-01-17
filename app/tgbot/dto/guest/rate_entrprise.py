@@ -4,16 +4,15 @@ from dto import AbstractDto
 
 
 @dataclass
-class RateEnterpriseDto(AbstractDto):
+class RateEnterpriseGuestDto(AbstractDto):
     guest_id: str
     enterprise_id: int
     rate: int
-    comment: str
+    # comment: str
 
     def to_payload(self) -> dict:
         return {
             "GuestId": self.guest_id,
             "KpId": self.enterprise_id,
             "Rate": self.rate,
-            "Comment": self.comment,
         }

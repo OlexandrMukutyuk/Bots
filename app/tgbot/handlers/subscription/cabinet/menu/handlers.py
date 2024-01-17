@@ -12,7 +12,7 @@ from keyboards.inline.cabinet.cabinet import share_chatbot_kb
 from models import Gender
 from services.http_client import HttpGuestBot
 from states.advanced import EditInfoStates
-from states.subscription import SubscribeCabinet, SubscribeShareBot, SubscribeRateEnterprise
+from states.subscription import SubscribeCabinet, SubscribeShareBot, RateEnterpriseStates
 from utils.template_engine import render_template
 
 
@@ -35,10 +35,13 @@ async def main_handler(message: types.Message, state: FSMContext):
         return await share_chatbot(message, state)
 
     if button_text == subscription_menu_text["review_enterprises"]:
-        return await rate_enterprises(message, state)
+        return await rate_enterprises_list(message, state)
 
     if button_text == subscription_menu_text["change_user_info"]:
         return await change_user_info(message, state)
+
+    if button_text == subscription_menu_text["full_registration"]:
+        return await full_registration(message, state)
 
 
 async def share_chatbot(message: types.Message, state: FSMContext):
@@ -48,7 +51,7 @@ async def share_chatbot(message: types.Message, state: FSMContext):
     return await state.set_state(SubscribeShareBot.waiting_back)
 
 
-async def rate_enterprises(message: types.Message, state: FSMContext):
+async def rate_enterprises_list(message: types.Message, state: FSMContext):
     async def get_enterprises():
         guest_id = (await state.get_data()).get("GuestId")
         return await HttpGuestBot.get_enterprises(GuestIdDto(guest_id=guest_id))
@@ -60,7 +63,7 @@ async def rate_enterprises(message: types.Message, state: FSMContext):
         message=message,
         state=state,
         get_enterprises=get_enterprises,
-        new_state=SubscribeRateEnterprise.showing_list,
+        new_state=RateEnterpriseStates.showing_list,
         menu_callback=menu_callback,
     )
 
@@ -82,11 +85,14 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
         "Gender": Gender.get_label(user_data.get("Gender")),
     }
 
-    await state.set_state(EditInfoStates.waiting_acceptation)
-
     template = render_template("edit_user_info.j2", data=data)
 
+    await state.set_state(EditInfoStates.waiting_acceptation)
     return await independent_message(template, edit_profile_kb, **kwargs)
+
+
+async def full_registration(message: types.Message, state: FSMContext):
+    await message.answer("Full registration asking")
 
 
 # Back button handlers
@@ -96,3 +102,9 @@ async def to_main_menu_inline(callback: types.CallbackQuery, state: FSMContext, 
     await callback.message.delete()
 
     return await give_cabinet_menu(state, bot=bot, chat_id=callback.from_user.id)
+
+
+async def to_main_menu_reply(message: types.Message, state: FSMContext):
+    await message.delete()
+
+    return await give_cabinet_menu(state=state, message=message)

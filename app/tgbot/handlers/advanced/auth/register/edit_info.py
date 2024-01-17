@@ -74,7 +74,7 @@ async def send_user_info(state: FSMContext, **kwargs):
 
     await state.set_state(EditRegisterState.waiting_accepting)
 
-    info_template = render_template("register/confirming_info.j2", data=user_data)
+    info_template = render_template("auth/confirming_info.j2", data=user_data)
 
     await independent_message(text=info_template, **kwargs)
     await independent_message(

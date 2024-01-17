@@ -15,10 +15,10 @@ from dto.chat_bot import (
     AddressByGeoDto,
     CreateRequestDto,
     RateRequestDto,
-    UpdateUserDto,
+    UpdateUserDto, RateEnterpriseDto,
 )
 from dto.chat_bot.register import RegisterDto
-from dto.guest import UpdateGuestDto, GuestIdDto, RegisterGuestDto, RateEnterpriseDto
+from dto.guest import UpdateGuestDto, GuestIdDto, RegisterGuestDto, RateEnterpriseGuestDto
 
 
 class HttpClient:
@@ -92,7 +92,7 @@ class HttpGuestBot(HttpClient):
         return data.get('Items')
 
     @staticmethod
-    async def rate_kps(dto: RateEnterpriseDto):
+    async def rate_enterprise(dto: RateEnterpriseGuestDto):
         return await HttpGuestBot.request("/SaveKpRate", dto)
 
 
