@@ -114,7 +114,7 @@ async def edit_house(message: types.Message, state: FSMContext):
     async def callback():
         await send_edit_user_info(state, message=message)
 
-    return HouseHandlers.change_house(
+    return await HouseHandlers.change_house(
         message=message,
         state=state,
         new_state=EditInfoStates.waiting_acceptation,
