@@ -1,16 +1,16 @@
 Звернення:
 
-Проблема: {data.get('ProblemName')}
-Причина: {data.get('ReasonName')}
-Коментар: {data.get('Comment')}
+Проблема: {{ data.get('ProblemName') }}
+Причина: {{ data.get('ReasonName') }}
+Коментар: {{ data.get('Comment') }}
 {% if data.get('ShowOnSite') != None %}
     Відображати на сайті
 {% else %}
     Не відображати на сайті
 {% endif %}
-Завантажено {len(data.get('RequestImages') or [])} фото
-Вулиця: {data.get('Street')}
-Будинок: {data.get('House')}
+Завантажено {{ len(data.get('RequestImages') or []) }} фото
+Вулиця: {{ data.get('Street') }}
+Будинок: {{ data.get('House') }}
 {% if data.get('Flat') != None %}
     Квартира {{ data.get('Flat') }}
 {% endif %}
