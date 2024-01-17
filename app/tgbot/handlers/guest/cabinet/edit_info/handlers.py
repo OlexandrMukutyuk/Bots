@@ -37,6 +37,10 @@ async def edit_street(message: types.Message, state: FSMContext, bot: Bot):
     )
 
 
+async def message_via_bot(message: types.Message, state: FSMContext, bot: Bot):
+    return await StreetsHandlers.message_via_bot(message, state, bot)
+
+
 async def show_street_list(callback: types.InlineQuery, state: FSMContext):
     data = (await state.get_data()).get("Streets")
 
