@@ -19,7 +19,7 @@ from data.config import (
     WEBHOOK_LISTENING_PORT,
     WEBHOOK_SECRET_TOKEN,
 )
-from handlers import start, subscription, advanced
+from handlers import start, guest, advanced
 from web_handlers.media import media
 
 
@@ -29,7 +29,7 @@ def setup_web_handlers(app: web.Application) -> None:
 
 def setup_handlers(dp: Dispatcher) -> None:
     dp.include_router(start.prepare_router())
-    dp.include_router(subscription.prepare_router())
+    dp.include_router(guest.prepare_router())
     dp.include_router(advanced.prepare_router())
 
 

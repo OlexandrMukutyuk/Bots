@@ -25,7 +25,7 @@ def prepare_router() -> Router:
         ),
         Handler(
             handlers.subscription_auth,
-            [StartState.waiting_auth_type, F.text == auth_types["subscription"]],
+            [StartState.waiting_auth_type, F.text == auth_types["guest"]],
         ),
         # For advanced auth
         Handler(handlers.check_user_email, [AuthState.waiting_email, ValidEmailFilter()]),

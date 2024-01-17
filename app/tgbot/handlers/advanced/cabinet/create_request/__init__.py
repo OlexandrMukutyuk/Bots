@@ -1,7 +1,9 @@
 from aiogram import Router, F
+from aiogram.filters import StateFilter
 
 from filters.back import BackFilter
 from filters.no import NoFilter
+from filters.valid_flat import ValidFlatFilter
 from filters.yes import YesFilter
 from handlers import validation
 from handlers.advanced.cabinet.create_request import handlers
@@ -26,7 +28,9 @@ def prepare_router() -> Router:
 
     message_list = [
         # To main cabinet
-        Handler(handlers.to_main_menu_reply, [F.text == TO_MAIN_MENU]),
+        Handler(
+            handlers.to_main_menu_reply, [F.text == TO_MAIN_MENU, StateFilter(CreateRequestStates)]
+        ),
         # Choose problem
         Handler(handlers.message_via_bot, [CreateRequestStates.waiting_problem, F.via_bot]),
         Handler(handlers.message_via_bot, [CreateRequestStates.waiting_reason, F.via_bot]),
@@ -60,7 +64,7 @@ def prepare_router() -> Router:
         Handler(handlers.save_house, [CreateRequestStates.waiting_house]),
         # Choose flat
         Handler(handlers.flat_back, [CreateRequestStates.waiting_flat, BackFilter()]),
-        Handler(handlers.save_flat, [CreateRequestStates.waiting_flat, F.text.isdigit()]),
+        Handler(handlers.save_flat, [CreateRequestStates.waiting_flat, ValidFlatFilter()]),
         Handler(handlers.save_flat, [CreateRequestStates.waiting_flat, F.text == LIVING_IN_HOUSE]),
         # Choose comment
         Handler(handlers.comment_back, [CreateRequestStates.waiting_comment, BackFilter()]),
@@ -89,6 +93,7 @@ def prepare_router() -> Router:
         Handler(handlers.confirm_request, [CreateRequestStates.waiting_confirm, YesFilter()]),
         Handler(handlers.to_main_menu_inline, [CreateRequestStates.waiting_confirm, NoFilter()]),
         # Validation handlers
+        Handler(validation.not_valid_street_name, [CreateRequestStates.waiting_street_typing]),
         Handler(validation.not_valid_flat, [CreateRequestStates.waiting_flat]),
         Handler(validation.not_valid_comment, [CreateRequestStates.waiting_comment]),
         Handler(validation.not_valid_text, [CreateRequestStates.waiting_showing_status]),

@@ -1,7 +1,7 @@
 from aiogram import Router
 
-from handlers.subscription import cabinet
-from handlers.subscription.auth import handlers
+from handlers.guest import cabinet
+from handlers.guest.auth import handlers
 
 
 def prepare_router() -> Router:

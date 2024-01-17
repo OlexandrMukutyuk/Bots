@@ -37,7 +37,7 @@ from keyboards.inline.cabinet.create_request import (
 )
 from keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
 from services.http_client import HttpChatBot
-from states.advanced import CabinetStates, CreateRequestStates
+from states.advanced import FullCabinetStates, CreateRequestStates
 from texts.keyboards import NO_NEED, ENOUGH, BACK
 from utils.media import delete_tmp_media
 from utils.template_engine import render_template
@@ -330,7 +330,7 @@ async def change_street(message: types.Message, state: FSMContext):
 async def ask_flat(message: types.Message, state: FSMContext):
     await state.set_state(CreateRequestStates.waiting_flat)
     await message.answer(
-        text=texts.ASKING_HOUSE,
+        text=texts.ASKING_FLAT,
         reply_markup=request_flat_kb,
     )
 
@@ -478,7 +478,7 @@ async def reset_user_request_state(state: FSMContext, **kwargs):
 
     await update_user_state_data(state)
 
-    await state.set_state(CabinetStates.waiting_menu)
+    await state.set_state(FullCabinetStates.waiting_menu)
 
 
 # Back handlers

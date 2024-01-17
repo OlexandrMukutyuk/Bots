@@ -27,7 +27,6 @@ edit_profile_kb = DefaultConstructor.create_kb(
     schema=[2, 2, 2, 2],
 )
 
-back_kb = DefaultConstructor.create_kb(actions=[BACK], schema=[1])
 
 change_gender_kb = DefaultConstructor.create_kb(
     actions=[Gender.values["male"], Gender.values["female"], BACK], schema=[2, 1]

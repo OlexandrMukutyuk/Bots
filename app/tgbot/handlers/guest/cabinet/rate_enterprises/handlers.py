@@ -3,10 +3,10 @@ from aiogram.fsm.context import FSMContext
 
 from dto.guest import GuestIdDto, RateEnterpriseGuestDto
 from handlers.common.enterprises import EnterprisesHandlers
-from handlers.subscription.cabinet.menu.handlers import give_cabinet_menu
+from handlers.guest.cabinet.menu.handlers import give_cabinet_menu
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
 from services.http_client import HttpGuestBot
-from states.advanced import RateEnterpriseStates
+from states.advanced import FullRateEnterpriseStates
 
 
 async def show_rate_for_enterprises(
@@ -24,7 +24,7 @@ async def show_rate_for_enterprises(
         state=state,
         bot=bot,
         enterprises=enterprises,
-        new_state=RateEnterpriseStates.enterprise_selected,
+        new_state=FullRateEnterpriseStates.enterprise_selected,
     )
 
 
@@ -74,7 +74,7 @@ async def to_enterprise_list(callback: types.CallbackQuery, state: FSMContext, b
         state=state,
         menu_callback=menu_callback,
         get_enterprises=get_enterprises,
-        new_state=RateEnterpriseStates.showing_list,
+        new_state=FullRateEnterpriseStates.showing_list,
         bot=bot,
         chat_id=callback.from_user.id,
         callback=callback,

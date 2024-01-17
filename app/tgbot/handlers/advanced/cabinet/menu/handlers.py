@@ -14,13 +14,13 @@ from keyboards.inline.cabinet.rate_enterprises import enterprises_list_kb
 from models import Gender
 from services.http_client import HttpChatBot
 from states.advanced import (
-    IssueReportStates,
-    ShareChatbot,
-    CabinetStates,
+    FullIssueReportStates,
+    FullShareChatbotStates,
+    FullCabinetStates,
     CreateRequestStates,
-    RateEnterpriseStates,
+    FullRateEnterpriseStates,
     ArchiveRequestsStates,
-    EditInfoStates,
+    FullEditInfoStates,
 )
 from utils.template_engine import render_template
 
@@ -30,7 +30,7 @@ async def show_cabinet_menu(message: types.Message, state: FSMContext):
 
 
 async def give_cabinet_menu(state: FSMContext, **kwargs):
-    await state.set_state(CabinetStates.waiting_menu)
+    await state.set_state(FullCabinetStates.waiting_menu)
 
     return await independent_message(
         text=texts.SUGGEST_HELP, reply_markup=cabinet_menu_kb, **kwargs
@@ -67,14 +67,14 @@ async def report_issue(message: types.Message, state: FSMContext):
         text=texts.ASKING_TECH_PROBLEMS,
         reply_markup=ReplyKeyboardRemove(),
     )
-    return await state.set_state(IssueReportStates.waiting_issue_report)
+    return await state.set_state(FullIssueReportStates.waiting_issue_report)
 
 
 async def share_chatbot(message: types.Message, state: FSMContext):
     await message.answer(text=texts.SHARE_BOT, reply_markup=ReplyKeyboardRemove())
     await message.answer(text=texts.USE_BUTTONS, reply_markup=share_chatbot_kb)
 
-    return await state.set_state(ShareChatbot.waiting_back)
+    return await state.set_state(FullShareChatbotStates.waiting_back)
 
 
 async def rate_enterprises(message: types.Message, state: FSMContext):
@@ -98,7 +98,7 @@ async def rate_enterprises(message: types.Message, state: FSMContext):
         reply_markup=enterprises_list_kb(allowed_to_rate),
     )
 
-    await state.set_state(RateEnterpriseStates.showing_list)
+    await state.set_state(FullRateEnterpriseStates.showing_list)
 
 
 async def create_request(message: types.Message, state: FSMContext):
@@ -187,7 +187,7 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
         "Gender": Gender.get_label(user_data.get("Gender")),
     }
 
-    await state.set_state(EditInfoStates.waiting_acceptation)
+    await state.set_state(FullEditInfoStates.waiting_acceptation)
 
     template = render_template("edit_user_info.j2", data=data)
 

@@ -2,15 +2,22 @@
 
 Проблема: {{ data.get('ProblemName') }}
 Причина: {{ data.get('ReasonName') }}
+
 Коментар: {{ data.get('Comment') }}
 {% if data.get('ShowOnSite') != None %}
-    Відображати на сайті
+Відображати на сайті
 {% else %}
-    Не відображати на сайті
+Не відображати на сайті
 {% endif %}
-Завантажено {{ len(data.get('RequestImages') or []) }} фото
+{% set image_list = data.get('RequestImages') %}
+{% if image_list|length > 0 %}
+Завантажено {{ image_list|length }} фото
+{% else %}
+Фото не завантажено
+{% endif %}
+
 Вулиця: {{ data.get('Street') }}
 Будинок: {{ data.get('House') }}
 {% if data.get('Flat') != None %}
-    Квартира {{ data.get('Flat') }}
+Квартира {{ data.get('Flat') }}
 {% endif %}

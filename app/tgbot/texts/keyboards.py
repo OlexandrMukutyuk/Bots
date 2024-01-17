@@ -16,3 +16,7 @@ SHARE_GEO = "Поділитися геолокацією"
 CHOOSE_PROBLEM = "Оберіть тему ↗️"
 CHOOSE_REASON = "Обрати підтему ↗️"
 CHOOSE = "Обрати "
+
+
+START_FULL_REGISTRATION = "Розпочати повну реєстрацію 👇"
+GO_BACK = "Повернутись назад  🔙"

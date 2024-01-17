@@ -15,9 +15,9 @@ from keyboards.default.basic import yes_n_no
 from keyboards.default.start import greeting_kb, auth_types_kb
 from keyboards.default.start import is_register_on_site, start_again_kb, yes_text, no_text
 from services.http_client import HttpChatBot
-from states.advanced import AuthState, RegisterState
+from states.advanced import AuthState, AdvancedRegisterStates
+from states.guest import GuestAuthStates
 from states.start import StartState
-from states.subscription import AuthStates
 
 
 async def greeting(message: types.Message, state: FSMContext):
@@ -67,7 +67,7 @@ async def answer_if_register(message: types.Message, state: FSMContext):
         await message.answer(texts.NEED_REGISTER)
         await message.answer(text=texts.ASKING_PHONE, reply_markup=phone_share_kb)
         await message.answer(texts.PHONE_EXAMPLE)
-        await state.set_state(RegisterState.waiting_phone)
+        await state.set_state(AdvancedRegisterStates.waiting_phone)
 
 
 async def answer_if_confirmed_email(message: types.Message):
@@ -109,4 +109,4 @@ async def asking_if_email_confirmed(message: types.Message, state: FSMContext):
 async def subscription_auth(message: types.Message, state: FSMContext):
     await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
-    await state.set_state(AuthStates.waiting_street_typing)
+    await state.set_state(GuestAuthStates.waiting_street_typing)

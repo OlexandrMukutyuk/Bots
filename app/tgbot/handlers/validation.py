@@ -2,7 +2,7 @@ from aiogram import types
 
 import texts
 from keyboards.default.auth.register import choose_gender_kb
-from keyboards.default.cabinet.edit_profile import back_kb
+from keyboards.default.common import back_kb
 
 
 async def not_valid_email(message: types.Message):

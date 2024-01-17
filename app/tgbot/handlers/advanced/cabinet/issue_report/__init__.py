@@ -2,7 +2,7 @@ from aiogram import Router, F
 
 from handlers import validation
 from handlers.advanced.cabinet.issue_report import handlers
-from states.advanced import IssueReportStates
+from states.advanced import FullIssueReportStates
 
 
 def prepare_router() -> Router:
@@ -10,9 +10,9 @@ def prepare_router() -> Router:
 
     # Issue Report
     router.message.register(
-        handlers.report_tech_issue, IssueReportStates.waiting_issue_report, F.text.len() > 5
+        handlers.report_tech_issue, FullIssueReportStates.waiting_issue_report, F.text.len() > 5
     )
 
-    router.message.register(validation.not_valid_text, IssueReportStates.waiting_issue_report)
+    router.message.register(validation.not_valid_text, FullIssueReportStates.waiting_issue_report)
 
     return router

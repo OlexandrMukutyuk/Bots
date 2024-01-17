@@ -15,7 +15,7 @@ from keyboards.default.auth.register import (
 from keyboards.default.common import without_flat_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
 from services.http_client import HttpChatBot
-from states.advanced import EditRegisterState
+from states.advanced import EditRegisterStates
 from utils.template_engine import render_template
 
 
@@ -23,42 +23,42 @@ async def handle_buttons(message: types.Message, state: FSMContext):
     button_type = message.text
 
     if button_type == edit_text["first_name_text"]:
-        await state.set_state(EditRegisterState.waiting_first_name)
+        await state.set_state(EditRegisterStates.waiting_first_name)
         return await message.answer(
             text=texts.ASKING_FIRST_NAME, reply_markup=ReplyKeyboardRemove()
         )
 
     if button_type == edit_text["middle_name_text"]:
-        await state.set_state(EditRegisterState.waiting_middle_name)
+        await state.set_state(EditRegisterStates.waiting_middle_name)
         return await message.answer(
             text=texts.ASKING_MIDDLE_NAME, reply_markup=ReplyKeyboardRemove()
         )
 
     if button_type == edit_text["last_name_text"]:
-        await state.set_state(EditRegisterState.waiting_last_name)
+        await state.set_state(EditRegisterStates.waiting_last_name)
         return await message.answer(text=texts.ASKING_LAST_NAME, reply_markup=ReplyKeyboardRemove())
 
     if button_type == edit_text["phone_text"]:
-        await state.set_state(EditRegisterState.waiting_phone)
+        await state.set_state(EditRegisterStates.waiting_phone)
         await message.answer(text=texts.ASKING_PHONE, reply_markup=phone_share_kb)
         return await message.answer(texts.PHONE_EXAMPLE)
 
     if button_type == edit_text["password_text"]:
-        await state.set_state(EditRegisterState.waiting_password)
+        await state.set_state(EditRegisterStates.waiting_password)
         await message.answer(text=texts.ASKING_PASSWORD, reply_markup=ReplyKeyboardRemove())
 
         return await message.answer(texts.PASSWORD_REQS)
 
     if button_type == edit_text["street_text"]:
-        await state.set_state(EditRegisterState.waiting_street_typing)
+        await state.set_state(EditRegisterStates.waiting_street_typing)
         return await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
     if button_type == edit_text["house_text"]:
-        await state.set_state(EditRegisterState.waiting_house)
+        await state.set_state(EditRegisterStates.waiting_house)
         return await message.answer(text=texts.ASKING_HOUSE, reply_markup=ReplyKeyboardRemove())
 
     if button_type == edit_text["flat_text"]:
-        await state.set_state(EditRegisterState.waiting_flat)
+        await state.set_state(EditRegisterStates.waiting_flat)
         return await message.answer(text=texts.ASKING_FLAT, reply_markup=without_flat_kb)
 
     if button_type == edit_text["accept_info_text"]:
@@ -72,7 +72,7 @@ async def first_time_showing_user_info(message: types.Message, state: FSMContext
 async def send_user_info(state: FSMContext, **kwargs):
     user_data = await state.get_data()
 
-    await state.set_state(EditRegisterState.waiting_accepting)
+    await state.set_state(EditRegisterStates.waiting_accepting)
 
     info_template = render_template("register/confirming_info.j2", data=user_data)
 
@@ -86,14 +86,14 @@ async def edit_phone(message: types.Message, state: FSMContext):
     phone = message.text or message.contact.phone_number
 
     await state.update_data(Phone=phone)
-    await state.set_state(EditRegisterState.waiting_accepting)
+    await state.set_state(EditRegisterStates.waiting_accepting)
 
     await send_user_info(state, message=message)
 
 
 async def edit_street(message: types.Message, state: FSMContext, bot: Bot):
     return await StreetsHandlers.choose_street(
-        message=message, state=state, new_state=EditRegisterState.waiting_street_selected, bot=bot
+        message=message, state=state, new_state=EditRegisterStates.waiting_street_selected, bot=bot
     )
 
 
@@ -110,7 +110,7 @@ async def confirm_street(
     bot: Bot,
 ):
     async def action():
-        await state.set_state(EditRegisterState.waiting_house)
+        await state.set_state(EditRegisterStates.waiting_house)
         await independent_message(
             text=texts.ASKING_HOUSE,
             reply_markup=ReplyKeyboardRemove(),
@@ -130,7 +130,7 @@ async def edit_house(message: types.Message, state: FSMContext):
     return await HouseHandlers.change_house(
         message=message,
         state=state,
-        new_state=EditRegisterState.waiting_accepting,
+        new_state=EditRegisterStates.waiting_accepting,
         callback=callback,
     )
 
@@ -142,7 +142,7 @@ async def edit_flat(message: types.Message, state: FSMContext):
     await FlatHandlers.change_flat(
         message=message,
         state=state,
-        new_state=EditRegisterState.waiting_accepting,
+        new_state=EditRegisterStates.waiting_accepting,
         callback=callback,
     )
 
@@ -151,7 +151,7 @@ async def edit_first_name(message: types.Message, state: FSMContext):
     first_name = message.text
 
     await state.update_data(FirstName=first_name)
-    await state.set_state(EditRegisterState.waiting_accepting)
+    await state.set_state(EditRegisterStates.waiting_accepting)
 
     await send_user_info(state, message=message)
 
@@ -160,7 +160,7 @@ async def edit_middle_name(message: types.Message, state: FSMContext):
     middle_name = message.text
 
     await state.update_data(MiddleName=middle_name)
-    await state.set_state(EditRegisterState.waiting_accepting)
+    await state.set_state(EditRegisterStates.waiting_accepting)
 
     await send_user_info(state, message=message)
 
@@ -169,14 +169,14 @@ async def edit_last_name(message: types.Message, state: FSMContext):
     last_name = message.text
 
     await state.update_data(LastName=last_name)
-    await state.set_state(EditRegisterState.waiting_accepting)
+    await state.set_state(EditRegisterStates.waiting_accepting)
 
     await send_user_info(state, message=message)
 
 
 async def edit_password(message: types.Message, state: FSMContext):
     await state.update_data(Password=message.text)
-    await state.set_state(EditRegisterState.waiting_accepting)
+    await state.set_state(EditRegisterStates.waiting_accepting)
 
     await send_user_info(state, message=message)
 

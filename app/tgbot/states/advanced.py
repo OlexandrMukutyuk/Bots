@@ -11,7 +11,7 @@ class LoginState(StatesGroup):
     waiting_code = State()
 
 
-class RegisterState(StatesGroup):
+class AdvancedRegisterStates(StatesGroup):
     waiting_phone = State()
     waiting_street_typing = State()
 
@@ -30,7 +30,7 @@ class RegisterState(StatesGroup):
     waiting_agreement = State()
 
 
-class EditRegisterState(StatesGroup):
+class EditRegisterStates(StatesGroup):
     waiting_first_name = State()
     waiting_middle_name = State()
     waiting_last_name = State()
@@ -46,15 +46,15 @@ class EditRegisterState(StatesGroup):
     waiting_accepting = State()
 
 
-class CabinetStates(StatesGroup):
+class FullCabinetStates(StatesGroup):
     waiting_menu = State()
 
 
-class IssueReportStates(StatesGroup):
+class FullIssueReportStates(StatesGroup):
     waiting_issue_report = State()
 
 
-class ShareChatbot(StatesGroup):
+class FullShareChatbotStates(StatesGroup):
     waiting_back = State()
 
 
@@ -80,7 +80,7 @@ class CreateRequestStates(StatesGroup):
     waiting_confirm = State()
 
 
-class RateEnterpriseStates(StatesGroup):
+class FullRateEnterpriseStates(StatesGroup):
     showing_list = State()
     enterprise_selected = State()
 
@@ -92,7 +92,7 @@ class ArchiveRequestsStates(StatesGroup):
     waiting_comment = State()
 
 
-class EditInfoStates(StatesGroup):
+class FullEditInfoStates(StatesGroup):
     waiting_first_name = State()
     waiting_middle_name = State()
     waiting_last_name = State()

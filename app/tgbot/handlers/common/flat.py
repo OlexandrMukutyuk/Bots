@@ -4,7 +4,7 @@ from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 
-from texts.keyboards import WITHOUT_FLAT
+from texts.keyboards import WITHOUT_FLAT, LIVING_IN_HOUSE
 
 
 class FlatHandlers:
@@ -14,7 +14,7 @@ class FlatHandlers:
     ):
         flat = message.text
 
-        if flat == WITHOUT_FLAT:
+        if flat == WITHOUT_FLAT or flat == LIVING_IN_HOUSE:
             flat = None
 
         await state.update_data(Flat=flat)

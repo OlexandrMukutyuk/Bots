@@ -13,7 +13,7 @@ from keyboards.default.auth.register import (
 from keyboards.default.common import change_street_kb, without_flat_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
 from models import Gender
-from states.advanced import RegisterState
+from states.advanced import AdvancedRegisterStates
 from utils.template_engine import render_template
 
 
@@ -23,13 +23,13 @@ async def save_phone(message: types.Message, state: FSMContext):
     await state.update_data(Phone=phone)
     await message.answer("Ваш номер успішно відправлено")
 
-    await state.set_state(RegisterState.waiting_street_typing)
+    await state.set_state(AdvancedRegisterStates.waiting_street_typing)
     await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
 
 async def choose_street(message: types.Message, state: FSMContext, bot: Bot):
     return await StreetsHandlers.choose_street(
-        message, state, RegisterState.waiting_street_selected, bot
+        message, state, AdvancedRegisterStates.waiting_street_selected, bot
     )
 
 
@@ -46,7 +46,7 @@ async def confirm_street(
         await bot.send_message(
             chat_id=callback.from_user.id, text=texts.ASKING_HOUSE, reply_markup=change_street_kb
         )
-        await state.set_state(RegisterState.waiting_house)
+        await state.set_state(AdvancedRegisterStates.waiting_house)
 
     await StreetsHandlers.confirm_street(
         callback=callback, callback_data=callback_data, state=state, action=action, bot=bot
@@ -54,7 +54,7 @@ async def confirm_street(
 
 
 async def change_street(message: types.Message, state: FSMContext):
-    await state.set_state(RegisterState.waiting_street_typing)
+    await state.set_state(AdvancedRegisterStates.waiting_street_typing)
     await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
 
@@ -65,7 +65,7 @@ async def save_house(message: types.Message, state: FSMContext):
     await HouseHandlers.change_house(
         message=message,
         state=state,
-        new_state=RegisterState.waiting_flat,
+        new_state=AdvancedRegisterStates.waiting_flat,
         callback=callback,
     )
 
@@ -77,7 +77,7 @@ async def save_flat(message: types.Message, state: FSMContext):
     return await FlatHandlers.change_flat(
         message=message,
         state=state,
-        new_state=RegisterState.waiting_first_name,
+        new_state=AdvancedRegisterStates.waiting_first_name,
         callback=callback,
     )
 
@@ -86,7 +86,7 @@ async def save_first_name(message: types.Message, state: FSMContext):
     first_name = message.text
 
     await state.update_data(FirstName=first_name)
-    await state.set_state(RegisterState.waiting_middle_name)
+    await state.set_state(AdvancedRegisterStates.waiting_middle_name)
 
     return await message.answer(texts.ASKING_LAST_NAME)
 
@@ -95,7 +95,7 @@ async def save_middle_name(message: types.Message, state: FSMContext):
     middle_name = message.text
 
     await state.update_data(MiddleName=middle_name)
-    await state.set_state(RegisterState.waiting_last_name)
+    await state.set_state(AdvancedRegisterStates.waiting_last_name)
 
     return await message.answer(texts.ASKING_MIDDLE_NAME)
 
@@ -104,7 +104,7 @@ async def save_last_name(message: types.Message, state: FSMContext):
     last_name = message.text
 
     await state.update_data(LastName=last_name)
-    await state.set_state(RegisterState.waiting_gender)
+    await state.set_state(AdvancedRegisterStates.waiting_gender)
 
     return await message.answer(text=texts.ASKING_GENDER, reply_markup=choose_gender_kb)
 
@@ -114,7 +114,7 @@ async def save_gender(message: types.Message, state: FSMContext):
 
     gender = Gender.get_key(message.text)
     await state.update_data(Gender=gender)
-    await state.set_state(RegisterState.waiting_password)
+    await state.set_state(AdvancedRegisterStates.waiting_password)
 
     await message.answer(texts.ASKING_PASSWORD)
     await message.answer(texts.PASSWORD_REQS)
@@ -124,7 +124,7 @@ async def save_gender(message: types.Message, state: FSMContext):
 
 async def save_password(message: types.Message, state: FSMContext):
     await state.update_data(Password=message.text)
-    await state.set_state(RegisterState.waiting_agreement)
+    await state.set_state(AdvancedRegisterStates.waiting_agreement)
 
     return await show_agreement(message)
 

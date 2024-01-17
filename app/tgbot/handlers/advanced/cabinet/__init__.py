@@ -1,6 +1,6 @@
 from aiogram import Router
 
-from handlers.advanced.cabinet import archive_req, rate_enterprises
+from handlers.advanced.cabinet import archive_req, rate_enterprises, menu
 from handlers.advanced.cabinet import create_request, share_bot, issue_report, edit_profile
 
 
