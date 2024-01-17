@@ -42,7 +42,11 @@ class StreetsHandlers:
         msg = await message.answer(text=texts.PICK_STREET, reply_markup=choose_street_kb)
 
         await state.set_data(
-            {"Streets": streets_data, StreetsHandlers.ListCallback: msg.message_id, **data}
+            {
+                **data,
+                "Streets": streets_data,
+                StreetsHandlers.ListCallback: msg.message_id,
+            }
         )
         await state.set_state(new_state)
 
