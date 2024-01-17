@@ -2,7 +2,7 @@ from aiogram import Router, F
 
 from filters.valid_name import ValidNameFilter
 from handlers import validation
-from handlers.cabinet.edit_profile import handlers
+from handlers.advanced.cabinet.edit_profile import handlers
 from keyboards.default.cabinet.edit_profile import edit_text
 from keyboards.inline.callbacks import StreetCallbackFactory
 from states.advanced import EditInfoStates

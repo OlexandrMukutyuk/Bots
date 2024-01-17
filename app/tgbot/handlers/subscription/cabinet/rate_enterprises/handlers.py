@@ -2,7 +2,7 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
 from dto.chat_bot import UserIdDto, RateEnterpriseDto
-from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from keyboards.inline.cabinet.rate_enterprises import enterprises_rates_kb, enterprises_list_kb
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
 from services import http_client

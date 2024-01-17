@@ -2,13 +2,14 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
 import texts
-from handlers.cabinet.menu.handlers import give_cabinet_menu, send_edit_user_info
+from dto.chat_bot import UpdateUserDto
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu, send_edit_user_info
 from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
 from keyboards.default.cabinet.edit_profile import edit_text, change_gender_kb, back_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
 from models import Gender
-from services import http_client
+from services.http_client import HttpChatBot
 from states.advanced import EditInfoStates
 from utils.template_engine import render_template
 
@@ -28,29 +29,27 @@ async def handle_buttons(message: types.Message, state: FSMContext):
 
     if button_type == edit_text["last_name_text"]:
         await state.set_state(EditInfoStates.waiting_last_name)
-        await message.answer(text=render_template("asking/last_name.j2"), reply_markup=back_kb)
+        await message.answer(text=texts.ASKING_LAST_NAME, reply_markup=back_kb)
         return
 
     if button_type == edit_text["gender_text"]:
         await state.set_state(EditInfoStates.waiting_gender)
-        await message.answer(
-            text=render_template("asking/gender.j2"), reply_markup=change_gender_kb
-        )
+        await message.answer(text=texts.ASKING_GENDER, reply_markup=change_gender_kb)
         return
 
     if button_type == edit_text["street_text"]:
         await state.set_state(EditInfoStates.waiting_street_typing)
-        await message.answer(text=render_template("asking/stret.j2"), reply_markup=back_kb)
+        await message.answer(text=texts.ASKING_STREET, reply_markup=back_kb)
         return
 
     if button_type == edit_text["house_text"]:
         await state.set_state(EditInfoStates.waiting_house)
-        await message.answer(text=render_template("asking/house.j2"), reply_markup=back_kb)
+        await message.answer(text=texts.ASKING_HOUSE, reply_markup=back_kb)
         return
 
     if button_type == edit_text["flat_text"]:
         await state.set_state(EditInfoStates.waiting_flat)
-        await message.answer(text=render_template("asking/flat.j2"), reply_markup=back_kb)
+        await message.answer(text=texts.ASKING_FLAT, reply_markup=back_kb)
         return
 
 
@@ -95,7 +94,7 @@ async def edit_street(message: types.Message, state: FSMContext, bot: Bot):
 
 
 async def show_street_list(callback: types.InlineQuery, state: FSMContext):
-    data = await state.get_data()
+    data = (await state.get_data()).get("Streets")
 
     return await StreetsHandlers.inline_list(callback, data)
 
@@ -145,19 +144,19 @@ async def edit_gender(message: types.Message, state: FSMContext):
 async def confirm(message: types.Message, state: FSMContext):
     user_data = await state.get_data()
 
-    await http_client.update_profile(
-        {
-            "UserId": user_data.get("UserId"),
-            "Phone": user_data.get("Phone"),
-            "CityId": user_data.get("CityId"),
-            "StreetId": user_data.get("StreetId"),
-            "House": user_data.get("House"),
-            "Flat": user_data.get("Flat"),
-            "FirstName": user_data.get("FirstName"),
-            "MiddleName": user_data.get("MiddleName"),
-            "LastName": user_data.get("LastName"),
-            "Gender": user_data.get("Gender"),
-        }
+    await HttpChatBot.update_profile(
+        UpdateUserDto(
+            user_id=user_data.get("UserId"),
+            phone=user_data.get("Phone"),
+            city_id=user_data.get("CityId"),
+            street_id=user_data.get("StreetId"),
+            house=user_data.get("House"),
+            flat=user_data.get("Flat"),
+            first_name=user_data.get("FirstName"),
+            middle_name=user_data.get("MiddleName"),
+            last_name=user_data.get("LastName"),
+            gender=user_data.get("Gender"),
+        )
     )
 
     await message.answer(render_template("user_info/edited_successfully.j2"))

@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from handlers.common.helpers import update_user_state_data, perform_sending_email_code
 
 

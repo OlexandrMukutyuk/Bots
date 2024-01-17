@@ -1,7 +1,7 @@
 from aiogram import Router
 
-from handlers.auth import login
-from handlers.auth import register
+from handlers.advanced.auth import login
+from handlers.advanced.auth import register
 
 
 def prepare_router() -> Router:

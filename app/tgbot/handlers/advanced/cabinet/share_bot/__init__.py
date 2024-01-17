@@ -1,7 +1,7 @@
 from aiogram import Router
 
-from handlers.cabinet import common
-from handlers.cabinet.menu import handlers as menu_handlers
+from handlers.advanced.cabinet import common
+from handlers.advanced.cabinet.menu import handlers as menu_handlers
 from states.advanced import ShareChatbot
 
 

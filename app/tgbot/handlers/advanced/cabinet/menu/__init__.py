@@ -1,6 +1,6 @@
 from aiogram import Router, F
 
-from handlers.cabinet.menu import handlers
+from handlers.advanced.cabinet.menu import handlers
 from keyboards.default.cabinet.menu import cabinet_menu_text
 from states.advanced import CabinetStates
 

@@ -1,7 +1,7 @@
 from aiogram import Router
-from states.advanced import LoginState
 
-from handlers.auth.login import handlers
+from handlers.advanced.auth.login import handlers
+from states.advanced import LoginState
 
 
 def prepare_router() -> Router:

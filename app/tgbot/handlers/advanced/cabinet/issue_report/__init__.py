@@ -1,7 +1,7 @@
 from aiogram import Router, F
 
 from handlers import validation
-from handlers.cabinet.issue_report import handlers
+from handlers.advanced.cabinet.issue_report import handlers
 from states.advanced import IssueReportStates
 
 

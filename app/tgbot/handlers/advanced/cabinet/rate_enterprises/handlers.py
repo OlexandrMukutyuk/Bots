@@ -2,10 +2,9 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
 from dto.chat_bot import UserIdDto, RateEnterpriseDto
-from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from keyboards.inline.cabinet.rate_enterprises import enterprises_rates_kb, enterprises_list_kb
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
-from services import http_client
 from services.http_client import HttpChatBot
 from states.advanced import RateEnterpriseStates
 
@@ -52,7 +51,7 @@ async def rate_enterprise(
     rate = callback_data.rate
     enterprise_id = callback_data.enterprise_id
 
-    status = await HttpChatBot.rate_enterprise(
+    await HttpChatBot.rate_enterprise(
         RateEnterpriseDto(user_id=user_id, enterprise_id=enterprise_id, rate=rate)
     )
 
@@ -81,7 +80,7 @@ async def to_enterprise_list(callback: types.CallbackQuery, state: FSMContext, b
 
     message_id = callback.message.message_id
 
-    enterprises = await http_client.get_enterprises(user_id=user_data.get("UserId"))
+    enterprises = await HttpChatBot.get_enterprises(UserIdDto(user_id=user_data.get("UserId")))
 
     allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
 

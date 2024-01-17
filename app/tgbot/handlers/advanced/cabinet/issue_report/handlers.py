@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.fsm.context import FSMContext
 
 from dto.chat_bot import ReportIssueDto
-from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from services.http_client import HttpChatBot
 
 

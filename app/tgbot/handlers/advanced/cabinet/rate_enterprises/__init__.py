@@ -1,6 +1,6 @@
 from aiogram import Router, F
 
-from handlers.cabinet.rate_enterprises import handlers
+from handlers.advanced.cabinet.rate_enterprises import handlers
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
 from states.advanced import RateEnterpriseStates
 

@@ -19,11 +19,8 @@ from data.config import (
     WEBHOOK_LISTENING_PORT,
     WEBHOOK_SECRET_TOKEN,
 )
-from handlers import auth, cabinet, start, subscription
+from handlers import start, subscription, advanced
 from web_handlers.media import media
-
-# Initialize Bot instance with a default parse mode which will be passed to all API calls
-bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 
 
 def setup_web_handlers(app: web.Application) -> None:
@@ -33,8 +30,7 @@ def setup_web_handlers(app: web.Application) -> None:
 def setup_handlers(dp: Dispatcher) -> None:
     dp.include_router(start.prepare_router())
     dp.include_router(subscription.prepare_router())
-    dp.include_router(auth.prepare_router())
-    dp.include_router(cabinet.prepare_router())
+    dp.include_router(advanced.prepare_router())
 
 
 def setup_middlewares(dp: Dispatcher) -> None:
@@ -73,6 +69,9 @@ def main() -> None:
     )
 
     mem_storage = MemoryStorage()
+
+    # Initialize Bot instance with a default parse mode which will be passed to all API calls
+    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 
     dp = Dispatcher(storage=redis_storage)
 

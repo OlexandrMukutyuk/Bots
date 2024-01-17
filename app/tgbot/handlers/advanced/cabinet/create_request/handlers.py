@@ -12,8 +12,8 @@ from dto.chat_bot import (
     AddressByGeoDto,
     CreateRequestDto,
 )
-from handlers.cabinet.common import back_to_menu
-from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.advanced.cabinet.common import back_to_menu
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from handlers.common.flat import FlatHandlers
 from handlers.common.helpers import update_user_state_data
 from handlers.common.house import HouseHandlers

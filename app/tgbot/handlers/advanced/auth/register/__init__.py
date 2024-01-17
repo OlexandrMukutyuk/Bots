@@ -4,7 +4,8 @@ from filters.strong_password import StrongPasswordFilter
 from filters.valid_name import ValidNameFilter
 from filters.valid_phone import ValidPhoneFilter
 from handlers import validation
-from handlers.auth.register import register, edit_info
+from handlers.advanced.auth.register import edit_info
+from handlers.advanced.auth.register import register
 from handlers.common.helpers import Handler
 from handlers.common.streets import StreetsHandlers
 from keyboards.default.auth.edit_info import edit_text

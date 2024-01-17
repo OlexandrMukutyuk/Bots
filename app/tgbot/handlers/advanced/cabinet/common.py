@@ -1,7 +1,7 @@
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
-from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from states.advanced import CabinetStates
 
 

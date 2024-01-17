@@ -1,8 +1,7 @@
 from aiogram import Router
 
-from handlers.cabinet import create_request, share_bot, issue_report, rate_enterprises, archive_req, \
-    edit_profile
-from handlers.cabinet.menu import handlers
+from handlers.advanced.cabinet import archive_req, rate_enterprises
+from handlers.advanced.cabinet import create_request, share_bot, issue_report, edit_profile
 
 
 def prepare_router() -> Router:

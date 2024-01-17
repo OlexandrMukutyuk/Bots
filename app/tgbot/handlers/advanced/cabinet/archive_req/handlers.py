@@ -3,8 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from dto.chat_bot import RateRequestDto
-from handlers.cabinet.common import back_to_menu
-from handlers.cabinet.menu.handlers import give_cabinet_menu
+from handlers.advanced.cabinet.common import back_to_menu
+from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from handlers.common.inline_mode import InlineHandlers
 from keyboards.default.cabinet.archive_req import rate_request_kb
 from keyboards.inline.cabinet.archived_req import confirm_archive_req_kb
@@ -94,7 +94,6 @@ async def review_request(
     bot: Bot,
 ):
     data = await state.get_data()
-    review = callback_data.review
     req_id = callback_data.req_id
 
     chat_id = callback.from_user.id
