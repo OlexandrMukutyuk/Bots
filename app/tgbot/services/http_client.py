@@ -15,7 +15,8 @@ from dto.chat_bot import (
     AddressByGeoDto,
     CreateRequestDto,
     RateRequestDto,
-    UpdateUserDto, RateEnterpriseDto,
+    UpdateUserDto,
+    RateEnterpriseDto,
 )
 from dto.chat_bot.register import RegisterDto
 from dto.guest import UpdateGuestDto, GuestIdDto, RegisterGuestDto, RateEnterpriseGuestDto
@@ -40,11 +41,10 @@ class HttpClient:
 
         async with aiohttp.ClientSession(headers=HttpClient.basic_headers) as session:
             if not full_url:
-                full_url = f"{SERVER_BASE_URL}/{kwargs.get("service")}{kwargs.get("path")}"
+                full_url = f'{SERVER_BASE_URL}/{kwargs.get("service")}{kwargs.get("path")}'
 
             async with session.post(url=full_url, data=encoded_data, ssl=False) as resp:
                 return await resp.json()
-
 
 
 class HttpInfoClient(HttpClient):
@@ -52,30 +52,27 @@ class HttpInfoClient(HttpClient):
     async def get_street_by_id(street_id: int) -> dict:
         response = await HttpInfoClient.post(
             data={"streetid": street_id},
-            full_url=f'{SERVER_BASE_URL}/Services/Dictionary/json/getstreetbyid'
+            full_url=f"{SERVER_BASE_URL}/Services/Dictionary/json/getstreetbyid",
         )
 
         return response.get("list")[0]
-
 
     @staticmethod
     async def get_city_by_id(city_id: int) -> dict:
         response = await HttpInfoClient.post(
             data={"cityid": city_id},
-            full_url=f'{SERVER_BASE_URL}/Services/Dictionary/json/getcities'
+            full_url=f"{SERVER_BASE_URL}/Services/Dictionary/json/getcities",
         )
 
         return response.get("list")[0]
 
 
 class HttpGuestBot(HttpClient):
-
     BASE_SERVICE = SERVER_GUEST_SERVICE
 
     @staticmethod
     async def request(path: str, dto: AbstractDto):
         return await HttpClient.make_request(path, HttpGuestBot.BASE_SERVICE, dto)
-
 
     @staticmethod
     async def register(dto: RegisterGuestDto):
@@ -89,22 +86,19 @@ class HttpGuestBot(HttpClient):
     async def get_enterprises(dto: GuestIdDto):
         data = await HttpGuestBot.request("/GetKps", dto)
 
-        return data.get('Items')
+        return data.get("Items")
 
     @staticmethod
     async def rate_enterprise(dto: RateEnterpriseGuestDto):
         return await HttpGuestBot.request("/SaveKpRate", dto)
 
 
-
 class HttpChatBot(HttpClient):
-
     BASE_SERVICE = SERVER_BASE_SERVICE
 
     @staticmethod
     async def request(path: str, dto: AbstractDto):
         return await HttpClient.make_request(path, HttpChatBot.BASE_SERVICE, dto)
-
 
     @staticmethod
     async def fetch_streets(dto: SearchDto):
