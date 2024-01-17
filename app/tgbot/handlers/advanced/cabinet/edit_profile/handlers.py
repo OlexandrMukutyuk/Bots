@@ -11,7 +11,6 @@ from keyboards.inline.callbacks import StreetCallbackFactory
 from models import Gender
 from services.http_client import HttpChatBot
 from states.advanced import EditInfoStates
-from utils.template_engine import render_template
 
 
 async def handle_buttons(message: types.Message, state: FSMContext):
@@ -159,6 +158,6 @@ async def confirm(message: types.Message, state: FSMContext):
         )
     )
 
-    await message.answer(render_template("user_info/edited_successfully.j2"))
+    await message.answer(texts.EDITED_SUCCESSFULLY)
 
     return await give_cabinet_menu(state, message=message)
