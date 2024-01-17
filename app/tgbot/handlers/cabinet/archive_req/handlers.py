@@ -10,7 +10,7 @@ from keyboards.default.cabinet.archive_req import rate_request_kb
 from keyboards.inline.cabinet.archived_req import confirm_archive_req_kb
 from keyboards.inline.callbacks import ArchiveReqCallbackFactory
 from services.http_client import HttpChatBot
-from states.cabinet import ArchiveRequests
+from states.advanced import ArchiveRequestsStates
 from utils.template_engine import render_template
 
 
@@ -108,7 +108,7 @@ async def review_request(
     )
 
     await bot.delete_message(chat_id=chat_id, message_id=data.get("ArchiveRequestMessageId"))
-    await state.set_state(ArchiveRequests.waiting_rate)
+    await state.set_state(ArchiveRequestsStates.waiting_rate)
 
 
 async def back_to_main_menu(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
@@ -129,7 +129,7 @@ async def save_rate(message: types.Message, state: FSMContext):
     rate = min(5, text.count("⭐"))
 
     await state.update_data(RequestRate=rate)
-    await state.set_state(ArchiveRequests.waiting_comment)
+    await state.set_state(ArchiveRequestsStates.waiting_comment)
 
     await message.answer("Ваша оцінка прийнята")
     await message.answer(text="Напишіть свій коментар ⬇️", reply_markup=ReplyKeyboardRemove())

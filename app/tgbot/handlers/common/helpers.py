@@ -3,11 +3,11 @@ from typing import NamedTuple, Callable, Optional
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
+from states.advanced import LoginState
 
 import texts
 from dto.chat_bot import EmailDto, UserIdDto
 from services.http_client import HttpChatBot
-from states.auth import LoginState
 
 
 class Handler(NamedTuple):

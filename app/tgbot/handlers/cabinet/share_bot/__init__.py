@@ -2,7 +2,7 @@ from aiogram import Router
 
 from handlers.cabinet import common
 from handlers.cabinet.menu import handlers as menu_handlers
-from states.cabinet import ShareChatbot
+from states.advanced import ShareChatbot
 
 
 def prepare_router() -> Router:

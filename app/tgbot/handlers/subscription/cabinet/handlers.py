@@ -11,7 +11,7 @@ from keyboards.default.subscription.subscription import subscription_menu_kb, su
 from keyboards.inline.cabinet.cabinet import share_chatbot_kb
 from models import Gender
 from services.http_client import HttpGuestBot
-from states.cabinet import EditInfo
+from states.advanced import EditInfoStates
 from states.subscription import SubscribeCabinet, SubscribeShareBot, SubscribeRateEnterprise
 from utils.template_engine import render_template
 
@@ -82,7 +82,7 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
         "Gender": Gender.get_label(user_data.get("Gender")),
     }
 
-    await state.set_state(EditInfo.waiting_acception)
+    await state.set_state(EditInfoStates.waiting_acceptation)
 
     template = render_template("edit_user_info.j2", data=data)
 

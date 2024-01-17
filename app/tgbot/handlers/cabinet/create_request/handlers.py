@@ -37,7 +37,7 @@ from keyboards.inline.cabinet.create_request import (
 )
 from keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
 from services.http_client import HttpChatBot
-from states.cabinet import CabinetStates, CreateRequest
+from states.advanced import CabinetStates, CreateRequestStates
 from texts.keyboards import NO_NEED, ENOUGH, BACK
 from utils.media import delete_tmp_media
 from utils.template_engine import render_template
@@ -97,7 +97,7 @@ async def confirm_problem(
         if problem.get("Id") == problem_id:
             problem_name = problem.get("Name")
 
-    await state.set_state(CreateRequest.waiting_reason)
+    await state.set_state(CreateRequestStates.waiting_reason)
 
     await bot.send_message(chat_id=chat_id, text="Тема прийнята. Завантажуємо підтеми...")
 
@@ -174,7 +174,7 @@ async def confirm_reason(
         if reason.get("Id") == reason_id:
             reason_name = reason.get("Name")
 
-    await state.set_state(CreateRequest.waiting_address)
+    await state.set_state(CreateRequestStates.waiting_address)
     await state.set_data({"ReasonId": reason_id, "ReasonName": reason_name, **data})
 
     await bot.send_message(chat_id=chat_id, text="Підтема прийнята")
@@ -231,7 +231,7 @@ async def request_on_my_site(message: types.Message, state: FSMContext):
 
 
 async def manually_type_location(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.is_address_manually)
+    await state.set_state(CreateRequestStates.is_address_manually)
 
     await message.answer(
         text="Ви можете поділитися геолокацією, або вписати адресу вручну. Передача гео не працює з ПК.",
@@ -277,7 +277,7 @@ async def location_by_geo(message: types.Message, state: FSMContext):
 
 
 async def ask_for_street_name(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.waiting_street_typing)
+    await state.set_state(CreateRequestStates.waiting_street_typing)
     await message.answer(
         text=texts.ASKING_STREET,
         reply_markup=request_back_and_main_kb,
@@ -286,7 +286,7 @@ async def ask_for_street_name(message: types.Message, state: FSMContext):
 
 async def choose_street(message: types.Message, state: FSMContext, bot: Bot):
     return await StreetsHandlers.choose_street(
-        message=message, state=state, new_state=CreateRequest.waiting_street_selected, bot=bot
+        message=message, state=state, new_state=CreateRequestStates.waiting_street_selected, bot=bot
     )
 
 
@@ -306,7 +306,7 @@ async def confirm_street(
             reply_markup=request_house_kb,
         )
 
-        await state.set_state(CreateRequest.waiting_house)
+        await state.set_state(CreateRequestStates.waiting_house)
 
     return await StreetsHandlers.confirm_street(
         callback=callback, callback_data=callback_data, state=state, action=action, bot=bot
@@ -318,17 +318,17 @@ async def save_house(message: types.Message, state: FSMContext):
         return await ask_flat(message, state)
 
     return await HouseHandlers.change_house(
-        message, state, new_state=CreateRequest.waiting_street_typing, callback=callback
+        message, state, new_state=CreateRequestStates.waiting_street_typing, callback=callback
     )
 
 
 async def change_street(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.waiting_street_typing)
+    await state.set_state(CreateRequestStates.waiting_street_typing)
     await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
 
 async def ask_flat(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.waiting_flat)
+    await state.set_state(CreateRequestStates.waiting_flat)
     await message.answer(
         text=texts.ASKING_HOUSE,
         reply_markup=request_flat_kb,
@@ -342,7 +342,10 @@ async def save_flat(message: types.Message, state: FSMContext):
         )
 
     await FlatHandlers.change_flat(
-        message=message, state=state, new_state=CreateRequest.waiting_comment, callback=callback
+        message=message,
+        state=state,
+        new_state=CreateRequestStates.waiting_comment,
+        callback=callback,
     )
 
 
@@ -361,7 +364,7 @@ async def save_comment(message: types.Message, state: FSMContext):
         text="Потрібно відображати цю проблему на сайті?", reply_markup=request_yes_no_kb
     )
 
-    await state.set_state(CreateRequest.waiting_showing_status)
+    await state.set_state(CreateRequestStates.waiting_showing_status)
 
 
 async def save_showing_status(message: types.Message, state: FSMContext):
@@ -378,7 +381,7 @@ async def save_showing_status(message: types.Message, state: FSMContext):
 
     await message.answer("Тільки по одному")
 
-    await state.set_state(CreateRequest.waiting_images)
+    await state.set_state(CreateRequestStates.waiting_images)
 
 
 async def saving_images(message: types.Message, state: FSMContext, bot: Bot):
@@ -401,7 +404,7 @@ async def saving_images(message: types.Message, state: FSMContext, bot: Bot):
 
 
 async def showing_request_info(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.waiting_confirm)
+    await state.set_state(CreateRequestStates.waiting_confirm)
     data = await state.get_data()
 
     template = render_template("create_request_info.j2", data=data)
@@ -485,7 +488,7 @@ async def manually_address_back(message: types.Message, state: FSMContext, bot: 
     chat_id = message.chat.id
     data = await state.get_data()
 
-    await state.set_state(CreateRequest.waiting_address)
+    await state.set_state(CreateRequestStates.waiting_address)
 
     await bot.send_message(chat_id=chat_id, text="Підтема прийнята")
 
@@ -500,7 +503,7 @@ async def manually_address_back(message: types.Message, state: FSMContext, bot: 
 
 
 async def street_back(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.is_address_manually)
+    await state.set_state(CreateRequestStates.is_address_manually)
 
     await message.answer(
         text="Потрібно відображати цю проблему на сайті?", reply_markup=request_yes_no_kb
@@ -508,7 +511,7 @@ async def street_back(message: types.Message, state: FSMContext):
 
 
 async def flat_back(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.waiting_reason)
+    await state.set_state(CreateRequestStates.waiting_reason)
     await message.answer(reply_markup=ReplyKeyboardRemove(), text="Добре")
     message = await message.answer(text=texts.ASKGING_REASON, reply_markup=pick_reason_kb)
 
@@ -520,14 +523,14 @@ async def comment_back(message: types.Message, state: FSMContext):
 
 
 async def showing_status_back(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.waiting_comment)
+    await state.set_state(CreateRequestStates.waiting_comment)
     return await message.answer(
         text="Залиште коментар стосовно проблеми", reply_markup=request_comment_kb
     )
 
 
 async def saving_images_back(message: types.Message, state: FSMContext):
-    await state.set_state(CreateRequest.waiting_showing_status)
+    await state.set_state(CreateRequestStates.waiting_showing_status)
 
     await message.answer(
         text="Потрібно відображати цю проблему на сайті?", reply_markup=request_yes_no_kb

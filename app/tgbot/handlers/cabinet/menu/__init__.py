@@ -2,7 +2,7 @@ from aiogram import Router, F
 
 from handlers.cabinet.menu import handlers
 from keyboards.default.cabinet.menu import cabinet_menu_text
-from states.cabinet import CabinetStates
+from states.advanced import CabinetStates
 
 
 def prepare_router() -> Router:

@@ -1,6 +1,7 @@
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
+from states.advanced import EditRegisterState
 
 import texts
 from dto.chat_bot import RegisterDto
@@ -11,7 +12,6 @@ from keyboards.default.auth.register import (
 from keyboards.default.common import without_flat_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
 from services.http_client import HttpChatBot
-from states.auth import EditRegisterState
 from utils.template_engine import render_template
 
 

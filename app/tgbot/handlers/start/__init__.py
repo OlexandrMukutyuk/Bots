@@ -7,7 +7,8 @@ from handlers import validation
 from handlers.common.helpers import Handler
 from handlers.start import handlers
 from keyboards.default.start import start_again_text, auth_types, hello_text, other_mail_text
-from states.auth import StartState, AuthState
+from states.advanced import AuthState
+from states.start import StartState
 
 
 def prepare_router() -> Router:

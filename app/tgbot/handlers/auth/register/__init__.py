@@ -10,7 +10,7 @@ from handlers.common.streets import StreetsHandlers
 from keyboards.default.auth.edit_info import edit_text
 from keyboards.inline.callbacks import StreetCallbackFactory
 from models import Gender
-from states.auth import AdvancedRegisterState, EditRegisterState
+from states.advanced import RegisterState, EditRegisterState
 from texts.keyboards import CHANGE_STREET, AGREEMENT, WITHOUT_FLAT
 
 
@@ -19,58 +19,46 @@ def prepare_router() -> Router:
 
     register_message_list = [
         # Get phone
-        Handler(register.save_phone, [AdvancedRegisterState.waiting_phone, F.contact]),
-        Handler(register.save_phone, [AdvancedRegisterState.waiting_phone, ValidPhoneFilter()]),
+        Handler(register.save_phone, [RegisterState.waiting_phone, F.contact]),
+        Handler(register.save_phone, [RegisterState.waiting_phone, ValidPhoneFilter()]),
         # Get street
-        Handler(
-            register.choose_street, [AdvancedRegisterState.waiting_street_typing, F.text.len() >= 3]
-        ),
+        Handler(register.choose_street, [RegisterState.waiting_street_typing, F.text.len() >= 3]),
         Handler(
             StreetsHandlers.message_via_bot,
-            [AdvancedRegisterState.waiting_street_selected, F.via_bot],
+            [RegisterState.waiting_street_selected, F.via_bot],
         ),
         Handler(
             register.choose_street,
-            [AdvancedRegisterState.waiting_street_selected, F.text.len() >= 3, ~F.via_bot],
+            [RegisterState.waiting_street_selected, F.text.len() >= 3, ~F.via_bot],
         ),
         # Change street
-        Handler(
-            register.change_street, [AdvancedRegisterState.waiting_house, F.text == CHANGE_STREET]
-        ),
+        Handler(register.change_street, [RegisterState.waiting_house, F.text == CHANGE_STREET]),
         # Get house
-        Handler(register.save_house, [AdvancedRegisterState.waiting_house]),
+        Handler(register.save_house, [RegisterState.waiting_house]),
         # Get flat
-        Handler(register.save_flat, [AdvancedRegisterState.waiting_flat, F.text.isdigit()]),
-        Handler(register.save_flat, [AdvancedRegisterState.waiting_flat, F.text == WITHOUT_FLAT]),
+        Handler(register.save_flat, [RegisterState.waiting_flat, F.text.isdigit()]),
+        Handler(register.save_flat, [RegisterState.waiting_flat, F.text == WITHOUT_FLAT]),
         # Get first, middle, last Names
-        Handler(
-            register.save_first_name, [AdvancedRegisterState.waiting_first_name, ValidNameFilter()]
-        ),
+        Handler(register.save_first_name, [RegisterState.waiting_first_name, ValidNameFilter()]),
         Handler(
             register.save_middle_name,
-            [AdvancedRegisterState.waiting_middle_name, ValidNameFilter()],
+            [RegisterState.waiting_middle_name, ValidNameFilter()],
         ),
-        Handler(
-            register.save_last_name, [AdvancedRegisterState.waiting_last_name, ValidNameFilter()]
-        ),
+        Handler(register.save_last_name, [RegisterState.waiting_last_name, ValidNameFilter()]),
         # Get gender
         Handler(
             register.save_gender,
-            [AdvancedRegisterState.waiting_gender, F.text.in_(Gender.values_reversed.keys())],
+            [RegisterState.waiting_gender, F.text.in_(Gender.values_reversed.keys())],
         ),
         # Get password & show agreement
-        Handler(
-            register.save_password, [AdvancedRegisterState.waiting_password, StrongPasswordFilter()]
-        ),
-        Handler(
-            register.show_agreement, [AdvancedRegisterState.waiting_password, F.text != AGREEMENT]
-        ),
+        Handler(register.save_password, [RegisterState.waiting_password, StrongPasswordFilter()]),
+        Handler(register.show_agreement, [RegisterState.waiting_password, F.text != AGREEMENT]),
     ]
 
     edit_message_list = [
         Handler(
             edit_info.first_time_showing_user_info,
-            [AdvancedRegisterState.waiting_agreement, F.text == AGREEMENT],
+            [RegisterState.waiting_agreement, F.text == AGREEMENT],
         ),
         # Showing typed info
         Handler(
@@ -97,7 +85,7 @@ def prepare_router() -> Router:
         ),
         Handler(
             StreetsHandlers.message_via_bot,
-            [AdvancedRegisterState.waiting_street_selected, F.via_bot],
+            [RegisterState.waiting_street_selected, F.via_bot],
         ),
         Handler(edit_info.edit_house, [EditRegisterState.waiting_house]),
         Handler(edit_info.edit_flat, [EditRegisterState.waiting_flat, F.text.isdigit()]),
@@ -108,14 +96,14 @@ def prepare_router() -> Router:
     ]
 
     inline_list = [
-        Handler(register.show_street_list, [AdvancedRegisterState.waiting_street_selected]),
+        Handler(register.show_street_list, [RegisterState.waiting_street_selected]),
         Handler(edit_info.show_street_list, [EditRegisterState.waiting_street_selected]),
     ]
 
     callback_list = [
         Handler(
             register.confirm_street,
-            [StreetCallbackFactory.filter(), AdvancedRegisterState.waiting_street_selected],
+            [StreetCallbackFactory.filter(), RegisterState.waiting_street_selected],
         ),
         Handler(
             edit_info.confirm_street,
@@ -124,28 +112,28 @@ def prepare_router() -> Router:
     ]
 
     validation_message_list = [
-        Handler(validation.not_valid_phone, [AdvancedRegisterState.waiting_phone]),
+        Handler(validation.not_valid_phone, [RegisterState.waiting_phone]),
         Handler(validation.not_valid_phone, [EditRegisterState.waiting_phone]),
-        Handler(validation.not_valid_street_name, [AdvancedRegisterState.waiting_street_typing]),
+        Handler(validation.not_valid_street_name, [RegisterState.waiting_street_typing]),
         Handler(
             validation.not_valid_street_name,
-            [AdvancedRegisterState.waiting_street_selected, ~F.via_bot],
+            [RegisterState.waiting_street_selected, ~F.via_bot],
         ),
         Handler(validation.not_valid_street_name, [EditRegisterState.waiting_street_typing]),
         Handler(
             validation.not_valid_street_name,
             [EditRegisterState.waiting_street_selected, ~F.via_bot],
         ),
-        Handler(validation.not_valid_flat, [AdvancedRegisterState.waiting_flat]),
+        Handler(validation.not_valid_flat, [RegisterState.waiting_flat]),
         Handler(validation.not_valid_flat, [EditRegisterState.waiting_flat]),
-        Handler(validation.not_valid_gender, [AdvancedRegisterState.waiting_gender]),
-        Handler(validation.not_valid_first_name, [AdvancedRegisterState.waiting_first_name]),
-        Handler(validation.not_valid_last_name, [AdvancedRegisterState.waiting_middle_name]),
-        Handler(validation.not_valid_middle_name, [AdvancedRegisterState.waiting_last_name]),
+        Handler(validation.not_valid_gender, [RegisterState.waiting_gender]),
+        Handler(validation.not_valid_first_name, [RegisterState.waiting_first_name]),
+        Handler(validation.not_valid_last_name, [RegisterState.waiting_middle_name]),
+        Handler(validation.not_valid_middle_name, [RegisterState.waiting_last_name]),
         Handler(validation.not_valid_first_name, [EditRegisterState.waiting_first_name]),
         Handler(validation.not_valid_last_name, [EditRegisterState.waiting_middle_name]),
         Handler(validation.not_valid_middle_name, [EditRegisterState.waiting_last_name]),
-        Handler(validation.weak_password, [AdvancedRegisterState.waiting_password]),
+        Handler(validation.weak_password, [RegisterState.waiting_password]),
         Handler(validation.weak_password, [EditRegisterState.waiting_password]),
     ]
 

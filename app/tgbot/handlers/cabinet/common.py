@@ -2,7 +2,7 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
 from handlers.cabinet.menu.handlers import give_cabinet_menu
-from states.cabinet import CabinetStates
+from states.advanced import CabinetStates
 
 
 async def back_to_menu(callback: types.CallbackQuery, state: FSMContext, bot: Bot):

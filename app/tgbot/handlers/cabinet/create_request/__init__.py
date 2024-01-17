@@ -10,7 +10,7 @@ from handlers.common.helpers import Handler
 from handlers.common.streets import StreetsHandlers
 from keyboards.default.start import yes_text, no_text
 from keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
-from states.cabinet import CreateRequest
+from states.advanced import CreateRequestStates
 from texts.keyboards import (
     TO_MAIN_MENU,
     MANUALLY_ADDRESS,
@@ -28,72 +28,79 @@ def prepare_router() -> Router:
         # To main cabinet
         Handler(handlers.to_main_menu_reply, [F.text == TO_MAIN_MENU]),
         # Choose problem
-        Handler(handlers.message_via_bot, [CreateRequest.waiting_problem, F.via_bot]),
-        Handler(handlers.message_via_bot, [CreateRequest.waiting_reason, F.via_bot]),
+        Handler(handlers.message_via_bot, [CreateRequestStates.waiting_problem, F.via_bot]),
+        Handler(handlers.message_via_bot, [CreateRequestStates.waiting_reason, F.via_bot]),
         # Choose address
-        Handler(handlers.flat_back, [CreateRequest.waiting_address, BackFilter()]),
-        Handler(handlers.request_on_my_site, [CreateRequest.waiting_address, YesFilter()]),
-        Handler(handlers.manually_type_location, [CreateRequest.waiting_address, NoFilter()]),
+        Handler(handlers.flat_back, [CreateRequestStates.waiting_address, BackFilter()]),
+        Handler(handlers.request_on_my_site, [CreateRequestStates.waiting_address, YesFilter()]),
+        Handler(handlers.manually_type_location, [CreateRequestStates.waiting_address, NoFilter()]),
         # Manually Address
-        Handler(handlers.manually_address_back, [CreateRequest.is_address_manually, BackFilter()]),
+        Handler(
+            handlers.manually_address_back, [CreateRequestStates.is_address_manually, BackFilter()]
+        ),
         # Geo sharing
-        Handler(handlers.location_by_geo, [CreateRequest.is_address_manually, F.location]),
+        Handler(handlers.location_by_geo, [CreateRequestStates.is_address_manually, F.location]),
         # Street choosing
         Handler(
             handlers.ask_for_street_name,
-            [CreateRequest.is_address_manually, F.text == MANUALLY_ADDRESS],
+            [CreateRequestStates.is_address_manually, F.text == MANUALLY_ADDRESS],
         ),
-        Handler(handlers.choose_street, [CreateRequest.waiting_street_typing, F.text.len() >= 3]),
         Handler(
-            StreetsHandlers.message_via_bot, [CreateRequest.waiting_street_selected, F.via_bot]
+            handlers.choose_street, [CreateRequestStates.waiting_street_typing, F.text.len() >= 3]
+        ),
+        Handler(
+            StreetsHandlers.message_via_bot,
+            [CreateRequestStates.waiting_street_selected, F.via_bot],
         ),
         # Choose house
         Handler(
             handlers.ask_for_street_name,
-            [CreateRequest.waiting_house, F.text == CHANGE_STREET],
+            [CreateRequestStates.waiting_house, F.text == CHANGE_STREET],
         ),
-        Handler(handlers.save_house, [CreateRequest.waiting_house]),
+        Handler(handlers.save_house, [CreateRequestStates.waiting_house]),
         # Choose flat
-        Handler(handlers.flat_back, [CreateRequest.waiting_flat, BackFilter()]),
-        Handler(handlers.save_flat, [CreateRequest.waiting_flat, F.text.isdigit()]),
-        Handler(handlers.save_flat, [CreateRequest.waiting_flat, F.text == LIVING_IN_HOUSE]),
+        Handler(handlers.flat_back, [CreateRequestStates.waiting_flat, BackFilter()]),
+        Handler(handlers.save_flat, [CreateRequestStates.waiting_flat, F.text.isdigit()]),
+        Handler(handlers.save_flat, [CreateRequestStates.waiting_flat, F.text == LIVING_IN_HOUSE]),
         # Choose comment
-        Handler(handlers.comment_back, [CreateRequest.waiting_comment, BackFilter()]),
-        Handler(handlers.save_comment, [CreateRequest.waiting_comment, F.text.len() >= 10]),
+        Handler(handlers.comment_back, [CreateRequestStates.waiting_comment, BackFilter()]),
+        Handler(handlers.save_comment, [CreateRequestStates.waiting_comment, F.text.len() >= 10]),
         # Choose showing on site
-        Handler(handlers.showing_status_back, [CreateRequest.waiting_showing_status, BackFilter()]),
+        Handler(
+            handlers.showing_status_back, [CreateRequestStates.waiting_showing_status, BackFilter()]
+        ),
         Handler(
             handlers.save_showing_status,
-            [CreateRequest.waiting_showing_status, F.text.in_([yes_text, no_text])],
+            [CreateRequestStates.waiting_showing_status, F.text.in_([yes_text, no_text])],
         ),
         # Upload images
-        Handler(handlers.saving_images_back, [CreateRequest.waiting_images, BackFilter()]),
-        Handler(handlers.saving_images, [CreateRequest.waiting_images, F.photo]),
+        Handler(handlers.saving_images_back, [CreateRequestStates.waiting_images, BackFilter()]),
+        Handler(handlers.saving_images, [CreateRequestStates.waiting_images, F.photo]),
         Handler(
             handlers.saving_images,
-            [CreateRequest.waiting_images, F.text.in_([NO_NEED, ENOUGH])],
+            [CreateRequestStates.waiting_images, F.text.in_([NO_NEED, ENOUGH])],
         ),
         # Showing all info
         Handler(
             handlers.showing_request_info,
-            [CreateRequest.waiting_confirm, ~F.text.in_([yes_text, no_text])],
+            [CreateRequestStates.waiting_confirm, ~F.text.in_([yes_text, no_text])],
         ),
         # Confirm request
-        Handler(handlers.confirm_request, [CreateRequest.waiting_confirm, YesFilter()]),
-        Handler(handlers.to_main_menu_inline, [CreateRequest.waiting_confirm, NoFilter()]),
+        Handler(handlers.confirm_request, [CreateRequestStates.waiting_confirm, YesFilter()]),
+        Handler(handlers.to_main_menu_inline, [CreateRequestStates.waiting_confirm, NoFilter()]),
         # Validation handlers
-        Handler(validation.not_valid_flat, [CreateRequest.waiting_flat]),
-        Handler(validation.not_valid_comment, [CreateRequest.waiting_comment]),
-        Handler(validation.not_valid_text, [CreateRequest.waiting_showing_status]),
+        Handler(validation.not_valid_flat, [CreateRequestStates.waiting_flat]),
+        Handler(validation.not_valid_comment, [CreateRequestStates.waiting_comment]),
+        Handler(validation.not_valid_text, [CreateRequestStates.waiting_showing_status]),
     ]
 
     inline_list = [
         # Choose problem
-        Handler(handlers.show_problems_list, [CreateRequest.waiting_problem]),
+        Handler(handlers.show_problems_list, [CreateRequestStates.waiting_problem]),
         # Choose reason
-        Handler(handlers.show_reasons_list, [CreateRequest.waiting_reason]),
+        Handler(handlers.show_reasons_list, [CreateRequestStates.waiting_reason]),
         # Street choosing
-        Handler(handlers.show_street_list, [CreateRequest.waiting_street_selected]),
+        Handler(handlers.show_street_list, [CreateRequestStates.waiting_street_selected]),
     ]
 
     callback_list = [
@@ -102,18 +109,21 @@ def prepare_router() -> Router:
         # Choose problem
         Handler(
             handlers.confirm_problem,
-            [ProblemCallbackFactory.filter(), CreateRequest.waiting_problem],
+            [ProblemCallbackFactory.filter(), CreateRequestStates.waiting_problem],
         ),
-        Handler(handlers.cancel_problem, [CreateRequest.waiting_problem, F.data == "cabinet_menu"]),
+        Handler(
+            handlers.cancel_problem, [CreateRequestStates.waiting_problem, F.data == "cabinet_menu"]
+        ),
         # Choose reason
         Handler(
-            handlers.confirm_reason, [ProblemCallbackFactory.filter(), CreateRequest.waiting_reason]
+            handlers.confirm_reason,
+            [ProblemCallbackFactory.filter(), CreateRequestStates.waiting_reason],
         ),
-        Handler(handlers.cancel_reason, [CreateRequest.waiting_reason, F.data == "back"]),
+        Handler(handlers.cancel_reason, [CreateRequestStates.waiting_reason, F.data == "back"]),
         # Street choosing
         Handler(
             handlers.confirm_street,
-            [StreetCallbackFactory.filter(), CreateRequest.waiting_street_selected],
+            [StreetCallbackFactory.filter(), CreateRequestStates.waiting_street_selected],
         ),
     ]
 

@@ -13,14 +13,14 @@ from keyboards.inline.cabinet.create_request import pick_problem_kb
 from keyboards.inline.cabinet.rate_enterprises import enterprises_list_kb
 from models import Gender
 from services.http_client import HttpChatBot
-from states.cabinet import (
+from states.advanced import (
     IssueReportStates,
     ShareChatbot,
     CabinetStates,
-    CreateRequest,
-    RateEnterprise,
-    ArchiveRequests,
-    EditInfo,
+    CreateRequestStates,
+    RateEnterpriseStates,
+    ArchiveRequestsStates,
+    EditInfoStates,
 )
 from utils.template_engine import render_template
 
@@ -98,7 +98,7 @@ async def rate_enterprises(message: types.Message, state: FSMContext):
         reply_markup=enterprises_list_kb(allowed_to_rate),
     )
 
-    await state.set_state(RateEnterprise.showing_list)
+    await state.set_state(RateEnterpriseStates.showing_list)
 
 
 async def create_request(message: types.Message, state: FSMContext):
@@ -115,7 +115,7 @@ async def create_request(message: types.Message, state: FSMContext):
     problems_msg = await message.answer(text=texts.ASKGING_PROBLEM, reply_markup=pick_problem_kb)
 
     await state.update_data(ProblemsMessageId=problems_msg.message_id)
-    await state.set_state(CreateRequest.waiting_problem)
+    await state.set_state(CreateRequestStates.waiting_problem)
 
 
 async def actual_requests(message: types.Message, state: FSMContext):
@@ -167,7 +167,7 @@ async def history_requests(message: types.Message, state: FSMContext):
         ArchiveRequests=archived_req, ArchiveRequestsMessageId=req_msg.message_id
     )
 
-    await state.set_state(ArchiveRequests.waiting_req)
+    await state.set_state(ArchiveRequestsStates.waiting_req)
 
 
 async def change_user_info(message: types.Message, state: FSMContext):
@@ -187,7 +187,7 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
         "Gender": Gender.get_label(user_data.get("Gender")),
     }
 
-    await state.set_state(EditInfo.waiting_acception)
+    await state.set_state(EditInfoStates.waiting_acceptation)
 
     template = render_template("edit_user_info.j2", data=data)
 

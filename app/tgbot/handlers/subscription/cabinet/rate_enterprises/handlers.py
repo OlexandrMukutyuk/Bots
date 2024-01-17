@@ -7,7 +7,7 @@ from keyboards.inline.cabinet.rate_enterprises import enterprises_rates_kb, ente
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
 from services import http_client
 from services.http_client import HttpChatBot
-from states.cabinet import RateEnterprise
+from states.advanced import RateEnterpriseStates
 
 
 async def show_rate_for_enterprises(
@@ -30,7 +30,7 @@ async def show_rate_for_enterprises(
 
     chat_id = callback.from_user.id
 
-    await state.set_state(RateEnterprise.enterprise_selected)
+    await state.set_state(RateEnterpriseStates.enterprise_selected)
 
     await bot.edit_message_text(
         text=f"Будь ласка, оцініть підприємство {enterprise_name}",
@@ -98,4 +98,4 @@ async def to_enterprise_list(callback: types.CallbackQuery, state: FSMContext, b
         reply_markup=enterprises_list_kb(allowed_to_rate),
     )
 
-    await state.set_state(RateEnterprise.showing_list)
+    await state.set_state(RateEnterpriseStates.showing_list)

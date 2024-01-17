@@ -15,7 +15,8 @@ from keyboards.default.basic import yes_n_no
 from keyboards.default.start import greeting_kb, auth_types_kb
 from keyboards.default.start import is_register_on_site, start_again_kb, yes_text, no_text
 from services.http_client import HttpChatBot
-from states.auth import StartState, AuthState, AdvancedRegisterState
+from states.advanced import AuthState, RegisterState
+from states.start import StartState
 from states.subscription import SubscribeAuthState
 
 
@@ -64,7 +65,7 @@ async def answer_if_register(message: types.Message, state: FSMContext):
         await message.answer(texts.NEED_REGISTER)
         await message.answer(text=texts.ASKING_PHONE, reply_markup=phone_share_kb)
         await message.answer(texts.PHONE_EXAMPLE)
-        await state.set_state(AdvancedRegisterState.waiting_phone)
+        await state.set_state(RegisterState.waiting_phone)
 
 
 async def answer_if_confirmed_email(message: types.Message):
