@@ -3,13 +3,12 @@ from aiogram.fsm.context import FSMContext
 
 import texts
 from handlers.cabinet.menu.handlers import give_cabinet_menu, send_edit_user_info
-from handlers.common import generate_inline_street_list
-from keyboards.default.auth.register import gender_dict
+from handlers.common.house import HouseHandlers
+from handlers.common.streets import StreetsHandlers
 from keyboards.default.cabinet.edit_profile import edit_text, change_gender_kb, back_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
-from keyboards.inline.streets import choose_street_kb
+from models import Gender
 from services import http_client
-from services.http_client import verify_address, fetch_streets
 from states.cabinet import EditInfo
 from utils.template_engine import render_template
 
@@ -59,9 +58,6 @@ async def showing_user_info(message: types.Message, state: FSMContext):
     await send_edit_user_info(state, message=message)
 
 
-# Edit names
-
-
 async def edit_first_name(message: types.Message, state: FSMContext):
     first_name = message.text
 
@@ -92,63 +88,37 @@ async def edit_last_name(message: types.Message, state: FSMContext):
 # Edit other
 
 
-async def edit_street(message: types.Message, state: FSMContext):
-    streets_data = await fetch_streets(message.text)
-
-    if len(streets_data) == 0:
-        await message.answer(render_template("services/not_found.j2"))
-        return await message.answer(render_template("asking/street.j2"))
-
-    await message.answer(
-        text=render_template("user_info/pick_street.j2"), reply_markup=choose_street_kb
+async def edit_street(message: types.Message, state: FSMContext, bot: Bot):
+    return await StreetsHandlers.choose_street(
+        message=message, state=state, new_state=EditInfo.waiting_street_selected, bot=bot
     )
-
-    await state.update_data(Streets=streets_data)
-
-    await state.set_state(EditInfo.waiting_street_selected)
 
 
 async def show_street_list(callback: types.InlineQuery, state: FSMContext):
     data = await state.get_data()
 
-    await generate_inline_street_list(data, callback)
+    return await StreetsHandlers.inline_list(callback, data)
 
 
 async def confirm_street(
     callback: types.CallbackQuery, callback_data: StreetCallbackFactory, state: FSMContext, bot: Bot
 ):
-    street_id = callback_data.street_id
+    async def action():
+        await state.set_state(EditInfo.waiting_acception)
+        await send_edit_user_info(state, bot=bot, chat_id=callback.from_user.id)
 
-    street = await http_client.get_street_by_id(street_id)
-
-    await state.update_data(
-        Streets=None,
-        Street=street.get("name"),
-        StreetId=street_id,
-        CityId=callback_data.city_id,
+    await StreetsHandlers.confirm_street(
+        callback=callback, callback_data=callback_data, state=state, action=action, bot=bot
     )
-
-    await state.set_state(EditInfo.waiting_acception)
-
-    await send_edit_user_info(state, bot=bot, chat_id=callback.from_user.id)
-
-    return await callback.answer()
 
 
 async def edit_house(message: types.Message, state: FSMContext):
-    house = message.text
-    street_id = (await state.get_data())["StreetId"]
-    is_address_correct = await verify_address(street_id=street_id, house=house)
+    async def callback():
+        await send_edit_user_info(state, message=message)
 
-    if not is_address_correct:
-        await message.answer(render_template("validation/house_not_found.j2"))
-        await message.answer(text=render_template("asking/house.j2"), reply_markup=back_kb)
-        return
-
-    await state.update_data(House=house)
-    await state.set_state(EditInfo.waiting_acception)
-
-    await send_edit_user_info(state, message=message)
+    return HouseHandlers.change_house(
+        message=message, state=state, new_state=EditInfo.waiting_acception, callback=callback
+    )
 
 
 async def edit_flat(message: types.Message, state: FSMContext):
@@ -161,14 +131,7 @@ async def edit_flat(message: types.Message, state: FSMContext):
 
 
 async def edit_gender(message: types.Message, state: FSMContext):
-    gender = message.text
-
-    if gender == gender_dict["other"]:
-        gender = None
-    elif gender == gender_dict["male"]:
-        gender = "male"
-    else:
-        gender = "female"
+    gender = Gender.get_key(message.text)
 
     await state.update_data(Gender=gender)
     await state.set_state(EditInfo.waiting_acception)

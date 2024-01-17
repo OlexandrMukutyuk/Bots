@@ -2,7 +2,7 @@ from aiogram import Router, F
 
 from handlers import validation
 from handlers.cabinet.archive_req import handlers
-from handlers.common import Handler
+from handlers.common.helpers import Handler
 from keyboards.default.cabinet.archive_req import later_text
 from keyboards.inline.callbacks import ArchiveReqCallbackFactory
 from states.cabinet import ArchiveRequests

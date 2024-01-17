@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.filters import BaseFilter
 
-from keyboards.default.auth.start import no_text
+from keyboards.default.start import no_text
 
 
 class NoFilter(BaseFilter):

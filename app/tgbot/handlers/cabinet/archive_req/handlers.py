@@ -2,13 +2,14 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from dto.chat_bot import RateRequestDto
 from handlers.cabinet.common import back_to_menu
 from handlers.cabinet.menu.handlers import give_cabinet_menu
-from handlers.common import InlineHandlers
+from handlers.common.inline_mode import InlineHandlers
 from keyboards.default.cabinet.archive_req import rate_request_kb
 from keyboards.inline.cabinet.archived_req import confirm_archive_req_kb
 from keyboards.inline.callbacks import ArchiveReqCallbackFactory
-from services import http_client
+from services.http_client import HttpChatBot
 from states.cabinet import ArchiveRequests
 from utils.template_engine import render_template
 
@@ -139,12 +140,10 @@ async def save_comment(message: types.Message, state: FSMContext):
 
     comment = message.text
 
-    await http_client.rate_request(
-        {
-            "RequestId": data.get("RequestReviewId"),
-            "Mark": data.get("RequestRate"),
-            "Comment": comment,
-        }
+    await HttpChatBot.rate_request(
+        RateRequestDto(
+            request_id=data.get("RequestReviewId"), mark=data.get("RequestRate"), comment=comment
+        )
     )
 
     await message.answer("Ви успішно оцінили виконня запиту")

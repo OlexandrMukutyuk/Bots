@@ -3,15 +3,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
-from handlers.common import StreetsHandlers, independent_message
+from dto.chat_bot import RegisterDto
 from keyboards.default.auth.edit_info import edit_text, edit_register_info_kb
 from keyboards.default.auth.register import (
-    without_flat_kb,
     phone_share_kb,
-    without_flat_text,
 )
+from keyboards.default.common import without_flat_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
-from services.http_client import verify_address
+from services.http_client import HttpChatBot
 from states.auth import EditRegisterState
 from utils.template_engine import render_template
 
@@ -33,9 +32,7 @@ async def handle_buttons(message: types.Message, state: FSMContext):
 
     if button_type == edit_text["last_name_text"]:
         await state.set_state(EditRegisterState.waiting_last_name)
-        return await message.answer(
-            text=texts.ASKING_LAST_NAME, reply_markup=ReplyKeyboardRemove()
-        )
+        return await message.answer(text=texts.ASKING_LAST_NAME, reply_markup=ReplyKeyboardRemove())
 
     if button_type == edit_text["phone_text"]:
         await state.set_state(EditRegisterState.waiting_phone)
@@ -44,29 +41,24 @@ async def handle_buttons(message: types.Message, state: FSMContext):
 
     if button_type == edit_text["password_text"]:
         await state.set_state(EditRegisterState.waiting_password)
-        await message.answer(
-            text=texts.ASKING_PASSWORD, reply_markup=ReplyKeyboardRemove()
-        )
+        await message.answer(text=texts.ASKING_PASSWORD, reply_markup=ReplyKeyboardRemove())
 
         return await message.answer(texts.PASSWORD_REQS)
 
     if button_type == edit_text["street_text"]:
         await state.set_state(EditRegisterState.waiting_street_typing)
-        return await message.answer(
-            text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove()
-        )
+        return await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
 
     if button_type == edit_text["house_text"]:
         await state.set_state(EditRegisterState.waiting_house)
-        return await message.answer(
-            text=texts.ASKING_HOUSE, reply_markup=ReplyKeyboardRemove()
-        )
+        return await message.answer(text=texts.ASKING_HOUSE, reply_markup=ReplyKeyboardRemove())
 
     if button_type == edit_text["flat_text"]:
         await state.set_state(EditRegisterState.waiting_flat)
-        return await message.answer(
-            text=texts.ASKING_FLAT, reply_markup=without_flat_kb
-        )
+        return await message.answer(text=texts.ASKING_FLAT, reply_markup=without_flat_kb)
+
+    if button_type == edit_text["accept_info_text"]:
+        return await accept_info(message, state)
 
 
 async def first_time_showing_user_info(message: types.Message, state: FSMContext):
@@ -80,12 +72,10 @@ async def send_user_info(state: FSMContext, **kwargs):
 
     info_template = render_template("register/confirming_info.j2", data=user_data)
 
-    await independent_message(text=info_template)
+    await independent_message(text=info_template, **kwargs)
     await independent_message(
-        text=texts.IS_EVERYTHING_CORRECT, reply_markup=edit_register_info_kb
+        text=texts.IS_EVERYTHING_CORRECT, reply_markup=edit_register_info_kb, **kwargs
     )
-
-    return
 
 
 async def edit_phone(message: types.Message, state: FSMContext):
@@ -97,18 +87,16 @@ async def edit_phone(message: types.Message, state: FSMContext):
     await send_user_info(state, message=message)
 
 
-async def edit_street(message: types.Message, state: FSMContext):
+async def edit_street(message: types.Message, state: FSMContext, bot: Bot):
     return await StreetsHandlers.choose_street(
-        message, state, EditRegisterState.waiting_street_selected
+        message=message, state=state, new_state=EditRegisterState.waiting_street_selected, bot=bot
     )
 
 
 async def show_street_list(callback: types.InlineQuery, state: FSMContext):
     streets_data = (await state.get_data()).get("Streets")
 
-    return await StreetsHandlers.inline_list(
-        callback=callback, streets_data=streets_data
-    )
+    return await StreetsHandlers.inline_list(callback=callback, streets_data=streets_data)
 
 
 async def confirm_street(
@@ -118,42 +106,41 @@ async def confirm_street(
     bot: Bot,
 ):
     async def action():
-        await state.set_state(EditRegisterState.waiting_accepting)
-        await send_user_info(state, bot=bot, chat_id=callback.from_user.id)
+        await state.set_state(EditRegisterState.waiting_house)
+        await independent_message(
+            text=texts.ASKING_HOUSE,
+            reply_markup=ReplyKeyboardRemove(),
+            bot=bot,
+            chat_id=callback.from_user.id,
+        )
 
     await StreetsHandlers.confirm_street(
-        callback=callback, callback_data=callback_data, state=state, action=action
+        callback=callback, callback_data=callback_data, state=state, action=action, bot=bot
     )
 
 
 async def edit_house(message: types.Message, state: FSMContext):
-    house = message.text
+    async def callback():
+        await send_user_info(state, message=message)
 
-    street_id = (await state.get_data()).get("StreetId")
-
-    is_address_correct = await verify_address(street_id=street_id, house=house)
-
-    if not is_address_correct:
-        await message.answer(texts.HOUSE_NOT_FOUND)
-        await message.answer(texts.ASKING_HOUSE)
-        return
-
-    await state.update_data(House=house)
-    await state.set_state(EditRegisterState.waiting_accepting)
-
-    await send_user_info(state, message=message)
+    return await HouseHandlers.change_house(
+        message=message,
+        state=state,
+        new_state=EditRegisterState.waiting_accepting,
+        callback=callback,
+    )
 
 
 async def edit_flat(message: types.Message, state: FSMContext):
-    flat = message.text
+    async def callback():
+        await send_user_info(state, message=message)
 
-    if flat == without_flat_text:
-        flat = None
-
-    await state.update_data(Flat=flat)
-    await state.set_state(EditRegisterState.waiting_accepting)
-
-    await send_user_info(state, message=message)
+    await FlatHandlers.change_flat(
+        message=message,
+        state=state,
+        new_state=EditRegisterState.waiting_accepting,
+        callback=callback,
+    )
 
 
 async def edit_first_name(message: types.Message, state: FSMContext):
@@ -193,9 +180,21 @@ async def edit_password(message: types.Message, state: FSMContext):
 async def accept_info(message: types.Message, state: FSMContext):
     data = await state.get_data()
 
-    # TODO Register auth
-    for key, value in data.items():
-        print(f"{key}: {value}")
+    await HttpChatBot.register(
+        RegisterDto(
+            first_name=data.get("FirstName"),
+            last_name=data.get("LastName"),
+            middle_name=data.get("MiddleName"),
+            gender=data.get("Gender"),
+            phone=data.get("Phone"),
+            city_id=data.get("CityId"),
+            street_id=data.get("StreetId"),
+            house=data.get("House"),
+            flat=data.get("Flat"),
+            password=data.get("Password"),
+            email=data.get("Email"),
+        )
+    )
 
     await message.answer("Ми відправили посилання вам на пошту. Перейдіть по ньому")
     await message.answer(

@@ -19,8 +19,11 @@ from data.config import (
     WEBHOOK_LISTENING_PORT,
     WEBHOOK_SECRET_TOKEN,
 )
-from handlers import auth, cabinet, start
+from handlers import auth, cabinet, start, subscription
 from web_handlers.media import media
+
+# Initialize Bot instance with a default parse mode which will be passed to all API calls
+bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 
 
 def setup_web_handlers(app: web.Application) -> None:
@@ -29,6 +32,7 @@ def setup_web_handlers(app: web.Application) -> None:
 
 def setup_handlers(dp: Dispatcher) -> None:
     dp.include_router(start.prepare_router())
+    dp.include_router(subscription.prepare_router())
     dp.include_router(auth.prepare_router())
     dp.include_router(cabinet.prepare_router())
 
@@ -70,16 +74,11 @@ def main() -> None:
 
     mem_storage = MemoryStorage()
 
-    dp = Dispatcher(
-        storage=redis_storage
-    )
+    dp = Dispatcher(storage=redis_storage)
 
     setup_aiogram(dp)
 
     dp.startup.register(on_startup)
-
-    # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 
     loop.run_until_complete(delete_updates(bot))
 

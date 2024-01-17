@@ -1,12 +1,12 @@
 from aiogram import types
 from aiogram.filters import BaseFilter
 
-from keyboards.default.cabinet.create_request import back_text
+from texts.keyboards import BACK
 
 
 class BackFilter(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:
-        if message.text == back_text:
+        if message.text == BACK:
             return True
 
         return False

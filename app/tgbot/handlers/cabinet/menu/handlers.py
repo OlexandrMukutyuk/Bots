@@ -3,15 +3,16 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
-from handlers.common import send_loading_message, independent_message
-from keyboards.default.cabinet import cabinet_menu_text, cabinet_menu_kb
+from dto.chat_bot import UserIdDto
+from handlers.common.helpers import independent_message, send_loading_message
 from keyboards.default.cabinet.edit_profile import edit_profile_kb
+from keyboards.default.cabinet.menu import cabinet_menu_kb, cabinet_menu_text
 from keyboards.inline.cabinet.archived_req import pick_archive_req_kb
 from keyboards.inline.cabinet.cabinet import share_chatbot_kb
 from keyboards.inline.cabinet.create_request import pick_problem_kb
 from keyboards.inline.cabinet.rate_enterprises import enterprises_list_kb
 from models import Gender
-from services import http_client
+from services.http_client import HttpChatBot
 from states.cabinet import (
     IssueReportStates,
     ShareChatbot,
@@ -76,21 +77,44 @@ async def share_chatbot(message: types.Message, state: FSMContext):
     return await state.set_state(ShareChatbot.waiting_back)
 
 
+async def rate_enterprises(message: types.Message, state: FSMContext):
+    user_data = await state.get_data()
+    user_id = user_data.get("UserId")
+
+    loading_msg = await send_loading_message(message)
+
+    enterprises = await HttpChatBot.get_enterprises(UserIdDto(user_id=user_id))
+    allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
+
+    await loading_msg.delete()
+
+    if len(allowed_to_rate) == 0:
+        await message.answer(texts.NO_ENTERPRISES_TO_RATE)
+        await give_cabinet_menu(message=message, state=state)
+        return
+
+    await message.answer(
+        text=texts.ASKGING_ENTERPRISE,
+        reply_markup=enterprises_list_kb(allowed_to_rate),
+    )
+
+    await state.set_state(RateEnterprise.showing_list)
+
+
 async def create_request(message: types.Message, state: FSMContext):
     loading_msg = await send_loading_message(message)
 
     user_id = (await state.get_data()).get("UserId")
-    problems = await http_client.get_problems(user_id)
+
+    problems = await HttpChatBot.get_problems(UserIdDto(user_id=user_id))
 
     await loading_msg.delete()
 
     await state.update_data(Problems=problems)
 
-    problems_message = await message.answer(
-        text="Виберіть тему проблеми, яка у вас виникла 👇", reply_markup=pick_problem_kb
-    )
+    problems_msg = await message.answer(text=texts.ASKGING_PROBLEM, reply_markup=pick_problem_kb)
 
-    await state.update_data(ProblemsMessageId=problems_message.message_id)
+    await state.update_data(ProblemsMessageId=problems_msg.message_id)
     await state.set_state(CreateRequest.waiting_problem)
 
 
@@ -99,7 +123,7 @@ async def actual_requests(message: types.Message, state: FSMContext):
 
     loading_message = await send_loading_message(message)
 
-    requests = await http_client.actual_requests(user_id=user_data.get("UserId"))
+    requests = await HttpChatBot.actual_requests(UserIdDto(user_id=user_data.get("UserId")))
 
     await loading_message.delete()
     await message.answer("Звернення які розглядаються")
@@ -120,35 +144,11 @@ async def actual_requests(message: types.Message, state: FSMContext):
     return await give_cabinet_menu(state=state, message=message)
 
 
-async def rate_enterprises(message: types.Message, state: FSMContext):
-    user_data = await state.get_data()
-    user_id = user_data.get("UserId")
-
-    loading_msg = await send_loading_message(message)
-
-    enterprises = await http_client.get_enterprises(user_id=user_id)
-    allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
-
-    await loading_msg.delete()
-
-    if len(allowed_to_rate) == 0:
-        await message.answer("Наразі для вас немає доступних для оцінювання підприємст")
-        await give_cabinet_menu(message=message, state=state)
-        return
-
-    await message.answer(
-        text="Оберіть підприємство, яке ви хотіли би оцінити ⭐️",
-        reply_markup=enterprises_list_kb(allowed_to_rate),
-    )
-
-    await state.set_state(RateEnterprise.showing_list)
-
-
 async def history_requests(message: types.Message, state: FSMContext):
     loading_msg = await send_loading_message(message)
 
     user_id = (await state.get_data()).get("UserId")
-    archived_req = await http_client.archived_requests(user_id)
+    archived_req = await HttpChatBot.archived_requests(UserIdDto(user_id=user_id))
 
     await loading_msg.delete()
 

@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.filters import BaseFilter
 
-from keyboards.default.auth.start import yes_text
+from keyboards.default.start import yes_text
 
 
 class YesFilter(BaseFilter):

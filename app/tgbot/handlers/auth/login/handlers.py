@@ -2,7 +2,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from handlers.cabinet.menu.handlers import give_cabinet_menu
-from handlers.common import update_user_state_data, perform_sending_email_code
+from handlers.common.helpers import update_user_state_data, perform_sending_email_code
 
 
 async def check_email_code(message: Message, state: FSMContext):

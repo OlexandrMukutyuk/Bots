@@ -1,234 +1,197 @@
 import json
-from typing import Sequence, TypeVar
 
 import aiohttp
 
-from data.config import SERVER_TOKEN, SERVER_BASE_URL, SERVER_BASE_SERVICE
-
-T = TypeVar("T")
+from data.config import SERVER_TOKEN, SERVER_BASE_URL, SERVER_BASE_SERVICE, SERVER_GUEST_SERVICE
+from dto import AbstractDto
+from dto.chat_bot import (
+    SearchDto,
+    VerifyAddressDto,
+    CheckEmailDto,
+    EmailDto,
+    UserIdDto,
+    ReportIssueDto,
+    ProblemIdDto,
+    AddressByGeoDto,
+    CreateRequestDto,
+    RateRequestDto,
+    UpdateUserDto,
+)
+from dto.chat_bot.register import RegisterDto
+from dto.guest import UpdateGuestDto, GuestIdDto, RegisterGuestDto, RateEnterpriseDto
 
 
 class HttpClient:
-    basic_headers = {
-        "Token": SERVER_TOKEN,
-        "Content-Type": "application/json"
-    }
+    basic_headers = {"Token": SERVER_TOKEN, "Content-Type": "application/json"}
 
     @staticmethod
-    async def post(path: str, data: Sequence[T] | dict | None = None, service: str = None) -> dict:
-        # TODO Try catch
+    async def make_request(path: str, service: str, dto: AbstractDto):
+        res = await HttpClient.post(data=dto.to_payload(), path=path, service=service)
 
-        if data:
-            data = json.dumps(data)
+        # print(f"{path}: {res}")
+
+        return res
+
+    @staticmethod
+    async def post(data: dict, **kwargs) -> dict:
+        encoded_data = json.dumps(data)
+
+        full_url: str = kwargs.get("full_url")
 
         async with aiohttp.ClientSession(headers=HttpClient.basic_headers) as session:
-            if service:
-                full_url = f"{SERVER_BASE_URL}/{service}{path}"
-            else:
-                full_url = f"{SERVER_BASE_URL}/{SERVER_BASE_SERVICE}{path}"
+            if not full_url:
+                full_url = f"{SERVER_BASE_URL}/{kwargs.get("service")}{kwargs.get("path")}"
 
-            print(full_url)
-
-            async with session.post(url=full_url, data=data, ssl=False) as resp:
+            async with session.post(url=full_url, data=encoded_data, ssl=False) as resp:
                 return await resp.json()
 
 
-async def fetch_streets(street: str) -> list:
-    data = {"Search": street}
 
-    response = await HttpClient.post('/SearchStreets', data)
+class HttpInfoClient(HttpClient):
+    @staticmethod
+    async def get_street_by_id(street_id: int) -> dict:
+        response = await HttpInfoClient.post(
+            data={"streetid": street_id},
+            full_url=f'{SERVER_BASE_URL}/Services/Dictionary/json/getstreetbyid'
+        )
 
-    return response.get('Streets')
+        return response.get("list")[0]
 
 
-async def verify_address(street_id: int, house: str) -> bool:
-    data = {
-        "StreetId": street_id,
-        "House": house
-    }
+    @staticmethod
+    async def get_city_by_id(city_id: int) -> dict:
+        response = await HttpInfoClient.post(
+            data={"cityid": city_id},
+            full_url=f'{SERVER_BASE_URL}/Services/Dictionary/json/getcities'
+        )
 
-    response = await HttpClient.post('/VerifyAddress', data)
+        return response.get("list")[0]
 
-    return response.get('Correct')
 
+class HttpGuestBot(HttpClient):
 
-async def register(data: dict) -> bool:
-    data = {
-        "FirstName": data['FirstName'],
-        "MiddleName": data['MiddleName'],
-        "LastName": data['LastName'],
-        "Gender": data['Phone'],
-        "Phone": data['Password'],
-        "CityId": data['StreetId'],
-        "StreetId": data['House'],
-        "House": data['House'],
-        "Flat": data['Flat'],
-        "Password": data['Password'],
-        "Email": "data"
-    }
+    BASE_SERVICE = SERVER_GUEST_SERVICE
 
-    response = await HttpClient.post('/Register', data)
+    @staticmethod
+    async def request(path: str, dto: AbstractDto):
+        return await HttpClient.make_request(path, HttpGuestBot.BASE_SERVICE, dto)
 
-    return response.get('Correct')
 
+    @staticmethod
+    async def register(dto: RegisterGuestDto):
+        return await HttpGuestBot.request("/Register", dto)
 
-async def check_email(email: str) -> bool:
-    data = {
-        "Email": email,
-        "Platform": "telegram"
-    }
+    @staticmethod
+    async def update_data(dto: UpdateGuestDto):
+        return await HttpGuestBot.request("/Update", dto)
 
-    response = await HttpClient.post('/CheckEmail', data)
+    @staticmethod
+    async def get_enterprises(dto: GuestIdDto):
+        data = await HttpGuestBot.request("/GetKps", dto)
 
-    print(response)
+        return data.get('Items')
 
-    return response.get('Registration')
+    @staticmethod
+    async def rate_kps(dto: RateEnterpriseDto):
+        return await HttpGuestBot.request("/SaveKpRate", dto)
 
 
-async def send_code_to_email(email: str) -> dict:
-    data = {
-        "Email": email
-    }
 
-    response = await HttpClient.post('/SendCode', data)
+class HttpChatBot(HttpClient):
 
-    # TODO Remove this
-    print(response)
+    BASE_SERVICE = SERVER_BASE_SERVICE
 
-    return response
+    @staticmethod
+    async def request(path: str, dto: AbstractDto):
+        return await HttpClient.make_request(path, HttpChatBot.BASE_SERVICE, dto)
 
 
-async def get_user_params(user_id: int) -> dict:
-    response = await HttpClient.post('/GetUserParams', {
-        "UserId": user_id
-    })
+    @staticmethod
+    async def fetch_streets(dto: SearchDto):
+        data = await HttpChatBot.request("/SearchStreets", dto)
+        return data.get("Streets")
 
-    # TODO Remove this
-    print(response)
+    @staticmethod
+    async def verify_address(dto: VerifyAddressDto):
+        data = await HttpChatBot.request("/VerifyAddress", dto)
+        return data.get("Correct")
 
-    return response
+    @staticmethod
+    async def register(dto: RegisterDto):
+        data = await HttpChatBot.request("/Register", dto)
+        return data.get("Correct")
 
+    @staticmethod
+    async def check_email(dto: CheckEmailDto):
+        data = await HttpChatBot.request("/CheckEmail", dto)
+        return data.get("Registration")
 
-async def report_issue(data: dict):
-    response = await HttpClient.post('/ReportIssue', data)
+    @staticmethod
+    async def code_to_email(dto: EmailDto):
+        data = await HttpChatBot.request("/SendCode", dto)
+        print(data)
+        return data
 
-    # TODO Remove this
-    print(response)
+    @staticmethod
+    async def get_user_params(dto: UserIdDto):
+        return await HttpChatBot.request("/GetUserParams", dto)
 
-    return response
+    @staticmethod
+    async def report_issue(dto: ReportIssueDto):
+        return await HttpChatBot.request("/ReportIssue", dto)
 
+    @staticmethod
+    async def get_problems(dto: UserIdDto):
+        data = await HttpChatBot.request("/GetProblems", dto)
+        return data.get("Items")
 
-async def get_problems(user_id: int) -> list:
-    response = await HttpClient.post('/GetProblems', {
-        'UserId': user_id
-    })
+    @staticmethod
+    async def get_reasons(dto: ProblemIdDto):
+        data = await HttpChatBot.request("/GetReasons", dto)
+        return data.get("Items")
 
-    # TODO Remove this
-    print(response)
+    @staticmethod
+    async def get_address_by_geo(dto: AddressByGeoDto):
+        return await HttpChatBot.request("/AddressByGeo", dto)
 
-    return response.get('Items')
+    @staticmethod
+    async def create_request(dto: CreateRequestDto):
+        data = await HttpChatBot.request("/CreateRequest", dto)
 
+        return data.get("Id")
 
-async def get_reasons(problem_id: int) -> list:
-    response = await HttpClient.post('/GetReasons', {
-        'ProblemId': problem_id
-    })
+    @staticmethod
+    async def actual_requests(dto: UserIdDto):
+        data = await HttpChatBot.request("/ActualRequests", dto)
 
-    # TODO Remove this
-    print(response)
+        return data.get("Requests")
 
-    return response.get('Items')
+    @staticmethod
+    async def archived_requests(dto: UserIdDto):
+        data = await HttpChatBot.request("/ArchivedRequests", dto)
 
+        return data.get("Requests")
 
-async def get_address_by_geo(user_id: int, lat: float, lng: float):
-    response = await HttpClient.post('/AddressByGeo', {
-        "UserId": user_id,
-        "Lat": lat,
-        "Lng": lng
-    })
+    @staticmethod
+    async def get_enterprises(dto: UserIdDto):
+        data = await HttpChatBot.request("/GetKps", dto)
 
-    # TODO Remove this
-    print(response)
+        return data.get("Items")
 
-    return response
+    @staticmethod
+    async def rate_enterprise(dto: RateEnterpriseDto):
+        data = await HttpChatBot.request("/SaveKpRate", dto)
 
+        return data.get("Status") == "ok"
 
-async def create_request(data: dict) -> int:
-    print(data)
-    response = await HttpClient.post('/CreateRequest', data)
+    @staticmethod
+    async def rate_request(dto: RateRequestDto):
+        data = await HttpChatBot.request("/RateRequest", dto)
 
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('Id')
+        return data.get("Status") == "ok"
 
+    @staticmethod
+    async def update_profile(dto: UpdateUserDto):
+        data = await HttpChatBot.request("/UpdateUserParams", dto)
 
-async def get_street_by_id(street_id: int) -> dict:
-    response = await HttpClient.post('/getstreetbyid', {
-        "streetid": street_id
-    }, 'Services/Dictionary/json')
-
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('list')[0]
-
-
-async def actual_requests(user_id: int) -> list:
-    response = await HttpClient.post('/ActualRequests', {
-        'UserId': user_id
-    })
-
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('Requests')
-
-
-async def archived_requests(user_id: int) -> list:
-    response = await HttpClient.post('/ArchivedRequests', {
-        'UserId': user_id
-    })
-
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('Requests')
-
-
-async def get_enterprises(user_id: int) -> list:
-    response = await HttpClient.post('/GetKps', {
-        'UserId': user_id
-    })
-
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('Items')
-
-
-async def rate_enterprise(data: dict) -> bool:
-    response = await HttpClient.post('/SaveKpRate', data)
-
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('Status') == 'ok'
-
-
-async def rate_request(data: dict) -> bool:
-    response = await HttpClient.post('/RateRequest', data)
-
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('Status') == 'ok'
-
-
-async def update_profile(data: dict) -> bool:
-    response = await HttpClient.post('/UpdateUserParams', data)
-
-    # TODO Remove this
-    print(response)
-    #
-    return response.get('Status') == 'ok'
+        return data.get("Status") == "ok"

@@ -13,6 +13,7 @@ WEBSITE_URL: str = env.str("WEBSITE_URL")
 
 SERVER_BASE_URL: str = env.str("SERVER_BASE_URL")
 SERVER_BASE_SERVICE: str = env.str("SERVER_BASE_SERVICE")
+SERVER_GUEST_SERVICE: str = env.str("SERVER_GUEST_SERVICE")
 SERVER_TOKEN: str = env.str("SERVER_TOKEN")
 
 FSM_HOST: str = env.str("FSM_HOST")

@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from keyboards.default.cabinet.create_request import back_text
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
+from texts.keyboards import BACK
 
 
 def enterprises_list_kb(enterprises: list[dict]):
@@ -9,14 +9,11 @@ def enterprises_list_kb(enterprises: list[dict]):
 
     for item in enterprises:
         builder.button(
-            text=item.get('Name'),
-            callback_data=EnterpriseCallbackFactory(enterprise_id=item.get('Id'))
+            text=item.get("Name"),
+            callback_data=EnterpriseCallbackFactory(enterprise_id=item.get("Id")),
         )
 
-    builder.button(
-        text=back_text,
-        callback_data='back'
-    )
+    builder.button(text=BACK, callback_data="back")
 
     builder.adjust(1)
 
@@ -31,13 +28,10 @@ def enterprises_rates_kb(enterprise_id: int):
     for rate in rates:
         builder.button(
             text=f"{rate} ⭐",
-            callback_data=EnterpriseRateCallbackFactory(rate=rate, enterprise_id=enterprise_id)
+            callback_data=EnterpriseRateCallbackFactory(rate=rate, enterprise_id=enterprise_id),
         )
 
-    builder.button(
-        text=back_text,
-        callback_data='back'
-    )
+    builder.button(text=back_text, callback_data="back")
 
     builder.adjust(1)
 
