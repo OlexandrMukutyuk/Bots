@@ -9,6 +9,7 @@ from handlers.common.helpers import independent_message
 from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
 from keyboards.default.auth.edit_info import edit_text, edit_register_info_kb
+from keyboards.default.auth.login import other_email_kb
 from keyboards.default.auth.register import (
     phone_share_kb,
 )
@@ -200,8 +201,10 @@ async def accept_info(message: types.Message, state: FSMContext):
         )
     )
 
-    await message.answer("Ми відправили посилання вам на пошту. Перейдіть по ньому")
+    await state.set_state(EditRegisterStates.waiting_email_confirming)
+
+    await message.answer("Інформація для реєстрації відправлена успішно!")
     await message.answer(
-        "(Треба сервер, щоб доробити реєстрацію, зараз працювати не буде)",
-        reply_markup=ReplyKeyboardRemove(),
+        "Будь ласка, підтвердіть свою пошту (перейдіть за посиланням, яке ми вам відправили)"
     )
+    await message.answer("Якщо лист не отримано - перевірте спам.", reply_markup=other_email_kb)

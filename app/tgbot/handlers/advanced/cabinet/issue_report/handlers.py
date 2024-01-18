@@ -2,7 +2,6 @@ from aiogram import types
 from aiogram.fsm.context import FSMContext
 
 from dto.chat_bot import ReportIssueDto
-from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from services.http_client import HttpChatBot
 
 
@@ -15,4 +14,4 @@ async def report_tech_issue(message: types.Message, state: FSMContext):
 
     await message.answer("Звернення відправлено успішно!")
 
-    return await give_cabinet_menu(state, message=message)
+    return await full_cabinet_menu(state, message=message)

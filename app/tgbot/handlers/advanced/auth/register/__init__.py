@@ -9,6 +9,7 @@ from handlers.advanced.auth.register import edit_info
 from handlers.advanced.auth.register import register
 from handlers.common.helpers import Handler
 from handlers.common.streets import StreetsHandlers
+from handlers.start import handlers as start
 from keyboards.default.auth.edit_info import edit_text
 from keyboards.inline.callbacks import StreetCallbackFactory
 from models import Gender
@@ -66,9 +67,6 @@ def prepare_router() -> Router:
             register.save_password,
             [AdvancedRegisterStates.waiting_password, StrongPasswordFilter()],
         ),
-        Handler(
-            register.show_agreement, [AdvancedRegisterStates.waiting_password, F.text != AGREEMENT]
-        ),
     ]
 
     edit_message_list = [
@@ -103,7 +101,7 @@ def prepare_router() -> Router:
         ),
         Handler(
             StreetsHandlers.message_via_bot,
-            [AdvancedRegisterStates.waiting_street_selected, F.via_bot],
+            [EditRegisterStates.waiting_street_selected, F.via_bot],
         ),
         Handler(edit_info.edit_house, [EditRegisterStates.waiting_house]),
         Handler(edit_info.edit_flat, [EditRegisterStates.waiting_flat, ValidFlatFilter()]),
@@ -111,6 +109,8 @@ def prepare_router() -> Router:
         Handler(
             edit_info.edit_password, [EditRegisterStates.waiting_password, StrongPasswordFilter()]
         ),
+        # Start again
+        Handler(start.start_again, [EditRegisterStates.waiting_email_confirming]),
     ]
 
     inline_list = [
@@ -153,6 +153,7 @@ def prepare_router() -> Router:
         Handler(validation.not_valid_middle_name, [EditRegisterStates.waiting_last_name]),
         Handler(validation.weak_password, [AdvancedRegisterStates.waiting_password]),
         Handler(validation.weak_password, [EditRegisterStates.waiting_password]),
+        Handler(register.show_agreement, [AdvancedRegisterStates.waiting_agreement]),
     ]
 
     for message in [*register_message_list, *edit_message_list, *validation_message_list]:

@@ -2,7 +2,7 @@ from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 
 from dto.chat_bot import UserIdDto, RateEnterpriseDto
-from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
+from handlers.common.helpers import full_cabinet_menu
 from keyboards.inline.cabinet.rate_enterprises import enterprises_rates_kb, enterprises_list_kb
 from keyboards.inline.callbacks import EnterpriseCallbackFactory, EnterpriseRateCallbackFactory
 from services.http_client import HttpChatBot
@@ -60,7 +60,7 @@ async def rate_enterprise(
 
     await callback.message.delete()
 
-    return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
+    return await full_cabinet_menu(state, bot=bot, chat_id=chat_id)
 
 
 # Back handlers
@@ -71,7 +71,7 @@ async def to_menu(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
 
     await callback.message.delete()
 
-    return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
+    return await full_cabinet_menu(state, bot=bot, chat_id=chat_id)
 
 
 async def to_enterprise_list(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
@@ -88,7 +88,7 @@ async def to_enterprise_list(callback: types.CallbackQuery, state: FSMContext, b
         await bot.send_message(
             chat_id=chat_id, text="Наразі для вас немає доступних для оцінювання підприємств"
         )
-        return await give_cabinet_menu(state, bot=bot, chat_id=chat_id)
+        return await full_cabinet_menu(state, bot=bot, chat_id=chat_id)
 
     await bot.edit_message_text(
         text="Оберіть підприємство, яке ви хотіли би оцінити ⭐️",

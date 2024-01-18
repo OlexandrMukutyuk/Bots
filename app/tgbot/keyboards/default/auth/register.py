@@ -4,7 +4,7 @@ from texts.keyboards import SHARE_CONTACT, AGREEMENT
 
 
 phone_share_kb = DefaultConstructor.create_kb(
-    actions=[{"text": SHARE_CONTACT, "contact": True}], schema=[1], one_time_keyboard=True
+    actions=[{"text": SHARE_CONTACT, "contact": True}], schema=[1]
 )
 
 

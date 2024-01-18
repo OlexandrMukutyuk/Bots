@@ -40,7 +40,7 @@ class EnterprisesHandlers:
 
         if callback:
             await bot.edit_message_text(
-                text=texts.ASKGING_ENTERPRISE,
+                text=texts.ASKING_ENTERPRISE,
                 message_id=callback.message.message_id,
                 chat_id=callback.from_user.id,
                 reply_markup=enterprises_list_kb(allowed_to_rate),
@@ -48,7 +48,7 @@ class EnterprisesHandlers:
 
         else:
             await independent_message(
-                text=texts.ASKGING_ENTERPRISE,
+                text=texts.ASKING_ENTERPRISE,
                 reply_markup=enterprises_list_kb(allowed_to_rate),
                 **kwargs,
             )

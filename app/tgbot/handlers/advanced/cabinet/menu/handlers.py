@@ -4,9 +4,9 @@ from aiogram.types import ReplyKeyboardRemove
 
 import texts
 from dto.chat_bot import UserIdDto
-from handlers.common.helpers import independent_message, send_loading_message
+from handlers.common.helpers import independent_message, send_loading_message, full_cabinet_menu
 from keyboards.default.cabinet.edit_profile import edit_profile_kb
-from keyboards.default.cabinet.menu import cabinet_menu_kb, cabinet_menu_text
+from keyboards.default.cabinet.menu import cabinet_menu_text
 from keyboards.inline.cabinet.archived_req import pick_archive_req_kb
 from keyboards.inline.cabinet.cabinet import share_chatbot_kb
 from keyboards.inline.cabinet.create_request import pick_problem_kb
@@ -16,7 +16,6 @@ from services.http_client import HttpChatBot
 from states.advanced import (
     FullIssueReportStates,
     FullShareChatbotStates,
-    FullCabinetStates,
     CreateRequestStates,
     FullRateEnterpriseStates,
     ArchiveRequestsStates,
@@ -26,15 +25,7 @@ from utils.template_engine import render_template
 
 
 async def show_cabinet_menu(message: types.Message, state: FSMContext):
-    return await give_cabinet_menu(state=state, message=message)
-
-
-async def give_cabinet_menu(state: FSMContext, **kwargs):
-    await state.set_state(FullCabinetStates.waiting_menu)
-
-    return await independent_message(
-        text=texts.SUGGEST_HELP, reply_markup=cabinet_menu_kb, **kwargs
-    )
+    return await full_cabinet_menu(state=state, message=message)
 
 
 async def main_handler(message: types.Message, state: FSMContext):
@@ -90,11 +81,11 @@ async def rate_enterprises(message: types.Message, state: FSMContext):
 
     if len(allowed_to_rate) == 0:
         await message.answer(texts.NO_ENTERPRISES_TO_RATE)
-        await give_cabinet_menu(message=message, state=state)
+        await full_cabinet_menu(message=message, state=state)
         return
 
     await message.answer(
-        text=texts.ASKGING_ENTERPRISE,
+        text=texts.ASKING_ENTERPRISE,
         reply_markup=enterprises_list_kb(allowed_to_rate),
     )
 
@@ -112,7 +103,7 @@ async def create_request(message: types.Message, state: FSMContext):
 
     await state.update_data(Problems=problems)
 
-    problems_msg = await message.answer(text=texts.ASKGING_PROBLEM, reply_markup=pick_problem_kb)
+    problems_msg = await message.answer(text=texts.ASKING_PROBLEM, reply_markup=pick_problem_kb)
 
     await state.update_data(ProblemsMessageId=problems_msg.message_id)
     await state.set_state(CreateRequestStates.waiting_problem)
@@ -141,7 +132,7 @@ async def actual_requests(message: types.Message, state: FSMContext):
 
         await message.answer(template)
 
-    return await give_cabinet_menu(state=state, message=message)
+    return await full_cabinet_menu(state=state, message=message)
 
 
 async def history_requests(message: types.Message, state: FSMContext):
@@ -154,7 +145,7 @@ async def history_requests(message: types.Message, state: FSMContext):
 
     if len(archived_req) == 0:
         await message.answer("Архівованих заявок немає.")
-        await give_cabinet_menu(state=state, message=message)
+        await full_cabinet_menu(state=state, message=message)
         return
 
     await message.answer(text="Показую архівовані заявки", reply_markup=ReplyKeyboardRemove())

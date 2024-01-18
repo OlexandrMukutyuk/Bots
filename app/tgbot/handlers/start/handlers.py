@@ -1,23 +1,19 @@
-import logging
-
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.utils.markdown import hlink
-from aiohttp import ContentTypeError
 
 import texts
 from data.config import WEBSITE_URL
-from dto.chat_bot import CheckEmailDto
-from handlers.common.helpers import send_loading_message, perform_sending_email_code
+from handlers.common.email import EmailHandlers
 from keyboards.default.auth.register import phone_share_kb
 from keyboards.default.basic import yes_n_no
 from keyboards.default.start import greeting_kb, auth_types_kb
-from keyboards.default.start import is_register_on_site, start_again_kb, yes_text, no_text
-from services.http_client import HttpChatBot
-from states.advanced import AuthState, AdvancedRegisterStates
+from keyboards.default.start import is_register_on_site, start_again_kb, YES
+from states.advanced import AuthState, AdvancedRegisterStates, LoginState
 from states.guest import GuestAuthStates
 from states.start import StartState
+from texts import NO
+from utils.template_engine import render_template
 
 
 async def greeting(message: types.Message, state: FSMContext):
@@ -29,7 +25,7 @@ async def greeting(message: types.Message, state: FSMContext):
 
 async def introduction(message: types.Message, state: FSMContext):
     await message.answer(texts.INTRODUCTION)
-    await message.answer(text=texts.PICK_AUTH_TYPE, reply_markup=auth_types_kb)
+    await message.answer(texts.PICK_AUTH_TYPE, reply_markup=auth_types_kb)
     await message.answer(texts.ADVANCED_INFO)
     await message.answer(texts.SUBSCRIPTION_INFO)
 
@@ -37,35 +33,23 @@ async def introduction(message: types.Message, state: FSMContext):
 
 
 async def check_user_email(message: types.Message, state: FSMContext):
-    email = message.text
+    async def action():
+        return await asking_if_register(message, state)
 
-    await state.update_data(Email=email)
-
-    loading = await send_loading_message(message=message)
-
-    try:
-        is_user_exist = await HttpChatBot.check_email(CheckEmailDto(email=email))
-    except ContentTypeError as e:
-        logging.error(e)
-        return await message.answer(texts.SERVER_ERROR)
-
-    await loading.delete()
-
-    if is_user_exist:
-        return await perform_sending_email_code(message, state, email)
-
-    await asking_if_register(message, state)
+    await EmailHandlers.check_user(
+        message=message, state=state, exist_state=LoginState.waiting_code, action=action
+    )
 
 
 async def answer_if_register(message: types.Message, state: FSMContext):
     message_text = message.text
 
-    if message_text == yes_text:
+    if message_text == YES:
         await asking_if_email_confirmed(message, state)
 
-    if message_text == no_text:
+    if message_text == NO:
         await message.answer(texts.NEED_REGISTER)
-        await message.answer(text=texts.ASKING_PHONE, reply_markup=phone_share_kb)
+        await message.answer(texts.ASKING_PHONE, reply_markup=phone_share_kb)
         await message.answer(texts.PHONE_EXAMPLE)
         await state.set_state(AdvancedRegisterStates.waiting_phone)
 
@@ -73,14 +57,12 @@ async def answer_if_register(message: types.Message, state: FSMContext):
 async def answer_if_confirmed_email(message: types.Message):
     message_text = message.text
 
-    if message_text == yes_text:
+    if message_text == YES:
         await message.answer(text=texts.CALL_SUPPORT, reply_markup=start_again_kb)
 
-    if message_text == no_text:
-        link = hlink("Посилання на наш сайт", WEBSITE_URL)
-
+    if message_text == NO:
         await message.answer(
-            text=f"Щоб продовжити користуватися чат-ботом, вам потрібно підтвердити ваш e-mail\n\n{link}",
+            text=render_template("website_link.j2", url=WEBSITE_URL),
             reply_markup=start_again_kb,
         )
 

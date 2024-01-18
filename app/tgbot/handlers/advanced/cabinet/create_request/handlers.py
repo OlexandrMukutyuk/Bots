@@ -13,9 +13,8 @@ from dto.chat_bot import (
     CreateRequestDto,
 )
 from handlers.advanced.cabinet.common import back_to_menu
-from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
 from handlers.common.flat import FlatHandlers
-from handlers.common.helpers import update_user_state_data
+from handlers.common.helpers import update_user_state_data, full_cabinet_menu
 from handlers.common.house import HouseHandlers
 from handlers.common.inline_mode import InlineHandlers
 from handlers.common.streets import StreetsHandlers
@@ -105,7 +104,7 @@ async def confirm_problem(
 
     reasons_msg = await bot.send_message(
         chat_id=chat_id,
-        text=texts.ASKGING_REASON,
+        text=texts.ASKING_REASON,
         reply_markup=pick_reason_kb,
     )
 
@@ -200,7 +199,7 @@ async def cancel_reason(callback: types.CallbackQuery, state: FSMContext, bot: B
 
     msg = await bot.send_message(
         chat_id=chat_id,
-        text=texts.ASKGING_REASON,
+        text=texts.ASKING_REASON,
         reply_markup=pick_reason_kb,
     )
 
@@ -469,7 +468,7 @@ async def to_main_menu_reply(message: types.Message, state: FSMContext):
 
 
 async def reset_user_request_state(state: FSMContext, **kwargs):
-    await give_cabinet_menu(state=state, **kwargs)
+    await full_cabinet_menu(state=state, **kwargs)
 
     user_data = await state.get_data()
     request_photos = user_data.get("RequestImages")
@@ -513,7 +512,7 @@ async def street_back(message: types.Message, state: FSMContext):
 async def flat_back(message: types.Message, state: FSMContext):
     await state.set_state(CreateRequestStates.waiting_reason)
     await message.answer(reply_markup=ReplyKeyboardRemove(), text="Добре")
-    message = await message.answer(text=texts.ASKGING_REASON, reply_markup=pick_reason_kb)
+    message = await message.answer(text=texts.ASKING_REASON, reply_markup=pick_reason_kb)
 
     return await state.update_data(ReasonsMessageId=message.message_id)
 

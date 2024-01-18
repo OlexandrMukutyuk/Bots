@@ -1,7 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup
 
 from keyboards.default.consts import DefaultConstructor
-from keyboards.default.start import yes_text, no_text
+from keyboards.default.start import YES, NO
 from texts.keyboards import (
     CHANGE_STREET,
     BACK,
@@ -16,7 +16,7 @@ from texts.keyboards import (
 request_back_and_main_kb = DefaultConstructor.create_kb(actions=[BACK, TO_MAIN_MENU], schema=[2])
 
 request_yes_no_kb = DefaultConstructor.create_kb(
-    actions=[yes_text, no_text, BACK, TO_MAIN_MENU], schema=[2, 2]
+    actions=[YES, NO, BACK, TO_MAIN_MENU], schema=[2, 2]
 )
 
 request_house_kb: ReplyKeyboardMarkup = DefaultConstructor.create_kb(

@@ -3,7 +3,8 @@ from aiogram.fsm.context import FSMContext
 
 import texts
 from dto.chat_bot import UpdateUserDto
-from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu, send_edit_user_info
+from handlers.advanced.cabinet.menu.handlers import send_edit_user_info
+from handlers.common.helpers import full_cabinet_menu
 from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
 from keyboards.default.cabinet.edit_profile import edit_text, change_gender_kb
@@ -161,4 +162,4 @@ async def confirm(message: types.Message, state: FSMContext):
 
     await message.answer(texts.EDITED_SUCCESSFULLY)
 
-    return await give_cabinet_menu(state, message=message)
+    return await full_cabinet_menu(state, message=message)

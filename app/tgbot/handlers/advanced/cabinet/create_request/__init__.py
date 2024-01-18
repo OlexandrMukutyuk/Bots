@@ -10,7 +10,7 @@ from handlers.advanced.cabinet.create_request import handlers
 from handlers.advanced.cabinet.create_request import handlers
 from handlers.common.helpers import Handler
 from handlers.common.streets import StreetsHandlers
-from keyboards.default.start import yes_text, no_text
+from keyboards.default.start import YES, NO
 from keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
 from states.advanced import CreateRequestStates
 from texts.keyboards import (
@@ -75,7 +75,7 @@ def prepare_router() -> Router:
         ),
         Handler(
             handlers.save_showing_status,
-            [CreateRequestStates.waiting_showing_status, F.text.in_([yes_text, no_text])],
+            [CreateRequestStates.waiting_showing_status, F.text.in_([YES, NO])],
         ),
         # Upload images
         Handler(handlers.saving_images_back, [CreateRequestStates.waiting_images, BackFilter()]),
@@ -87,7 +87,7 @@ def prepare_router() -> Router:
         # Showing all info
         Handler(
             handlers.showing_request_info,
-            [CreateRequestStates.waiting_confirm, ~F.text.in_([yes_text, no_text])],
+            [CreateRequestStates.waiting_confirm, ~F.text.in_([YES, NO])],
         ),
         # Confirm request
         Handler(handlers.confirm_request, [CreateRequestStates.waiting_confirm, YesFilter()]),

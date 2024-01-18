@@ -74,7 +74,6 @@ async def edit_house(message: types.Message, state: FSMContext):
 async def confirm(message: types.Message, state: FSMContext):
     data = await state.get_data()
 
-    print("Hello")
     await HttpGuestBot.update_data(
         UpdateGuestDto(
             guest_id=data.get("GuestId"),

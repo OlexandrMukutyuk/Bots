@@ -5,9 +5,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
-from dto.chat_bot import EmailDto, UserIdDto
+from dto.chat_bot import UserIdDto
+from keyboards.default.cabinet.menu import cabinet_menu_kb
 from services.http_client import HttpChatBot
-from states.advanced import LoginState
+from states import FullCabinetStates
 
 
 class Handler(NamedTuple):
@@ -15,15 +16,12 @@ class Handler(NamedTuple):
     filters: list
 
 
-async def perform_sending_email_code(message: types.Message, state: FSMContext, email: str):
-    data = await HttpChatBot.code_to_email(EmailDto(email=email))
+async def full_cabinet_menu(state: FSMContext, **kwargs: object) -> object:
+    await state.set_state(FullCabinetStates.waiting_menu)
 
-    await state.update_data(EmailCode=data.get("Code"))
-    await state.update_data(UserId=data.get("UserId"))
-
-    await message.answer("Ми відправили вам код на пошту. Впишіть його будь ласка ⬇️")
-
-    return await state.set_state(LoginState.waiting_code)
+    return await independent_message(
+        text=texts.SUGGEST_HELP, reply_markup=cabinet_menu_kb, **kwargs
+    )
 
 
 async def update_user_state_data(state: FSMContext):

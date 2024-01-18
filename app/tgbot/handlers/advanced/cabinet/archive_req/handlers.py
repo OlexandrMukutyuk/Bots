@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardRemove
 
 from dto.chat_bot import RateRequestDto
 from handlers.advanced.cabinet.common import back_to_menu
-from handlers.advanced.cabinet.menu.handlers import give_cabinet_menu
+from handlers.common.helpers import full_cabinet_menu
 from handlers.common.inline_mode import InlineHandlers
 from keyboards.default.cabinet.archive_req import rate_request_kb
 from keyboards.inline.cabinet.archived_req import confirm_archive_req_kb
@@ -147,9 +147,9 @@ async def save_comment(message: types.Message, state: FSMContext):
 
     await message.answer("Ви успішно оцінили виконня запиту")
 
-    return await give_cabinet_menu(state, message=message)
+    return await full_cabinet_menu(state, message=message)
 
 
 async def continue_later(message: types.Message, state: FSMContext):
     await message.answer('Ви завжди зможете оцінити виконання в розділі "Історія звернень"')
-    await give_cabinet_menu(state, message=message)
+    await full_cabinet_menu(state, message=message)

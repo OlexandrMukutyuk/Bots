@@ -45,6 +45,8 @@ class EditRegisterStates(StatesGroup):
     waiting_password = State()
     waiting_accepting = State()
 
+    waiting_email_confirming = State()
+
 
 class FullCabinetStates(StatesGroup):
     waiting_menu = State()
