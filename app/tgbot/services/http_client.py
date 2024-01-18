@@ -152,6 +152,8 @@ class HttpChatBot(HttpClient):
     async def create_request(dto: CreateRequestDto):
         data = await HttpChatBot.request("/CreateRequest", dto)
 
+        print(data)
+
         return data.get("Id")
 
     @staticmethod
