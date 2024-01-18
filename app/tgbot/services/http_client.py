@@ -150,6 +150,8 @@ class HttpChatBot(HttpClient):
 
     @staticmethod
     async def create_request(dto: CreateRequestDto):
+        print(dto.to_payload())
+
         data = await HttpChatBot.request("/CreateRequest", dto)
 
         print(data)
