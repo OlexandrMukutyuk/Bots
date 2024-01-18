@@ -397,7 +397,7 @@ async def saving_images(message: types.Message, state: FSMContext, bot: Bot):
 
     await state.update_data(RequestImages=[*images, new_image])
 
-    await bot.download(message.photo[-1], destination=f"{os.getcwd()}/tmp/{new_image}")
+    await bot.download(message.photo[-1], destination=f"{os.getcwd()}/media/{new_image}")
 
     await message.answer("Завантажуйте ще", reply_markup=request_enough_kb)
 

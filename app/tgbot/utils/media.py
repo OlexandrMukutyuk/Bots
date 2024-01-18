@@ -6,7 +6,7 @@ def delete_tmp_media(media_ids):
         return
 
     for media_id in media_ids:
-        file_path = f"{os.getcwd()}/tmp/{media_id}"
+        file_path = f"{os.getcwd()}/media/{media_id}"
 
         if os.path.isfile(file_path):
             try:
