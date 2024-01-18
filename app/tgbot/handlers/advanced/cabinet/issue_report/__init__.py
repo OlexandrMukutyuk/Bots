@@ -13,6 +13,8 @@ def prepare_router() -> Router:
         handlers.report_tech_issue, FullIssueReportStates.waiting_issue_report, F.text.len() > 5
     )
 
-    router.message.register(validation.not_valid_text, FullIssueReportStates.waiting_issue_report)
+    router.message.register(
+        validation.not_valid_text_with_back, FullIssueReportStates.waiting_issue_report
+    )
 
     return router

@@ -5,7 +5,7 @@ from aiogram.filters import BaseFilter
 class ValidFlatFilter(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:
         min = 1
-        max = 99
+        max = 999
 
         flat_value = message.text
 
