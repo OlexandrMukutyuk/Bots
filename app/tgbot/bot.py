@@ -24,7 +24,7 @@ from web_handlers.media import media
 
 
 def setup_web_handlers(app: web.Application) -> None:
-    app.router.add_route(method="GET", path="/cherson/tg/media/{file_name}", handler=media)
+    app.router.add_route(method="GET", path="/media/{file_name}", handler=media)
 
 
 def setup_handlers(dp: Dispatcher) -> None:
