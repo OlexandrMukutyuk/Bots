@@ -16,7 +16,7 @@ from dto.chat_bot import (
     CreateRequestDto,
     RateRequestDto,
     UpdateUserDto,
-    RateEnterpriseDto,
+    RateEnterpriseDto, ParentIdDto,
 )
 from dto.chat_bot.register import RegisterDto
 from dto.guest import UpdateGuestDto, GuestIdDto, RegisterGuestDto, RateEnterpriseGuestDto
@@ -193,3 +193,11 @@ class HttpChatBot(HttpClient):
         data = await HttpChatBot.request("/UpdateUserParams", dto)
 
         return data.get("Status") == "ok"
+
+    @staticmethod
+    async def get_information(dto: ParentIdDto):
+        data = await HttpChatBot.request("/GetInformations", dto)
+
+        return data.get("Items")
+
+

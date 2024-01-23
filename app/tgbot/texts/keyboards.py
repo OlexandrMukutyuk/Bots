@@ -7,6 +7,7 @@ CHANGE_STREET = "Змінити вулицю"
 
 
 TO_MAIN_MENU = "В головне меню"
+TO_MENU = "До меню 🔙"
 BACK = "Назад 🔙"
 LIVING_IN_HOUSE = "Живу у домі"
 NO_NEED = "Не потрібно ❌"

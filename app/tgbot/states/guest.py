@@ -56,3 +56,9 @@ class GuestFullRegisterStates(StatesGroup):
 
     waiting_password = State()
     waiting_agreement = State()
+
+
+
+class ReferenceInfoStates(StatesGroup):
+
+    waiting_info = State()

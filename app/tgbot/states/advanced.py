@@ -107,3 +107,7 @@ class FullEditInfoStates(StatesGroup):
     waiting_flat = State()
 
     waiting_acceptation = State()
+
+
+class FullReferenceInfoStates(StatesGroup):
+    waiting_info = State()

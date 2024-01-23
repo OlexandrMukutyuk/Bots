@@ -22,3 +22,7 @@ class EnterpriseRateCallbackFactory(CallbackData, prefix="enterprise_rate"):
 class ArchiveReqCallbackFactory(CallbackData, prefix="archive_req"):
     req_id: int
     review: bool
+
+
+class ReferenceInfoCallbackFactory(CallbackData, prefix="ref_info"):
+    id: int

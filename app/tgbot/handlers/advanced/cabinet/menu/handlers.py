@@ -5,6 +5,7 @@ from aiogram.types import ReplyKeyboardRemove
 import texts
 from dto.chat_bot import UserIdDto
 from handlers.common.helpers import independent_message, send_loading_message, full_cabinet_menu
+from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.default.cabinet.edit_profile import edit_profile_kb
 from keyboards.default.cabinet.menu import cabinet_menu_text
 from keyboards.inline.cabinet.archived_req import pick_archive_req_kb
@@ -19,7 +20,7 @@ from states.advanced import (
     CreateRequestStates,
     FullRateEnterpriseStates,
     ArchiveRequestsStates,
-    FullEditInfoStates,
+    FullEditInfoStates, FullReferenceInfoStates,
 )
 from utils.template_engine import render_template
 
@@ -51,6 +52,9 @@ async def main_handler(message: types.Message, state: FSMContext):
 
     if button_text == cabinet_menu_text["change_user_info"]:
         return await change_user_info(message, state)
+
+    if button_text == cabinet_menu_text["reference_info"]:
+        return await reference_info(message, state)
 
 
 async def report_issue(message: types.Message, state: FSMContext):
@@ -163,6 +167,15 @@ async def history_requests(message: types.Message, state: FSMContext):
 
 async def change_user_info(message: types.Message, state: FSMContext):
     return await send_edit_user_info(state, message=message)
+
+
+async def reference_info(message: types.Message, state: FSMContext):
+    await ReferenceInfoHandlers.load_menu(
+        state=state,
+        parent_id=None,
+        new_state=FullReferenceInfoStates.waiting_info,
+        message=message
+    )
 
 
 async def send_edit_user_info(state: FSMContext, **kwargs):

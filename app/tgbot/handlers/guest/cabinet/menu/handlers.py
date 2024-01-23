@@ -6,6 +6,7 @@ import texts
 from dto.guest import GuestIdDto
 from handlers.common.enterprises import EnterprisesHandlers
 from handlers.common.helpers import independent_message
+from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.default.guest.auth import (
     subscription_menu_kb,
     guest_menu_text,
@@ -19,8 +20,7 @@ from states.guest import (
     GuestShareBotStates,
     GuestRateEnterpriseStates,
     GuestFullRegisterStates,
-    GuestEditInfoStates,
-)
+    GuestEditInfoStates, ReferenceInfoStates, )
 from utils.template_engine import render_template
 
 
@@ -51,6 +51,9 @@ async def main_handler(message: types.Message, state: FSMContext):
     if button_text == guest_menu_text["full_registration"]:
         return await full_registration(message, state)
 
+    if button_text == guest_menu_text["reference_info"]:
+        return await reference_info(message, state)
+
 
 async def share_chatbot(message: types.Message, state: FSMContext):
     await message.answer(text=texts.SHARE_BOT, reply_markup=ReplyKeyboardRemove())
@@ -73,6 +76,15 @@ async def rate_enterprises_list(message: types.Message, state: FSMContext):
         get_enterprises=get_enterprises,
         new_state=GuestRateEnterpriseStates.showing_list,
         menu_callback=menu_callback,
+    )
+
+
+async def reference_info(message: types.Message, state: FSMContext):
+    await ReferenceInfoHandlers.load_menu(
+        state=state,
+        parent_id=None,
+        new_state=ReferenceInfoStates.waiting_info,
+        message=message
     )
 
 
@@ -100,7 +112,6 @@ async def full_registration(message: types.Message, state: FSMContext):
 
 
 # Back button handlers
-
 
 async def to_main_menu_inline(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
     await callback.message.delete()
