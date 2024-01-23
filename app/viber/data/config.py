@@ -1,0 +1,27 @@
+from environs import Env
+
+env = Env()
+
+env.read_env()
+
+BOT_TOKEN: str = env.str("VIBER_BOT_TOKEN")
+BOT_URL: str = env.str("VIBER_BOT_LINK")
+
+LOGGING_LEVEL: int = env.int("LOGGING_LEVEL", 10)
+
+WEBSITE_URL: str = env.str("WEBSITE_URL")
+
+SERVER_BASE_URL: str = env.str("SERVER_BASE_URL")
+SERVER_BASE_SERVICE: str = env.str("SERVER_BASE_SERVICE")
+SERVER_GUEST_SERVICE: str = env.str("SERVER_GUEST_SERVICE")
+SERVER_TOKEN: str = env.str("SERVER_TOKEN")
+
+FSM_HOST: str = env.str("FSM_HOST")
+FSM_PORT: int = env.int("FSM_PORT")
+FSM_PASSWORD: str = env.str("FSM_PASSWORD")
+
+WEBHOOK_ADDRESS: str = env.str("VIBER_WEBHOOK_ADDRESS")
+WEBHOOK_SECRET_TOKEN: str = env.str("VIBER_WEBHOOK_SECRET_TOKEN")
+WEBHOOK_LISTENING_HOST: str = env.str("VIBER_WEBHOOK_LISTENING_HOST")
+WEBHOOK_LISTENING_PORT: int = env.int("VIBER_WEBHOOK_LISTENING_PORT")
+WEBHOOK_PATH: str = env.str("VIBER_WEBHOOK_PATH")
