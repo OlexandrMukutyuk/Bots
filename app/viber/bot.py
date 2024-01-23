@@ -8,21 +8,16 @@ from redis.asyncio import Redis
 from data import config
 from viberio.api.client import ViberBot
 from viberio.dispatcher.dispatcher import Dispatcher
-from viberio.dispatcher.filters.builtin import StateFilter
 from viberio.dispatcher.webhook import ViberWebhookView
-from viberio.fsm.states import StatesGroup, State
 from viberio.fsm.storages.redis import RedisStorage, DefaultKeyBuilder
 from viberio.types import messages, requests
 from viberio.types.configuration import BotConfiguration
-from viberio.types.messages.keyboard_message import Keyboard, ButtonsObj
 
 loop = asyncio.get_event_loop()
-
 
 app = web.Application()
 bot_config = BotConfiguration(auth_token=config.BOT_TOKEN, name='Test bot')
 viber = ViberBot(bot_config)
-
 
 redis_storage = RedisStorage(
     redis=Redis(
@@ -51,8 +46,6 @@ async def start(request: requests.ViberMessageRequest, data: dict):
     state = dp_.current_state(request)
 
     return await viber.send_message(request.sender.id, text)
-
-
 
 
 async def set_webhook():
