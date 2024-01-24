@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from dto.chat_bot import RateRequestDto
-from handlers.advanced.cabinet.common import back_to_menu
+from handlers.advanced.cabinet.menu.handlers import to_main_menu_inline
 from handlers.common.helpers import full_cabinet_menu
 from handlers.common.inline_mode import InlineHandlers
 from keyboards.default.cabinet.archive_req import rate_request_kb
@@ -53,10 +53,10 @@ async def delete_list_message(message: types.Message, state: FSMContext, bot: Bo
 
 
 async def request_details(
-    callback: types.CallbackQuery,
-    callback_data: ArchiveReqCallbackFactory,
-    state: FSMContext,
-    bot: Bot,
+        callback: types.CallbackQuery,
+        callback_data: ArchiveReqCallbackFactory,
+        state: FSMContext,
+        bot: Bot,
 ):
     user_data = await state.get_data()
     req_id = callback_data.req_id
@@ -84,14 +84,14 @@ async def request_details(
 
     await bot.delete_message(chat_id=chat_id, message_id=user_data.get("ArchiveRequestMessageId"))
 
-    await back_to_menu(callback=callback, state=state, bot=bot)
+    await to_main_menu_inline(callback=callback, state=state, bot=bot)
 
 
 async def review_request(
-    callback: types.CallbackQuery,
-    callback_data: ArchiveReqCallbackFactory,
-    state: FSMContext,
-    bot: Bot,
+        callback: types.CallbackQuery,
+        callback_data: ArchiveReqCallbackFactory,
+        state: FSMContext,
+        bot: Bot,
 ):
     data = await state.get_data()
     req_id = callback_data.req_id
@@ -119,7 +119,7 @@ async def back_to_main_menu(callback: types.CallbackQuery, state: FSMContext, bo
     await bot.delete_message(chat_id=chat_id, message_id=data.get("ArchiveRequestMessageId"))
     await bot.send_message(chat_id=chat_id, text="Повертаємось до меню")
 
-    return await back_to_menu(callback=callback, state=state, bot=bot)
+    return await to_main_menu_inline(callback=callback, state=state, bot=bot)
 
 
 async def save_rate(message: types.Message, state: FSMContext):

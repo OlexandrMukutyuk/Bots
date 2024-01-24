@@ -14,13 +14,14 @@ from keyboards.default.guest.auth import (
 )
 from keyboards.default.guest.edit_info import edit_guest_kb
 from keyboards.inline.cabinet.cabinet import share_chatbot_kb
+from keyboards.inline.cabinet.repairs import repairs_kb
 from services.http_client import HttpGuestBot
 from states.guest import (
     GuestCabinetStates,
     GuestShareBotStates,
     GuestRateEnterpriseStates,
     GuestFullRegisterStates,
-    GuestEditInfoStates, ReferenceInfoStates, )
+    GuestEditInfoStates, ReferenceInfoStates, RepairsStates, )
 from utils.template_engine import render_template
 
 
@@ -54,6 +55,9 @@ async def main_handler(message: types.Message, state: FSMContext):
     if button_text == guest_menu_text["reference_info"]:
         return await reference_info(message, state)
 
+    if button_text == guest_menu_text["repairs"]:
+        return await repairs(message, state)
+
 
 async def share_chatbot(message: types.Message, state: FSMContext):
     await message.answer(text=texts.SHARE_BOT, reply_markup=ReplyKeyboardRemove())
@@ -86,6 +90,13 @@ async def reference_info(message: types.Message, state: FSMContext):
         new_state=ReferenceInfoStates.waiting_info,
         message=message
     )
+
+
+async def repairs(message: types.Message, state: FSMContext):
+    await message.answer(text=texts.REPAIRS, reply_markup=ReplyKeyboardRemove())
+    await message.answer(text=texts.ASKING_REPAIRS, reply_markup=repairs_kb)
+
+    return await state.set_state(RepairsStates.waiting_address)
 
 
 async def change_user_info(message: types.Message, state: FSMContext):

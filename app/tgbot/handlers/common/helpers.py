@@ -34,6 +34,19 @@ async def update_user_state_data(state: FSMContext):
     await state.set_data({"UserId": id, **user_params})
 
 
+async def update_guest_state_data(state: FSMContext):
+    data = await state.get_data()
+
+    await state.set_data({
+        "Street": data.get('Street'),
+        "City": data.get('City'),
+        "StreetId": data.get('StreetId'),
+        "CityId": data.get('CityId'),
+        "House": data.get('House'),
+        "GuestId": data.get('GuestId')
+    })
+
+
 async def send_loading_message(**kwargs):
     return await independent_message(
         text=texts.LOADING, reply_markup=ReplyKeyboardRemove(), **kwargs

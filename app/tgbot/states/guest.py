@@ -58,7 +58,14 @@ class GuestFullRegisterStates(StatesGroup):
     waiting_agreement = State()
 
 
-
 class ReferenceInfoStates(StatesGroup):
-
     waiting_info = State()
+
+
+class RepairsStates(StatesGroup):
+    waiting_address = State()
+
+    waiting_street_typing = State()
+    waiting_street_selected = State()
+
+    waiting_house = State()

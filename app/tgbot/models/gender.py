@@ -1,5 +1,5 @@
 class Gender:
-    values = {"male": "Чоловік", "female": "Жінка", None: "Не вказано"}
+    values = {"male": "Чоловік", "female": "Жінка", None: "Не вказано", "": "Не вказано", "0": "Не вказано"}
     values_reversed = {"Чоловік": "male", "Жінка": "female", "Не хочу вказувати": None}
 
     @staticmethod
