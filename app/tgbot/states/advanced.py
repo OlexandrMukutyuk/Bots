@@ -111,3 +111,12 @@ class FullEditInfoStates(StatesGroup):
 
 class FullReferenceInfoStates(StatesGroup):
     waiting_info = State()
+
+
+class FullRepairsStates(StatesGroup):
+    waiting_address = State()
+
+    waiting_street_typing = State()
+    waiting_street_selected = State()
+
+    waiting_house = State()

@@ -20,11 +20,11 @@ class StreetsHandlers:
 
     @staticmethod
     async def choose_street(message: types.Message, state: FSMContext, new_state: State, bot: Bot):
-        await StreetsHandlers._delete_message(
+        await StreetsHandlers.delete_message(
             chat_id=message.from_user.id, state=state, bot=bot, key=StreetsHandlers.ListCallback
         )
 
-        data = await StreetsHandlers._delete_message(
+        data = await StreetsHandlers.delete_message(
             chat_id=message.from_user.id, state=state, bot=bot, key=StreetsHandlers.ConfirmCallback
         )
 
@@ -76,14 +76,14 @@ class StreetsHandlers:
 
     @staticmethod
     async def message_via_bot(message: types.Message, state: FSMContext, bot: Bot):
-        data = await StreetsHandlers._delete_message(
+        data = await StreetsHandlers.delete_message(
             chat_id=message.from_user.id, state=state, bot=bot, key=StreetsHandlers.ListCallback
         )
 
         await state.update_data({StreetsHandlers.ConfirmCallback: message.message_id, **data})
 
     @staticmethod
-    async def _delete_message(chat_id: int, state: FSMContext, bot: Bot, key: str) -> dict:
+    async def delete_message(chat_id: int, state: FSMContext, bot: Bot, key: str) -> dict:
         data = await state.get_data()
         msg_id = data.get(key)
 
@@ -96,11 +96,11 @@ class StreetsHandlers:
 
     @staticmethod
     async def confirm_street(
-        callback: types.CallbackQuery,
-        callback_data: StreetCallbackFactory,
-        state: FSMContext,
-        action: Callable,
-        bot: Bot,
+            callback: types.CallbackQuery,
+            callback_data: StreetCallbackFactory,
+            state: FSMContext,
+            action: Callable,
+            bot: Bot,
     ):
         street_id = callback_data.street_id
         city_id = callback_data.city_id
@@ -108,7 +108,7 @@ class StreetsHandlers:
         street = await HttpInfoClient.get_street_by_id(street_id)
         city = await HttpInfoClient.get_street_by_id(city_id)
 
-        data = await StreetsHandlers._delete_message(
+        data = await StreetsHandlers.delete_message(
             chat_id=callback.from_user.id, state=state, bot=bot, key=StreetsHandlers.ConfirmCallback
         )
 

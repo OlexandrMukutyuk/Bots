@@ -1,4 +1,4 @@
-from aiogram import types
+from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
@@ -12,6 +12,7 @@ from keyboards.inline.cabinet.archived_req import pick_archive_req_kb
 from keyboards.inline.cabinet.cabinet import share_chatbot_kb
 from keyboards.inline.cabinet.create_request import pick_problem_kb
 from keyboards.inline.cabinet.rate_enterprises import enterprises_list_kb
+from keyboards.inline.cabinet.repairs import repairs_kb
 from models import Gender
 from services.http_client import HttpChatBot
 from states.advanced import (
@@ -20,7 +21,7 @@ from states.advanced import (
     CreateRequestStates,
     FullRateEnterpriseStates,
     ArchiveRequestsStates,
-    FullEditInfoStates, FullReferenceInfoStates,
+    FullEditInfoStates, FullReferenceInfoStates, FullRepairsStates,
 )
 from utils.template_engine import render_template
 
@@ -55,6 +56,16 @@ async def main_handler(message: types.Message, state: FSMContext):
 
     if button_text == cabinet_menu_text["reference_info"]:
         return await reference_info(message, state)
+
+    if button_text == cabinet_menu_text["repairs"]:
+        return await repairs(message, state)
+
+
+async def repairs(message: types.Message, state: FSMContext):
+    await message.answer(text=texts.REPAIRS, reply_markup=ReplyKeyboardRemove())
+    await message.answer(text=texts.ASKING_REPAIRS, reply_markup=repairs_kb)
+
+    return await state.set_state(FullRepairsStates.waiting_address)
 
 
 async def report_issue(message: types.Message, state: FSMContext):
@@ -196,3 +207,17 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
     template = render_template("edit_user_info.j2", data=data)
 
     return await independent_message(template, edit_profile_kb, **kwargs)
+
+
+# Back button handlers
+
+async def to_main_menu_inline(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.message.delete()
+
+    return await full_cabinet_menu(state, bot=bot, chat_id=callback.from_user.id)
+
+
+async def to_main_menu_reply(message: types.Message, state: FSMContext):
+    await message.delete()
+
+    return await full_cabinet_menu(state=state, message=message)

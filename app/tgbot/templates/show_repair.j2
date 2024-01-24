@@ -1,0 +1,9 @@
+# {{ repair.get('Id') }}
+Адреса: {{ repair.get('Address') }}
+Проблема: {{ repair.get('Problem') }}
+Причина: {{ repair.get('Reason') }}
+
+Дати робіт: {{ repair.get('StartDate') }} - {{ repair.get('EndDatePlan') }}
+{% if repair.get('Note') != None %}
+{{ repair.get('Note') }}
+{% endif %}
