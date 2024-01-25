@@ -16,6 +16,8 @@ SERVER_BASE_SERVICE: str = env.str("SERVER_BASE_SERVICE")
 SERVER_GUEST_SERVICE: str = env.str("SERVER_GUEST_SERVICE")
 SERVER_TOKEN: str = env.str("SERVER_TOKEN")
 
+APIKEY_FOR_SERVER: str = env.str("APIKEY_FOR_SERVER")
+
 FSM_HOST: str = env.str("FSM_HOST")
 FSM_PORT: int = env.int("FSM_PORT")
 FSM_PASSWORD: str = env.str("FSM_PASSWORD")

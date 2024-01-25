@@ -1,8 +1,11 @@
+import json
+
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
+from bot import redis_pool
 from dto.chat_bot import RegisterDto
 from handlers.common.flat import FlatHandlers
 from handlers.common.helpers import independent_message
@@ -105,10 +108,10 @@ async def show_street_list(callback: types.InlineQuery, state: FSMContext):
 
 
 async def confirm_street(
-    callback: types.CallbackQuery,
-    callback_data: StreetCallbackFactory,
-    state: FSMContext,
-    bot: Bot,
+        callback: types.CallbackQuery,
+        callback_data: StreetCallbackFactory,
+        state: FSMContext,
+        bot: Bot,
 ):
     async def action():
         await state.set_state(EditRegisterStates.waiting_house)
@@ -185,7 +188,7 @@ async def edit_password(message: types.Message, state: FSMContext):
 async def accept_info(message: types.Message, state: FSMContext):
     data = await state.get_data()
 
-    await HttpChatBot.register(
+    user_id = await HttpChatBot.register(
         RegisterDto(
             first_name=data.get("FirstName"),
             last_name=data.get("LastName"),
@@ -200,6 +203,15 @@ async def accept_info(message: types.Message, state: FSMContext):
             email=data.get("Email"),
         )
     )
+
+    users = json.loads(await redis_pool.get('users'))
+
+    await redis_pool.set('users', json.dumps({
+        **users,
+        message.from_user.id: user_id
+    }))
+
+    await state.update_data(UserId=user_id)
 
     await state.set_state(EditRegisterStates.waiting_email_confirming)
 

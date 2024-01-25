@@ -1,8 +1,11 @@
+import json
+
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
+from bot import redis_pool
 from data.config import WEBSITE_URL
 from handlers.common.email import EmailHandlers
 from keyboards.default.auth.register import phone_share_kb
@@ -18,6 +21,13 @@ from utils.template_engine import render_template
 
 async def greeting(message: types.Message, state: FSMContext):
     await state.clear()
+
+    users = json.loads(await redis_pool.get('users') or "{}")
+
+    await redis_pool.set('users', json.dumps({
+        **users,
+        message.from_user.id: None
+    }))
 
     await message.answer(text=texts.GREETING, reply_markup=greeting_kb)
     await state.set_state(StartState.waiting_greeting)
