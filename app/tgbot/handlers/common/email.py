@@ -1,3 +1,4 @@
+import json
 from typing import Callable
 
 from aiogram import types
@@ -5,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 
 import texts
+from bot import redis_pool
 from dto.chat_bot import EmailDto, CheckEmailDto
 from handlers.common.helpers import send_loading_message, update_user_state_data, full_cabinet_menu
 from keyboards.default.auth.login import other_email_kb
@@ -14,7 +16,7 @@ from services.http_client import HttpChatBot
 class EmailHandlers:
     @staticmethod
     async def check_user(
-        message: types.Message, state: FSMContext, exist_state: State, action: Callable
+            message: types.Message, state: FSMContext, exist_state: State, action: Callable
     ):
         email = message.text
 
@@ -38,7 +40,7 @@ class EmailHandlers:
 
     @staticmethod
     async def perform_sending_code(
-        message: types.Message, state: FSMContext, email: str, new_state: State
+            message: types.Message, state: FSMContext, email: str, new_state: State
     ):
         data = await HttpChatBot.code_to_email(EmailDto(email=email))
 
@@ -51,10 +53,10 @@ class EmailHandlers:
 
     @staticmethod
     async def check_code(
-        message: types.Message,
-        state: FSMContext,
-        failure_state: State,
-        other_email_action: Callable,
+            message: types.Message,
+            state: FSMContext,
+            failure_state: State,
+            other_email_action: Callable,
     ):
         data = await state.get_data()
 
@@ -72,6 +74,15 @@ class EmailHandlers:
                 message=message, state=state, email=email, new_state=failure_state
             )
             return
+
+        user_id = data.get("UserId")
+
+        users = json.loads(await redis_pool.get('users'))
+
+        await redis_pool.set('users', json.dumps({
+            **users,
+            message.from_user.id: user_id
+        }))
 
         await message.answer(texts.SUCCESSFUL_AUTH)
         await update_user_state_data(state)
