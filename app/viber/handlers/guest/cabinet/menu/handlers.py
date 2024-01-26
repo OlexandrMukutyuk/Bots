@@ -3,8 +3,17 @@ from dto.guest import GuestIdDto
 from handlers.common.enterprises import EnterprisesHandlers
 from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.cabinet import guest_menu_kb, guest_menu_text
+from keyboards.guest import edit_guest_kb
+from keyboards.repairs import repairs_kb
 from services.http_client import HttpGuestBot
-from states import GuestCabinetStates, GuestRateEnterpriseStates, ReferenceInfoStates
+from states import (
+    GuestCabinetStates,
+    GuestRateEnterpriseStates,
+    ReferenceInfoStates,
+    GuestEditInfoStates,
+    RepairsStates,
+)
+from utils.template_engine import render_template
 from viber import viber
 from viberio.dispatcher.dispatcher import Dispatcher
 from viberio.types import requests, messages
@@ -32,20 +41,19 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == guest_menu_text["reference_info"]:
         return await reference_info(request, data)
 
+    #     if button_text == guest_menu_text["share_chatbot"]:
+    #         return await share_chatbot(request, data)
+    #
+    if button_text == guest_menu_text["change_info"]:
+        return await change_user_info(request, data)
 
-#     if button_text == guest_menu_text["share_chatbot"]:
-#         return await share_chatbot(request, data)
-#
-#     if button_text == guest_menu_text["change_info"]:
-#         return await change_user_info(request, data)
-#
+    if button_text == guest_menu_text["repairs"]:
+        return await repairs(request, data)
+
+
 #     if button_text == guest_menu_text["full_registration"]:
 #         return await full_registration(request, data)
 #
-
-#
-#     if button_text == guest_menu_text["repairs"]:
-#         return await repairs(request, data)
 
 
 async def rate_enterprises_list(request: requests.ViberMessageRequest, data: dict):
@@ -75,3 +83,43 @@ async def reference_info(request: requests.ViberMessageRequest, data: dict):
     await ReferenceInfoHandlers.load_menu(
         request=request, state=state, parent_id=None, new_state=ReferenceInfoStates.waiting_info
     )
+
+
+async def change_user_info(request: requests.ViberMessageRequest, data: dict):
+    await send_edit_guest_info(request, data)
+
+
+async def send_edit_guest_info(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    user_data = await state.get_data()
+
+    data = {
+        "Street": user_data.get("Street"),
+        "House": user_data.get("House"),
+    }
+
+    template = render_template("edit_guest_info.j2", data=data)
+
+    await state.set_state(GuestEditInfoStates.waiting_acceptation)
+    return await viber.send_message(
+        request.sender.id,
+        messages.KeyboardMessage(text=template, keyboard=edit_guest_kb, min_api_version="3"),
+    )
+
+
+async def repairs(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    await viber.send_messages(
+        request.sender.id,
+        [
+            messages.KeyboardMessage(
+                text=texts.ASKING_REPAIRS, keyboard=repairs_kb, min_api_version="3"
+            ),
+        ],
+    )
+
+    return await state.set_state(RepairsStates.waiting_address)

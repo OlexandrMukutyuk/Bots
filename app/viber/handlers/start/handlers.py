@@ -45,8 +45,12 @@ async def introduction(request: requests.ViberMessageRequest, data: dict):
         [
             messages.TextMessage(text=texts.INTRODUCTION),
             messages.TextMessage(text=texts.PICK_AUTH_TYPE),
-            messages.KeyboardMessage(text=texts.ADVANCED_INFO, keyboard=auth_types_kb),
-            messages.KeyboardMessage(text=texts.SUBSCRIPTION_INFO, keyboard=auth_types_kb),
+            messages.KeyboardMessage(
+                text=texts.ADVANCED_INFO, keyboard=auth_types_kb, min_api_version="4"
+            ),
+            messages.KeyboardMessage(
+                text=texts.SUBSCRIPTION_INFO, keyboard=auth_types_kb, min_api_version="4"
+            ),
         ],
     )
 

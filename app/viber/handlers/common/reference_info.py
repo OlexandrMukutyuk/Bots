@@ -30,7 +30,7 @@ class ReferenceInfoHandlers:
         await viber.send_messages(
             request.sender.id,
             messages.KeyboardMessage(
-                text=texts.ASKING_REF_INFO, keyboard=generate_ref_info_kb(ref_info)
+                text=texts.ASKING_REF_INFO, keyboard=generate_ref_info_kb(ref_info), min_api_version='3'
             ),
         )
 
@@ -62,7 +62,7 @@ class ReferenceInfoHandlers:
                         text=render_template("show_ref_info.j2", info=target_info)
                     ),
                     messages.KeyboardMessage(
-                        text=texts.ASKING_REF_INFO, keyboard=generate_ref_info_kb(ref_info)
+                        text=texts.ASKING_REF_INFO, keyboard=generate_ref_info_kb(ref_info), min_api_version='3'
                     ),
                 ],
             )

@@ -20,6 +20,7 @@ from dto.chat_bot import (
     ParentIdDto,
 )
 from dto.chat_bot.register import RegisterDto
+from dto.dto.guest.repairs_guest import RepairsGuestDto
 from dto.guest import UpdateGuestDto, GuestIdDto, RegisterGuestDto, RateEnterpriseGuestDto
 
 
@@ -92,6 +93,17 @@ class HttpGuestBot(HttpClient):
     @staticmethod
     async def rate_enterprise(dto: RateEnterpriseGuestDto):
         return await HttpGuestBot.request("/SaveKpRate", dto)
+
+    @staticmethod
+    async def get_repairs(dto: RepairsGuestDto):
+        data = await HttpGuestBot.request("/GetCrashWorks", dto)
+        return data.get('Items')
+
+    @staticmethod
+    async def get_all_repairs(dto: GuestIdDto):
+        data = await HttpGuestBot.request("/GetAllCrashWorks", dto)
+
+        return data.get('Items')
 
 
 class HttpChatBot(HttpClient):

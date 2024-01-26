@@ -24,7 +24,8 @@ guest_menu_kb = KeyboardConstructor.generate_kb(
         {"Text": guest_menu_text["reference_info"], "Columns": 3, "Rows": 1},
         {"Text": guest_menu_text["review_enterprises"], "Columns": 3, "Rows": 1},
         {"Text": guest_menu_text["full_registration"], "Columns": 3, "Rows": 1},
-    ]
+    ],
+    {"InputFieldState": "hidden"},
 )
 
 
@@ -34,5 +35,3 @@ full_registration_kb = KeyboardConstructor.generate_kb(
         {"Text": GO_BACK},
     ]
 )
-
-
