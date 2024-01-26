@@ -16,17 +16,15 @@ class EmailHandlers:
         req: requests.ViberMessageRequest, state: FSMContext, exist_state: State, action: Callable
     ):
         email = req.message.text
-        chat_id = req.sender.id
+        sender_id = req.sender.id
 
         await state.update_data(Email=email)
 
         is_user_exist = await HttpChatBot.check_email(CheckEmailDto(email=email))
 
-        print(f"USER EXISTS: {is_user_exist}")
-
         if is_user_exist:
             return await EmailHandlers.perform_sending_code(
-                chat_id=chat_id,
+                sender_id=sender_id,
                 state=state,
                 email=email,
                 new_state=exist_state,
@@ -35,21 +33,21 @@ class EmailHandlers:
         await action()
 
     @staticmethod
-    async def perform_sending_code(chat_id, state: FSMContext, email: str, new_state: State):
+    async def perform_sending_code(sender_id, state: FSMContext, email: str, new_state: State):
         data = await HttpChatBot.code_to_email(EmailDto(email=email))
 
         await state.update_data(EmailCode=data.get("Code"))
         await state.update_data(UserId=data.get("UserId"))
 
         await viber.send_messages(
-            chat_id, messages.KeyboardMessage(text=texts.ASKING_CODE, keyboard=other_email_kb)
+            sender_id, messages.KeyboardMessage(text=texts.ASKING_CODE, keyboard=other_email_kb)
         )
 
         return await state.set_state(new_state)
 
     @staticmethod
     async def check_code(
-        req: requests.ViberMessageRequest,
+        request: requests.ViberMessageRequest,
         state: FSMContext,
         failure_state: State,
         other_email_action: Callable,
@@ -57,8 +55,8 @@ class EmailHandlers:
         data = await state.get_data()
         correct_code = data.get("EmailCode")
 
-        user_text = req.message.text
-        chat_id = req.sender.id
+        user_text = request.message.text
+        sender_id = request.sender.id
 
         if user_text == texts.OTHER_MAIL:
             return await other_email_action()
@@ -66,13 +64,13 @@ class EmailHandlers:
         email = data.get("Email")
 
         if correct_code != user_text:
-            await viber.send_messages(chat_id, messages.TextMessage(text=texts.WRONG_CODE))
+            await viber.send_messages(sender_id, messages.TextMessage(text=texts.WRONG_CODE))
             await EmailHandlers.perform_sending_code(
-                chat_id=chat_id, state=state, email=email, new_state=failure_state
+                sender_id=sender_id, state=state, email=email, new_state=failure_state
             )
             return
 
-        await viber.send_messages(chat_id, messages.TextMessage(text=texts.SUCCESSFUL_AUTH))
+        await viber.send_messages(sender_id, messages.TextMessage(text=texts.SUCCESSFUL_AUTH))
 
         # await update_user_state_data(state)
         # await full_cabinet_menu(message=message, state=state)
