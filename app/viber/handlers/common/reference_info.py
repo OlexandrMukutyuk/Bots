@@ -45,7 +45,7 @@ class ReferenceInfoHandlers:
         data_info = request.message.text.split(":")
         current_info_id = int(data_info[1])
 
-        ref_info = (await state.get_data()).get('ReferenceInfo')
+        ref_info = (await state.get_data()).get("ReferenceInfo")
 
         target_info = next((info for info in ref_info if info.get("Id") == current_info_id), None)
 
