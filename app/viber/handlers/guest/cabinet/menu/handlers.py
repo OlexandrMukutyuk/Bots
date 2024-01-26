@@ -1,9 +1,10 @@
 import texts
 from dto.guest import GuestIdDto
 from handlers.common.enterprises import EnterprisesHandlers
+from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.cabinet import guest_menu_kb, guest_menu_text
 from services.http_client import HttpGuestBot
-from states import GuestCabinetStates, GuestRateEnterpriseStates
+from states import GuestCabinetStates, GuestRateEnterpriseStates, ReferenceInfoStates
 from viber import viber
 from viberio.dispatcher.dispatcher import Dispatcher
 from viberio.types import requests, messages
@@ -28,6 +29,8 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
 
     if button_text == guest_menu_text["review_enterprises"]:
         return await rate_enterprises_list(request, data)
+    if button_text == guest_menu_text["reference_info"]:
+        return await reference_info(request, data)
 
 
 #     if button_text == guest_menu_text["share_chatbot"]:
@@ -39,8 +42,7 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
 #     if button_text == guest_menu_text["full_registration"]:
 #         return await full_registration(request, data)
 #
-#     if button_text == guest_menu_text["reference_info"]:
-#         return await reference_info(request, data)
+
 #
 #     if button_text == guest_menu_text["repairs"]:
 #         return await repairs(request, data)
@@ -63,4 +65,13 @@ async def rate_enterprises_list(request: requests.ViberMessageRequest, data: dic
         get_enterprises=get_enterprises,
         new_state=GuestRateEnterpriseStates.showing_list,
         menu_callback=menu_callback,
+    )
+
+
+async def reference_info(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    await ReferenceInfoHandlers.load_menu(
+        request=request, state=state, parent_id=None, new_state=ReferenceInfoStates.waiting_info
     )
