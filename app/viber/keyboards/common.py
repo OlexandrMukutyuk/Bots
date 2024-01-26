@@ -1,6 +1,6 @@
 from keyboards.constructor import KeyboardConstructor
 from models import Gender
-from texts import YES, NO, BACK
+from texts import YES, NO, BACK, WITHOUT_FLAT
 
 yes = KeyboardConstructor.generate_kb(
     [
@@ -42,5 +42,11 @@ choose_gender_kb = KeyboardConstructor.generate_kb(
             "Text": gender_keys[2],
             "Columns": 6,
         },
-    ]
+    ],
+    {"InputFieldState": "hidden"},
 )
+
+
+without_flat_kb = KeyboardConstructor.generate_kb([WITHOUT_FLAT])
+
+

@@ -25,7 +25,6 @@ class KeyboardConstructor:
             internal_browser = None
             if btn.get("InternalBrowser"):
                 internal_browser = InternalBrowser()
-                print(internal_browser)
 
             button_list.append(
                 ButtonsObj(

@@ -6,7 +6,7 @@ from aiohttp import web
 from redis.asyncio import Redis
 
 from data import config
-from handlers import guest, start
+from handlers import guest, start, advanced
 from viber import viber
 from viberio.dispatcher.dispatcher import Dispatcher
 from viberio.dispatcher.webhook import ViberWebhookView
@@ -41,6 +41,7 @@ async def on_shutdown(application: web.Application):
 def register_handlers(dp: Dispatcher):
     start.prepare_router(dp)
     guest.prepare_router(dp)
+    advanced.prepare_router(dp)
 
 
 if __name__ == "__main__":

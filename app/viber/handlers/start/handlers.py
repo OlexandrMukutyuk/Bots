@@ -4,7 +4,7 @@ from handlers.common.email import EmailHandlers
 from keyboards.common import yes_n_no
 from keyboards.register import phone_share_kb
 from keyboards.start import greeting_kb, auth_types_kb, start_again_kb, is_register_on_site, big_kb
-from states import StartState, AuthState, AdvancedRegisterStates, GuestAuthStates, LoginState
+from states import StartState, AuthState, GuestAuthStates, LoginState, AdvancedRegisterStates
 from texts import YES, NO
 from utils.template_engine import render_template
 from viber import viber
@@ -69,7 +69,6 @@ async def check_user_email(request: requests.ViberMessageRequest, data: dict):
 
 async def answer_if_register(request: requests.ViberMessageRequest, data: dict):
     message_text = request.message.text
-    chat_id = request.sender.id
 
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
@@ -79,11 +78,13 @@ async def answer_if_register(request: requests.ViberMessageRequest, data: dict):
 
     if message_text == NO:
         await viber.send_messages(
-            chat_id,
+            request.sender.id,
             [
-                messages.TextMessage(texts.NEED_REGISTER),
-                messages.TextMessage(texts.ASKING_PHONE),
-                messages.KeyboardMessage(text=texts.PHONE_EXAMPLE, keyboard=phone_share_kb),
+                messages.TextMessage(text=texts.NEED_REGISTER),
+                messages.TextMessage(text=texts.ASKING_PHONE),
+                messages.KeyboardMessage(
+                    text=texts.PHONE_EXAMPLE, keyboard=phone_share_kb, min_api_version="4"
+                ),
             ],
         )
         await state.set_state(AdvancedRegisterStates.waiting_phone)
@@ -157,7 +158,4 @@ async def subscription_auth(request: requests.ViberMessageRequest, data: dict):
 
     await state.set_state(GuestAuthStates.waiting_street_typing)
 
-    await viber.send_message(
-        request.sender.id,
-        messages.TextMessage(text=texts.ASKING_STREET),
-    )
+    await viber.send_message(request.sender.id, messages.TextMessage(text=texts.ASKING_STREET))
