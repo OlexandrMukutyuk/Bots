@@ -1,0 +1,14 @@
+Пошта: {{ data.get('Email') }}
+
+Ім'я: {{ data.get('FirstName') }}
+Прізвище: {{ data.get('MiddleName') }}
+По батькові: {{ data.get('LastName') }}
+Телефон: {{ data.get('Phone') }}
+Пароль: {{ data.get('Password') }}
+Вулиця: {{ data.get('Street') }}
+Номер будинку: {{ data.get('House') }}
+{% if data.get('Flat') != None %}
+Квартира {{ data.get('Flat') }}
+{% endif %}
+
+Підтверджуйте 👇

@@ -129,7 +129,7 @@ class RedisStorage(BaseStorage):
             key: StorageKey,
     ) -> Optional[str]:
         redis_key = self.key_builder.build(key, "state")
-        value = self.redis.get(redis_key)
+        value = await self.redis.get(redis_key)
 
         if isinstance(value, bytes):
             return value.decode("utf-8")

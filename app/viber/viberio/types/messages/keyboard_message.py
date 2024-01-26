@@ -10,10 +10,10 @@ class InternalBrowser(ViberBaseObject):
     ActionPredefinedURL: str = attr.ib(default=None)
     CustomTitle: str = attr.ib(default=None)
     ActionReplyData: str = attr.ib(default=None)
-    ActionButton: str = attr.ib(default='forward')
-    TitleType: str = attr.ib(default='default')
-    Mode: str = attr.ib(default='fullscreen')
-    FooterType: str = attr.ib(default='middle')
+    ActionButton: str = attr.ib(default="forward")
+    TitleType: str = attr.ib(default="default")
+    Mode: str = attr.ib(default="fullscreen")
+    FooterType: str = attr.ib(default="default")
 
 
 @attr.s
@@ -26,7 +26,7 @@ class Map(ViberBaseObject):
 class Frame(ViberBaseObject):
     BorderWidth: str = attr.ib(default=None)
     CornerRadius: str = attr.ib(default=None)
-    BorderColor: str = attr.ib(default='#000000')
+    BorderColor: str = attr.ib(default="#000000")
 
 
 @attr.s
@@ -56,15 +56,16 @@ class ButtonsObj(ViberBaseObject):
     Rows: int = attr.ib(default=1)
     Silent: bool = attr.ib(default=False)
     BgLoop: bool = attr.ib(default=True)
-    ActionType: str = attr.ib(default='reply')
-    TextVAlign: str = attr.ib(default='middle')
-    TextHAlign: str = attr.ib(default='center')
-    TextPaddings: list = attr.ib(default=[12, 12, 12, 12])
+    ActionType: str = attr.ib(default="reply")
+    TextVAlign: str = attr.ib(default="middle")
+    TextHAlign: str = attr.ib(default="center")
+    # TextPaddings: list = attr.ib(default=[12, 12, 12, 12])
     TextOpacity: int = attr.ib(default=100)
-    TextSize: str = attr.ib(default='regular')
-    OpenURLType: str = attr.ib(default='internal')
-    OpenURLMediaType: str = attr.ib(default='middle')
-    TextShouldFit: bool = attr.ib(default=False)
+    TextSize: str = attr.ib(default="regular")
+    OpenURLType: str = attr.ib(default="internal")
+    OpenURLMediaType: str = attr.ib(default="not-media")
+    # OpenURLMediaType: str = attr.ib(default="middle")
+    # TextShouldFit: bool = attr.ib(default=False)
 
 
 @attr.s
@@ -76,9 +77,9 @@ class Keyboard(ViberBaseObject):
     CustomDefaultHeight: int = attr.ib(default=None)
     DefaultHeight: bool = attr.ib(default=False)
     Buttons: [ButtonsObj] = attr.ib(default=None)
-    HeightScale: int = attr.ib(default=100)
-    ButtonsGroupColumns: int = attr.ib(default=6)
-    InputFieldState: str = attr.ib(default='regular')
+    # HeightScale: int = attr.ib(default=100)
+    # ButtonsGroupColumns: int = attr.ib(default=6)
+    InputFieldState: str = attr.ib(default="regular")
 
 
 @attr.s

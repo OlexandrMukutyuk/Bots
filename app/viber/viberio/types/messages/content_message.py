@@ -21,7 +21,7 @@ class ContentButtons(ViberBaseObject):
 class RichMedia(ViberBaseObject):
     Type: str = attr.ib(default='rich_media')
     BgColor: str = attr.ib(default=None)
-    ButtonsGroupColumns: int = attr.ib(default=None)
+    # ButtonsGroupColumns: int = attr.ib(default=None)
     ButtonsGroupRows: int = attr.ib(default=None)
     Buttons: ContentButtons = attr.ib(default=None)
 
