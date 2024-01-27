@@ -3,7 +3,7 @@ from dto.guest import GuestIdDto
 from handlers.common.enterprises import EnterprisesHandlers
 from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.cabinet import guest_menu_kb, guest_menu_text
-from keyboards.guest import edit_guest_kb
+from keyboards.guest import edit_guest_kb, full_registration_kb
 from keyboards.repairs import repairs_kb
 from services.http_client import HttpGuestBot
 from states import (
@@ -12,6 +12,7 @@ from states import (
     ReferenceInfoStates,
     GuestEditInfoStates,
     RepairsStates,
+    GuestFullRegisterStates,
 )
 from utils.template_engine import render_template
 from viber import viber
@@ -50,10 +51,8 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == guest_menu_text["repairs"]:
         return await repairs(request, data)
 
-
-#     if button_text == guest_menu_text["full_registration"]:
-#         return await full_registration(request, data)
-#
+    if button_text == guest_menu_text["full_registration"]:
+        return await full_registration(request, data)
 
 
 async def rate_enterprises_list(request: requests.ViberMessageRequest, data: dict):
@@ -123,3 +122,16 @@ async def repairs(request: requests.ViberMessageRequest, data: dict):
     )
 
     return await state.set_state(RepairsStates.waiting_address)
+
+
+async def full_registration(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    await state.set_state(GuestFullRegisterStates.waiting_answer)
+    return await viber.send_message(
+        request.sender.id,
+        messages.KeyboardMessage(
+            text=texts.FULL_REGISTER_INFO, keyboard=full_registration_kb, min_api_version="3"
+        ),
+    )

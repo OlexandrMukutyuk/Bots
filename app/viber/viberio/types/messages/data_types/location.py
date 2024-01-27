@@ -7,6 +7,7 @@ from viberio.types.base import ViberBaseObject
 class Location(ViberBaseObject):
     lat: float = attr.ib()
     lon: float = attr.ib()
+    address: str = attr.ib(default=None)
 
     @lat.validator
     def check_lat(self, attribute, value):

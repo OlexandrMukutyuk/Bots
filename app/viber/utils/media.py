@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse, unquote
 
 
 def delete_tmp_media(media_ids):
@@ -16,3 +17,11 @@ def delete_tmp_media(media_ids):
                 print(f"Error deleting file {file_path}: {e}")
         else:
             print(f"File not found: {file_path}")
+
+
+def get_filename_from_url(url):
+    parsed_url = urlparse(url)
+    filename = unquote(parsed_url.path.split("/")[-1])
+    if "?" in filename:
+        filename = filename[: filename.index("?")]
+    return filename

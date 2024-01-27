@@ -115,7 +115,10 @@ async def edit_phone(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
-    phone = request.message.contact.phone_number or request.message.text
+    try:
+        phone = request.message.contact.phone_number
+    except:
+        phone = request.message.text
 
     await state.update_data(Phone=phone)
     await state.set_state(EditRegisterStates.waiting_accepting)

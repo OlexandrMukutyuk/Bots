@@ -14,10 +14,10 @@ from viberio.types import messages, requests
 class EmailHandlers:
     @staticmethod
     async def check_user(
-        req: requests.ViberMessageRequest, state: FSMContext, exist_state: State, action: Callable
+        request: requests.ViberMessageRequest, state: FSMContext, exist_state: State, action: Callable
     ):
-        email = req.message.text
-        sender_id = req.sender.id
+        email = request.message.text
+        sender_id = request.sender.id
 
         await state.update_data(Email=email)
 

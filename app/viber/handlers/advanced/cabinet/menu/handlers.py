@@ -4,6 +4,7 @@ from handlers.common.enterprises import EnterprisesHandlers
 from handlers.common.helpers import full_cabinet_menu
 from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.cabinet import cabinet_menu_text
+from keyboards.create_request import generate_problem_kb
 from keyboards.repairs import repairs_kb
 from keyboards.user import edit_profile_kb
 from models import Gender
@@ -13,6 +14,8 @@ from states import (
     FullEditInfoStates,
     FullReferenceInfoStates,
     FullRepairsStates,
+    FullIssueReportStates,
+    CreateRequestStates,
 )
 from utils.template_engine import render_template
 from viber import viber
@@ -22,24 +25,24 @@ from viberio.types import requests, messages
 
 async def main_handler(request: requests.ViberMessageRequest, data: dict):
     button_text = request.message.text
-    #
-    # if button_text == cabinet_menu_text["create_request"]:
-    #     return await create_request(message, state)
-    #
+
+    if button_text == cabinet_menu_text["create_request"]:
+        return await create_request(request, data)
+
     # if button_text == cabinet_menu_text["actual_requests"]:
-    #     return await actual_requests(message, state)
+    #     return await actual_requests(request, data)
     #
-    # if button_text == cabinet_menu_text["report_issue"]:
-    #     return await report_issue(message, state)
-    #
+    if button_text == cabinet_menu_text["report_issue"]:
+        return await report_issue(request, data)
+
     # if button_text == cabinet_menu_text["share_chatbot"]:
-    #     return await share_chatbot(message, state)
+    #     return await share_chatbot(request, data)
 
     if button_text == cabinet_menu_text["review_enterprises"]:
         return await rate_enterprises(request, data)
     #
     # if button_text == cabinet_menu_text["history_requests"]:
-    #     return await history_requests(message, state)
+    #     return await history_requests(request, data)
     #
     if button_text == cabinet_menu_text["change_user_info"]:
         return await send_edit_user_info(request, data)
@@ -55,25 +58,27 @@ async def repairs(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
-    await viber.send_messages(
+    await viber.send_message(
         request.sender.id,
-        [
-            messages.KeyboardMessage(
-                text=texts.ASKING_REPAIRS, keyboard=repairs_kb, min_api_version="3"
-            ),
-        ],
+        messages.KeyboardMessage(
+            text=texts.ASKING_REPAIRS, keyboard=repairs_kb, min_api_version="3"
+        ),
     )
 
     return await state.set_state(FullRepairsStates.waiting_address)
 
 
-# async def report_issue(message: types.Message, state: FSMContext):
-#     await message.answer(
-#         text=texts.ASKING_TECH_PROBLEMS,
-#         reply_markup=ReplyKeyboardRemove(),
-#     )
-#     return await state.set_state(FullIssueReportStates.waiting_issue_report)
-#
+async def report_issue(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    await viber.send_message(
+        request.sender.id,
+        messages.TextMessage(text=texts.ASKING_TECH_PROBLEMS),
+    )
+    return await state.set_state(FullIssueReportStates.waiting_issue_report)
+
+
 #
 # async def share_chatbot(message: types.Message, state: FSMContext):
 #     await message.answer(text=texts.SHARE_BOT, reply_markup=ReplyKeyboardRemove())
@@ -82,46 +87,34 @@ async def repairs(request: requests.ViberMessageRequest, data: dict):
 #     return await state.set_state(FullShareChatbotStates.waiting_back)
 #
 #
-# async def rate_enterprises(message: types.Message, state: FSMContext):
-#     user_data = await state.get_data()
-#     user_id = user_data.get("UserId")
 #
-#     loading_msg = await send_loading_message(message=message)
-#
-#     enterprises = await HttpChatBot.get_enterprises(UserIdDto(user_id=user_id))
-#     allowed_to_rate = list(filter(lambda item: item.get("CanVote"), enterprises))
-#
-#     await loading_msg.delete()
-#
-#     if len(allowed_to_rate) == 0:
-#         await message.answer(texts.NO_ENTERPRISES_TO_RATE)
-#         await full_cabinet_menu(message=message, state=state)
-#         return
-#
-#     await message.answer(
-#         text=texts.ASKING_ENTERPRISE,
-#         reply_markup=enterprises_list_kb(allowed_to_rate),
-#     )
-#
-#     await state.set_state(FullRateEnterpriseStates.showing_list)
-#
-#
-# async def create_request(message: types.Message, state: FSMContext):
-#     loading_msg = await send_loading_message(message=message)
-#
-#     user_id = (await state.get_data()).get("UserId")
-#
-#     problems = await HttpChatBot.get_problems(UserIdDto(user_id=user_id))
-#
-#     await loading_msg.delete()
-#
-#     await state.update_data(Problems=problems)
-#
-#     problems_msg = await message.answer(text=texts.ASKING_PROBLEM, reply_markup=pick_problem_kb)
-#
-#     await state.update_data(ProblemsMessageId=problems_msg.message_id)
-#     await state.set_state(CreateRequestStates.waiting_problem)
-#
+
+
+async def create_request(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    user_id = (await state.get_data()).get("UserId")
+
+    print("Завантажую теми для звернень")
+
+    await viber.send_message(
+        request.sender.id,
+        messages.TextMessage(text="Завантажую теми для звернень"),
+    )
+
+    problems = await HttpChatBot.get_problems(UserIdDto(user_id=user_id))
+
+    await state.update_data(Problems=problems)
+
+    await viber.send_message(
+        request.sender.id,
+        messages.KeyboardMessage(text=texts.ASKING_PROBLEM, keyboard=generate_problem_kb(problems)),
+    )
+
+    await state.set_state(CreateRequestStates.waiting_problem)
+
+
 #
 # async def actual_requests(message: types.Message, state: FSMContext):
 #     user_data = await state.get_data()

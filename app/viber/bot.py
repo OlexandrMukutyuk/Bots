@@ -11,6 +11,7 @@ from viber import viber
 from viberio.dispatcher.dispatcher import Dispatcher
 from viberio.dispatcher.webhook import ViberWebhookView
 from viberio.fsm.storages.redis import RedisStorage, DefaultKeyBuilder
+from web_handlers.media import media
 
 loop = asyncio.get_event_loop()
 
@@ -38,6 +39,12 @@ async def on_shutdown(application: web.Application):
     await viber.close()
 
 
+
+def setup_webhandlers(app: web.Application):
+    app.router.add_route(method="GET", path="/media/{file_name}", handler=media)
+
+
+
 def register_handlers(dp: Dispatcher):
     start.prepare_router(dp)
     guest.prepare_router(dp)
@@ -46,6 +53,7 @@ def register_handlers(dp: Dispatcher):
 
 if __name__ == "__main__":
     register_handlers(dispatcher)
+    setup_webhandlers(app)
 
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     app.on_shutdown.append(on_shutdown)

@@ -1,5 +1,6 @@
 import json
 
+import aiofiles
 import aiohttp
 
 from data.config import SERVER_TOKEN, SERVER_BASE_URL, SERVER_BASE_SERVICE, SERVER_GUEST_SERVICE
@@ -223,3 +224,15 @@ class HttpChatBot(HttpClient):
         print(data)
 
         return data.get("Items")
+
+
+async def download_image(url, path):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status == 200:
+                async with aiofiles.open(path, mode="wb") as f:
+                    await f.write(await resp.read())
+
+
+# Usage
+# asyncio.run(download_image('http://example.com/image.jpg', '/path/to/save/image.jpg'))

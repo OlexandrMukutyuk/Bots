@@ -63,7 +63,7 @@ async def check_user_email(request: requests.ViberMessageRequest, data: dict):
         return await asking_if_register(request, data)
 
     await EmailHandlers.check_user(
-        req=request, state=state, exist_state=LoginState.waiting_code, action=action
+        request=request, state=state, exist_state=LoginState.waiting_code, action=action
     )
 
 
