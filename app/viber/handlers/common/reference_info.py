@@ -1,3 +1,4 @@
+from asyncio import sleep
 from typing import Optional
 
 import texts
@@ -30,7 +31,9 @@ class ReferenceInfoHandlers:
         await viber.send_messages(
             request.sender.id,
             messages.KeyboardMessage(
-                text=texts.ASKING_REF_INFO, keyboard=generate_ref_info_kb(ref_info), min_api_version='3'
+                text=texts.ASKING_REF_INFO,
+                keyboard=generate_ref_info_kb(ref_info),
+                min_api_version="3",
             ),
         )
 
@@ -55,14 +58,18 @@ class ReferenceInfoHandlers:
             )
 
         else:
-            await viber.send_messages(
+            await viber.send_message(
                 request.sender.id,
-                [
-                    messages.TextMessage(
-                        text=render_template("show_ref_info.j2", info=target_info)
-                    ),
-                    messages.KeyboardMessage(
-                        text=texts.ASKING_REF_INFO, keyboard=generate_ref_info_kb(ref_info), min_api_version='3'
-                    ),
-                ],
+                messages.TextMessage(text=render_template("show_ref_info.j2", info=target_info)),
+            )
+
+            await sleep(0.2)
+
+            await viber.send_message(
+                request.sender.id,
+                messages.KeyboardMessage(
+                    text=texts.ASKING_REF_INFO,
+                    keyboard=generate_ref_info_kb(ref_info),
+                    min_api_version="3",
+                ),
             )

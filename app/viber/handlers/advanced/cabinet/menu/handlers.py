@@ -1,11 +1,12 @@
 from dto.chat_bot import UserIdDto
 from handlers.common.enterprises import EnterprisesHandlers
 from handlers.common.helpers import full_cabinet_menu
+from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.cabinet import cabinet_menu_text
 from keyboards.user import edit_profile_kb
 from models import Gender
 from services.http_client import HttpChatBot
-from states import FullRateEnterpriseStates, FullEditInfoStates
+from states import FullRateEnterpriseStates, FullEditInfoStates, FullReferenceInfoStates
 from utils.template_engine import render_template
 from viber import viber
 from viberio.dispatcher.dispatcher import Dispatcher
@@ -36,9 +37,9 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == cabinet_menu_text["change_user_info"]:
         return await send_edit_user_info(request, data)
 
-    # if button_text == cabinet_menu_text["reference_info"]:
-    #     return await reference_info(message, state)
-    #
+    if button_text == cabinet_menu_text["reference_info"]:
+        return await reference_info(request, data)
+
     # if button_text == cabinet_menu_text["repairs"]:
     #     return await repairs(message, state)
 
@@ -162,15 +163,15 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
 #     return await send_edit_user_info(state, message=message)
 #
 #
-# async def reference_info(message: types.Message, state: FSMContext):
-#     await ReferenceInfoHandlers.load_menu(
-#         state=state,
-#         parent_id=None,
-#         new_state=FullReferenceInfoStates.waiting_info,
-#         message=message
-#     )
-#
-#
+
+
+async def reference_info(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    await ReferenceInfoHandlers.load_menu(
+        request=request, state=state, parent_id=None, new_state=FullReferenceInfoStates.waiting_info
+    )
 
 
 async def send_edit_user_info(request: requests.ViberMessageRequest, data: dict):
