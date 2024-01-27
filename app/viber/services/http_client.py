@@ -189,7 +189,6 @@ class HttpChatBot(HttpClient):
     @staticmethod
     async def get_enterprises(dto: UserIdDto):
         data = await HttpChatBot.request("/GetKps", dto)
-
         return data.get("Items")
 
     @staticmethod

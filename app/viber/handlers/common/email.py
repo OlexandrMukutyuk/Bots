@@ -2,6 +2,7 @@ from typing import Callable
 
 import texts
 from dto.chat_bot import EmailDto, CheckEmailDto
+from handlers.common.helpers import update_user_state_data, full_cabinet_menu
 from keyboards.login import other_email_kb
 from services.http_client import HttpChatBot
 from viber import viber
@@ -72,5 +73,5 @@ class EmailHandlers:
 
         await viber.send_messages(sender_id, messages.TextMessage(text=texts.SUCCESSFUL_AUTH))
 
-        # await update_user_state_data(state)
-        # await full_cabinet_menu(message=message, state=state)
+        await update_user_state_data(state)
+        await full_cabinet_menu(request, data)

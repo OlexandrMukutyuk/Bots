@@ -35,3 +35,36 @@ full_registration_kb = KeyboardConstructor.generate_kb(
         {"Text": GO_BACK},
     ]
 )
+
+
+cabinet_menu_text = {
+    "create_request": "Створити звернення ✍",
+    "actual_requests": "Актуальні звернення 📝",
+    "history_requests": "Історія звернень 📚",
+    "repairs": "Ремонтні роботи ⚒️️",
+    "change_user_info": "Змінити дані 🔄",
+    "share_chatbot": "Поділитися чат-ботом 🤝️",
+    "report_issue": "Повідомити про технічні негарди ⚙️",
+    "reference_info": "Довідкова інформація ℹ️",
+    "review_enterprises": "Оцінити роботу підприємств міста ⭐",
+}
+
+
+cabinet_menu_kb = KeyboardConstructor.generate_kb(
+    [
+        {"Text": cabinet_menu_text["create_request"], "Columns": 3, "Rows": 1},
+        {"Text": cabinet_menu_text["actual_requests"], "Columns": 3, "Rows": 1},
+        {"Text": cabinet_menu_text["history_requests"], "Columns": 3, "Rows": 1},
+        {"Text": cabinet_menu_text["repairs"], "Columns": 3, "Rows": 1},
+        {"Text": cabinet_menu_text["change_user_info"], "Columns": 3, "Rows": 1},
+        {
+            "Text": cabinet_menu_text["share_chatbot"],
+            "Columns": 3,
+            "Rows": 1,
+        },
+        {"Text": cabinet_menu_text["reference_info"], "Columns": 3, "Rows": 1},
+        {"Text": cabinet_menu_text["report_issue"], "Columns": 3, "Rows": 1},
+        {"Text": cabinet_menu_text["review_enterprises"], "Columns": 6, "Rows": 1},
+    ],
+    {"InputFieldState": "hidden"},
+)

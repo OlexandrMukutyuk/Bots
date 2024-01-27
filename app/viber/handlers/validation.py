@@ -1,6 +1,8 @@
+from asyncio import sleep
+
 import texts
 from bot import viber
-from keyboards.common import back_kb, choose_gender_kb
+from keyboards.common import back_kb, choose_gender_kb, without_flat_back_kb
 from viberio.types import requests, messages
 
 
@@ -23,6 +25,15 @@ async def not_valid_street_name(request: requests.ViberMessageRequest, data: dic
 async def not_valid_flat(request: requests.ViberMessageRequest, data: dict):
     await viber.send_message(request.sender.id, messages.TextMessage(text=texts.NOT_VALID_FLAT))
     await viber.send_message(request.sender.id, messages.TextMessage(text=texts.ASKING_FLAT))
+
+
+async def not_valid_edit_flat(request: requests.ViberMessageRequest, data: dict):
+    await viber.send_message(request.sender.id, messages.TextMessage(text=texts.NOT_VALID_FLAT))
+    await sleep(0.2)
+    await viber.send_message(
+        request.sender.id,
+        messages.KeyboardMessage(text=texts.ASKING_FLAT, keyboard=without_flat_back_kb),
+    )
 
 
 async def not_valid_gender(request: requests.ViberMessageRequest, data: dict):

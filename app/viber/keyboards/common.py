@@ -50,3 +50,9 @@ choose_gender_kb = KeyboardConstructor.generate_kb(
 without_flat_kb = KeyboardConstructor.generate_kb([WITHOUT_FLAT])
 
 
+without_flat_back_kb = KeyboardConstructor.generate_kb(
+    [
+        {"Text": BACK, "Columns": 3},
+        {"Text": WITHOUT_FLAT, "Columns": 3},
+    ]
+)
