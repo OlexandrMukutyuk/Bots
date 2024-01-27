@@ -1,12 +1,19 @@
+import texts
 from dto.chat_bot import UserIdDto
 from handlers.common.enterprises import EnterprisesHandlers
 from handlers.common.helpers import full_cabinet_menu
 from handlers.common.reference_info import ReferenceInfoHandlers
 from keyboards.cabinet import cabinet_menu_text
+from keyboards.repairs import repairs_kb
 from keyboards.user import edit_profile_kb
 from models import Gender
 from services.http_client import HttpChatBot
-from states import FullRateEnterpriseStates, FullEditInfoStates, FullReferenceInfoStates
+from states import (
+    FullRateEnterpriseStates,
+    FullEditInfoStates,
+    FullReferenceInfoStates,
+    FullRepairsStates,
+)
 from utils.template_engine import render_template
 from viber import viber
 from viberio.dispatcher.dispatcher import Dispatcher
@@ -40,17 +47,26 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == cabinet_menu_text["reference_info"]:
         return await reference_info(request, data)
 
-    # if button_text == cabinet_menu_text["repairs"]:
-    #     return await repairs(message, state)
+    if button_text == cabinet_menu_text["repairs"]:
+        return await repairs(request, data)
 
 
-# async def repairs(message: types.Message, state: FSMContext):
-#     await message.answer(text=texts.REPAIRS, reply_markup=ReplyKeyboardRemove())
-#     await message.answer(text=texts.ASKING_REPAIRS, reply_markup=repairs_kb)
-#
-#     return await state.set_state(FullRepairsStates.waiting_address)
-#
-#
+async def repairs(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    await viber.send_messages(
+        request.sender.id,
+        [
+            messages.KeyboardMessage(
+                text=texts.ASKING_REPAIRS, keyboard=repairs_kb, min_api_version="3"
+            ),
+        ],
+    )
+
+    return await state.set_state(FullRepairsStates.waiting_address)
+
+
 # async def report_issue(message: types.Message, state: FSMContext):
 #     await message.answer(
 #         text=texts.ASKING_TECH_PROBLEMS,
