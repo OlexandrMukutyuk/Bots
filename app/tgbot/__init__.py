@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 
-from bot import bot, redis_storage
+from bot import bot
 from data.config import (
     WEBHOOK_ADDRESS,
     WEBHOOK_PATH,
@@ -15,6 +15,8 @@ from data.config import (
     WEBHOOK_SECRET_TOKEN,
 )
 from handlers import start, guest, advanced
+from services.database import DB
+from services.redis import redis_storage
 from web_handlers.media import media
 from web_handlers.push_notification import push_notification
 
@@ -54,6 +56,8 @@ async def delete_updates(bot: Bot):
 
 def main() -> None:
     loop = asyncio.new_event_loop()
+
+    loop.create_task(DB.setup_database())
 
     dp = Dispatcher(storage=redis_storage)
 

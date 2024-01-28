@@ -1,4 +1,3 @@
-import json
 import logging
 from asyncio import sleep
 from typing import Union
@@ -7,9 +6,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiohttp import web
 
-from bot import bot, redis_pool, redis_storage
+from bot import bot
 from data import config
 from handlers.common.helpers import full_cabinet_menu
+from services.database import DB
+from services.redis import redis_storage
 
 ACTIVATE_USER = "Activate User"
 PUSH_NOTIFICATION = "Push Notification"
@@ -36,13 +37,11 @@ async def register_notification(data: dict):
     if not segment:
         return web.Response(status=400)
 
-    users_info = json.loads(await redis_pool.get('users'))
+    user_id = int(segment.split("=")[1])
 
-    user_id = int(segment.split('=')[1])
+    user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
+    chat_id = user_info[0]
 
-    user_info = {key: value for key, value in users_info.items() if value == user_id}
-
-    chat_id = list(user_info.keys())[0]
     bot_id = int(config.BOT_TOKEN.split(':')[0])
 
     state = FSMContext(storage=redis_storage, key=StorageKey(chat_id=chat_id, bot_id=bot_id, user_id=chat_id))
@@ -55,15 +54,15 @@ async def register_notification(data: dict):
 async def notification(data: dict):
     segment: Union[str, None] = data.get('segment', None)
 
-    users_info = json.loads(await redis_pool.get('users'))
-
     if not segment:
-        users = list(users_info.keys())
+        user_info = await DB.select_all("SELECT sender_id FROM users")
+        users = [item for tuple in user_info for item in tuple]
     else:
-        user_id = int(segment.split('=')[1])
-        user_info = {key: value for key, value in users_info.items() if value == user_id}
+        user_id = int(segment.split("=")[1])
 
-        users = list(user_info.keys())
+        user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
+
+        users = [(user_info[0])]
 
     text = data.get('payload').get('result_text_ua')
 
@@ -76,5 +75,28 @@ async def notification(data: dict):
             await bot.send_message(chat_id=user, text=text)
         except:
             logging.warn("Block by user")
+
+    # for user in users:
+    #     last_msg = await DB.select_one("SELECT * FROM messages WHERE sender_id = ?", (user,))
+    #
+    #     if last_msg is None:
+    #         continue
+    #
+    #     text = last_msg[1]
+    #     keyboard_data = last_msg[2]
+    #
+    #     if keyboard_data:
+    #         keyboard = Keyboard.from_dict(json.loads(keyboard_data))
+    #         message = messages.KeyboardMessage(text=text, keyboard=keyboard, min_api_version='3')
+    #     else:
+    #         message = messages.TextMessage(text=text)
+    #
+    #     try:
+    #         await viber.send_message(
+    #             user,
+    #             message,
+    #         )
+    #     except:
+    #         logging.warn("Block by user")
 
     return web.Response(status=200)

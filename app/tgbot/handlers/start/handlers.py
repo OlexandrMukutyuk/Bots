@@ -1,17 +1,15 @@
-import json
-
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
-from bot import redis_pool
 from data.config import WEBSITE_URL
 from handlers.common.email import EmailHandlers
 from keyboards.default.auth.register import phone_share_kb
 from keyboards.default.basic import yes_n_no
 from keyboards.default.start import greeting_kb, auth_types_kb
 from keyboards.default.start import is_register_on_site, start_again_kb, YES
+from services.database import DB
 from states.advanced import AuthState, AdvancedRegisterStates, LoginState
 from states.guest import GuestAuthStates
 from states.start import StartState
@@ -22,12 +20,7 @@ from utils.template_engine import render_template
 async def greeting(message: types.Message, state: FSMContext):
     await state.clear()
 
-    users = json.loads(await redis_pool.get('users') or "{}")
-
-    await redis_pool.set('users', json.dumps({
-        **users,
-        message.from_user.id: None
-    }))
+    await DB.insert("""INSERT OR REPLACE INTO users VALUES (?,?)""", (message.from_user.id, None))
 
     await message.answer(text=texts.GREETING, reply_markup=greeting_kb)
     await state.set_state(StartState.waiting_greeting)

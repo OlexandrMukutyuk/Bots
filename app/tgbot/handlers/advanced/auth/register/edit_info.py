@@ -1,11 +1,8 @@
-import json
-
 from aiogram import types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
-from bot import redis_pool
 from dto.chat_bot import RegisterDto
 from handlers.common.flat import FlatHandlers
 from handlers.common.helpers import independent_message
@@ -18,6 +15,7 @@ from keyboards.default.auth.register import (
 )
 from keyboards.default.common import without_flat_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
+from services.database import DB
 from services.http_client import HttpChatBot
 from states.advanced import EditRegisterStates
 from utils.template_engine import render_template
@@ -204,12 +202,7 @@ async def accept_info(message: types.Message, state: FSMContext):
         )
     )
 
-    users = json.loads(await redis_pool.get('users'))
-
-    await redis_pool.set('users', json.dumps({
-        **users,
-        message.from_user.id: user_id
-    }))
+    await DB.update("""UPDATE users SET user_id = ? WHERE sender_id = ?""", (user_id, message.from_user.id))
 
     await state.update_data(UserId=user_id)
 
