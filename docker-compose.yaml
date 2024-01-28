@@ -11,6 +11,17 @@ services:
       - 8080:8080
     restart: always
   
+  viber:
+    build:
+      context: app/viber
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/viber:/app
+    ports:
+      - 8087:8087
+    restart: always
+  
+
   redis:
     image: redis:7.2.3-alpine
     ports:
