@@ -20,7 +20,7 @@ app = web.Application()
 
 
 dispatcher = Dispatcher(viber, redis_storage)
-ViberWebhookView.bind(dispatcher, app, config.WEBHOOK_PATH)
+ViberWebhookView.bind(dispatcher, app, "/")
 
 
 async def set_webhook():
