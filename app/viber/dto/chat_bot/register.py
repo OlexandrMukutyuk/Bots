@@ -30,4 +30,5 @@ class RegisterDto(AbstractDto):
             "Flat": self.flat,
             "Password": self.password,
             "Email": self.email,
+            "Platform": 1,
         }
