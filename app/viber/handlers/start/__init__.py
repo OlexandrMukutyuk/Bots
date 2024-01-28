@@ -73,7 +73,7 @@ def prepare_router(dp: Dispatcher):
         Handler(validation.not_valid_email, [StateFilter(AuthState.waiting_email)]),
     ]
 
-    dp.subscribed_handler.subscribe(handlers.greeting)
+    dp.subscribed_handler.subscribe(handlers.greeting, [StateFilter(None)])
 
     for message in message_list:
         dp.text_messages_handler.subscribe(message.handler, message.filters)
