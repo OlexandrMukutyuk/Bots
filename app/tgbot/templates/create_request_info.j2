@@ -9,9 +9,9 @@
 {% else %}
 Не відображати на сайті
 {% endif %}
-{% set image_list = data.get('RequestImages') %}
-{% if image_list|length > 0 %}
-Завантажено {{ image_list|length }} фото
+{% set image_list = data.get('RequestImages') or []  %}
+{% if image_list |length > 0 %}
+Завантажено {{ image_list |length }} фото
 {% else %}
 Фото не завантажено
 {% endif %}

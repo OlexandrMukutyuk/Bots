@@ -41,6 +41,8 @@ def prepare_router() -> Router:
         # Validation
         Handler(validation.not_valid_text, [ArchiveRequestsStates.waiting_req]),
         Handler(validation.not_valid_text, [ArchiveRequestsStates.waiting_comment]),
+
+        #
     ]
 
     for message in message_list:

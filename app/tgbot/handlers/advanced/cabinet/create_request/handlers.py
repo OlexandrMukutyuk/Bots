@@ -18,7 +18,7 @@ from handlers.common.helpers import update_user_state_data, full_cabinet_menu
 from handlers.common.house import HouseHandlers
 from handlers.common.inline_mode import InlineHandlers
 from handlers.common.streets import StreetsHandlers
-from keyboards.default.basic import yes_n_no, yes
+from keyboards.default.basic import yes_n_no
 from keyboards.default.cabinet.create_request import (
     request_yes_no_kb,
     request_flat_kb,
@@ -37,7 +37,7 @@ from keyboards.inline.cabinet.create_request import (
 from keyboards.inline.callbacks import ProblemCallbackFactory, StreetCallbackFactory
 from services.http_client import HttpChatBot
 from states.advanced import FullCabinetStates, CreateRequestStates
-from texts.keyboards import NO_NEED, ENOUGH, BACK
+from texts.keyboards import NO_NEED, ENOUGH, BACK, YES
 from utils.media import delete_tmp_media
 from utils.template_engine import render_template
 
@@ -77,10 +77,10 @@ async def message_via_bot(message: types.Message, state: FSMContext, bot: Bot):
 
 
 async def confirm_problem(
-    callback: types.CallbackQuery,
-    callback_data: ProblemCallbackFactory,
-    state: FSMContext,
-    bot: Bot,
+        callback: types.CallbackQuery,
+        callback_data: ProblemCallbackFactory,
+        state: FSMContext,
+        bot: Bot,
 ):
     data = await state.get_data()
 
@@ -154,10 +154,10 @@ async def show_reasons_list(callback: types.InlineQuery, state: FSMContext):
 
 
 async def confirm_reason(
-    callback: types.CallbackQuery,
-    callback_data: ProblemCallbackFactory,
-    state: FSMContext,
-    bot: Bot,
+        callback: types.CallbackQuery,
+        callback_data: ProblemCallbackFactory,
+        state: FSMContext,
+        bot: Bot,
 ):
     chat_id = callback.from_user.id
     reason_id = callback_data.problem_id
@@ -296,7 +296,7 @@ async def show_street_list(callback: types.InlineQuery, state: FSMContext):
 
 
 async def confirm_street(
-    callback: types.CallbackQuery, callback_data: StreetCallbackFactory, state: FSMContext, bot: Bot
+        callback: types.CallbackQuery, callback_data: StreetCallbackFactory, state: FSMContext, bot: Bot
 ):
     async def action():
         await bot.send_message(
@@ -369,7 +369,7 @@ async def save_comment(message: types.Message, state: FSMContext):
 async def save_showing_status(message: types.Message, state: FSMContext):
     text = message.text
 
-    if text == yes:
+    if text == YES:
         show_on_site = True
     else:
         show_on_site = False
