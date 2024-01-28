@@ -1,3 +1,4 @@
+from data import config
 from keyboards.constructor import KeyboardConstructor
 from texts import START_FULL_REGISTRATION, GO_BACK
 
@@ -17,9 +18,9 @@ guest_menu_kb = KeyboardConstructor.generate_kb(
         {"Text": guest_menu_text["change_info"], "Columns": 3, "Rows": 1},
         {
             "Text": guest_menu_text["share_chatbot"],
+            "ActionType": "open-url",
+            "ActionBody": "viber://forward?text=<Your Text>",
             "Columns": 3,
-            "Rows": 1,
-            "InternalBrowser": True,
         },
         {"Text": guest_menu_text["reference_info"], "Columns": 3, "Rows": 1},
         {"Text": guest_menu_text["review_enterprises"], "Columns": 3, "Rows": 1},
@@ -59,8 +60,9 @@ cabinet_menu_kb = KeyboardConstructor.generate_kb(
         {"Text": cabinet_menu_text["change_user_info"], "Columns": 3, "Rows": 1},
         {
             "Text": cabinet_menu_text["share_chatbot"],
+            "ActionType": "open-url",
+            "ActionBody": f"viber://forward?text={config.BOT_URL}",
             "Columns": 3,
-            "Rows": 1,
         },
         {"Text": cabinet_menu_text["reference_info"], "Columns": 3, "Rows": 1},
         {"Text": cabinet_menu_text["report_issue"], "Columns": 3, "Rows": 1},

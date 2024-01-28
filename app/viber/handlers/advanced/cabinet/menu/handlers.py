@@ -3,7 +3,9 @@ from dto.chat_bot import UserIdDto
 from handlers.common.enterprises import EnterprisesHandlers
 from handlers.common.helpers import full_cabinet_menu
 from handlers.common.reference_info import ReferenceInfoHandlers
+from keyboards.archive_requests import generate_archive_req_kb
 from keyboards.cabinet import cabinet_menu_text
+from keyboards.common import back_kb
 from keyboards.create_request import generate_problem_kb
 from keyboards.repairs import repairs_kb
 from keyboards.user import edit_profile_kb
@@ -16,6 +18,7 @@ from states import (
     FullRepairsStates,
     FullIssueReportStates,
     CreateRequestStates,
+    ArchiveRequestsStates,
 )
 from utils.template_engine import render_template
 from viber import viber
@@ -29,9 +32,9 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == cabinet_menu_text["create_request"]:
         return await create_request(request, data)
 
-    # if button_text == cabinet_menu_text["actual_requests"]:
-    #     return await actual_requests(request, data)
-    #
+    if button_text == cabinet_menu_text["actual_requests"]:
+        return await actual_requests(request, data)
+
     if button_text == cabinet_menu_text["report_issue"]:
         return await report_issue(request, data)
 
@@ -40,10 +43,10 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
 
     if button_text == cabinet_menu_text["review_enterprises"]:
         return await rate_enterprises(request, data)
-    #
-    # if button_text == cabinet_menu_text["history_requests"]:
-    #     return await history_requests(request, data)
-    #
+
+    if button_text == cabinet_menu_text["history_requests"]:
+        return await history_requests(request, data)
+
     if button_text == cabinet_menu_text["change_user_info"]:
         return await send_edit_user_info(request, data)
 
@@ -74,7 +77,7 @@ async def report_issue(request: requests.ViberMessageRequest, data: dict):
 
     await viber.send_message(
         request.sender.id,
-        messages.TextMessage(text=texts.ASKING_TECH_PROBLEMS),
+        messages.KeyboardMessage(text=texts.ASKING_TECH_PROBLEMS, keyboard=back_kb),
     )
     return await state.set_state(FullIssueReportStates.waiting_issue_report)
 
@@ -87,7 +90,7 @@ async def report_issue(request: requests.ViberMessageRequest, data: dict):
 #     return await state.set_state(FullShareChatbotStates.waiting_back)
 #
 #
-#
+# viber://forward?text=<Your Text>
 
 
 async def create_request(request: requests.ViberMessageRequest, data: dict):
@@ -115,63 +118,61 @@ async def create_request(request: requests.ViberMessageRequest, data: dict):
     await state.set_state(CreateRequestStates.waiting_problem)
 
 
-#
-# async def actual_requests(message: types.Message, state: FSMContext):
-#     user_data = await state.get_data()
-#
-#     loading_message = await send_loading_message(message=message)
-#
-#     requests = await HttpChatBot.actual_requests(UserIdDto(user_id=user_data.get("UserId")))
-#
-#     await loading_message.delete()
-#     await message.answer("Звернення які розглядаються")
-#
-#     for request in requests:
-#         data = {
-#             "id": request.get("Id"),
-#             "problem": request.get("Problem"),
-#             "reason": request.get("Reason"),
-#             "address": f"{request.get('Street')} {request.get('House')}",
-#             "comment": request.get("Text"),
-#         }
-#
-#         template = render_template("actual_requests.j2", data=data)
-#
-#         await message.answer(template)
-#
-#     return await full_cabinet_menu(state=state, message=message)
-#
-#
-# async def history_requests(message: types.Message, state: FSMContext):
-#     loading_msg = await send_loading_message(message=message)
-#
-#     user_id = (await state.get_data()).get("UserId")
-#     archived_req = await HttpChatBot.archived_requests(UserIdDto(user_id=user_id))
-#
-#     await loading_msg.delete()
-#
-#     if len(archived_req) == 0:
-#         await message.answer("Архівованих заявок немає.")
-#         await full_cabinet_menu(state=state, message=message)
-#         return
-#
-#     await message.answer(text="Показую архівовані заявки", reply_markup=ReplyKeyboardRemove())
-#
-#     req_msg = await message.answer(
-#         text="Виберіть звернення з кнопок нижче", reply_markup=pick_archive_req_kb
-#     )
-#
-#     await state.update_data(
-#         ArchiveRequests=archived_req, ArchiveRequestsMessageId=req_msg.message_id
-#     )
-#
-#     await state.set_state(ArchiveRequestsStates.waiting_req)
-#
-#
-# async def change_user_info(message: types.Message, state: FSMContext):
-#     return await send_edit_user_info(state, message=message)
-#
-#
+async def actual_requests(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+    user_data = await state.get_data()
+
+    sender_id = request.sender.id
+
+    await viber.send_message(sender_id, messages.TextMessage(text=texts.LOADING))
+
+    user_reqs = await HttpChatBot.actual_requests(UserIdDto(user_id=user_data.get("UserId")))
+
+    await viber.send_message(sender_id, messages.TextMessage(text="Звернення які розглядаються"))
+
+    for user_req in user_reqs:
+        template_data = {
+            "id": user_req.get("Id"),
+            "problem": user_req.get("Problem"),
+            "reason": user_req.get("Reason"),
+            "address": f"{user_req.get('Street')} {user_req.get('House')}",
+            "comment": user_req.get("Text"),
+        }
+
+        template = render_template("actual_requests.j2", data=template_data)
+
+        await viber.send_message(sender_id, messages.TextMessage(text=template))
+
+    return await full_cabinet_menu(request, data)
+
+
+async def history_requests(request: requests.ViberMessageRequest, data: dict):
+    dp_ = Dispatcher.get_current()
+    state = dp_.current_state(request)
+
+    sender_id = request.sender.id
+
+    await viber.send_message(sender_id, messages.TextMessage(text=texts.LOADING))
+
+    user_id = (await state.get_data()).get("UserId")
+    archived_reqs = await HttpChatBot.archived_requests(UserIdDto(user_id=user_id))
+
+    if len(archived_reqs) == 0:
+        await viber.send_message(sender_id, messages.TextMessage(text="Архівованих заявок немає."))
+        await full_cabinet_menu(request, data)
+        return
+
+    await viber.send_message(
+        sender_id,
+        messages.KeyboardMessage(
+            text="Показую архівовані заявки", keyboard=generate_archive_req_kb(archived_reqs)
+        ),
+    )
+
+    await state.update_data(ArchiveRequests=archived_reqs)
+
+    await state.set_state(ArchiveRequestsStates.waiting_req)
 
 
 async def reference_info(request: requests.ViberMessageRequest, data: dict):

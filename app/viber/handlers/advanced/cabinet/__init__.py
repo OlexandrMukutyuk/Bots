@@ -6,6 +6,7 @@ from handlers.advanced.cabinet import (
     repairs,
     issue_report,
     create_request,
+    archive_req,
 )
 from viberio.dispatcher.dispatcher import Dispatcher
 
@@ -17,4 +18,5 @@ def prepare_router(dp: Dispatcher):
     reference_info.prepare_router(dp)
     repairs.prepare_router(dp)
     issue_report.prepare_router(dp)
+    archive_req.prepare_router(dp)
     create_request.prepare_router(dp)

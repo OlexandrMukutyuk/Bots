@@ -2,6 +2,7 @@ from keyboards.constructor import KeyboardConstructor
 from models import Gender
 from texts import YES, NO, BACK, WITHOUT_FLAT
 
+
 yes = KeyboardConstructor.generate_kb(
     [
         {"Text": YES, "Columns": 6, "Rows": 1},
