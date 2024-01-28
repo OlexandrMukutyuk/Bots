@@ -19,7 +19,7 @@ guest_menu_kb = KeyboardConstructor.generate_kb(
         {
             "Text": guest_menu_text["share_chatbot"],
             "ActionType": "open-url",
-            "ActionBody": "viber://forward?text=<Your Text>",
+            "ActionBody": f"viber://forward?text={config.BOT_URL}",
             "Columns": 3,
         },
         {"Text": guest_menu_text["reference_info"], "Columns": 3, "Rows": 1},
