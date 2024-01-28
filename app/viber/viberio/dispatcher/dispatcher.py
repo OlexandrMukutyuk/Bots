@@ -125,7 +125,6 @@ class Dispatcher(DataMixin, ContextInstanceMixin):
         storage_key = StorageKey(
             user_id=request.sender.id,
             bot_id=request.bot.bot_configuration.auth_token,
-            chat_id=request.chat_id
         )
 
         return FSMContext(storage=self.storage, key=storage_key)

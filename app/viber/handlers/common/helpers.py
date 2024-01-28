@@ -4,6 +4,7 @@ from typing import NamedTuple, Callable
 import texts
 from dto.chat_bot import UserIdDto
 from keyboards.cabinet import cabinet_menu_kb
+from services.database import update_last_message
 from services.http_client import HttpChatBot
 from states import FullCabinetStates
 from viber import viber
@@ -27,7 +28,6 @@ async def update_user_state_data(state: FSMContext):
     for key in user_params:
         if user_params[key] in ["", "0"]:
             user_params[key] = None
-
 
     await state.set_data({"UserId": id, **user_params})
 
@@ -55,8 +55,11 @@ async def full_cabinet_menu(request: requests.ViberMessageRequest, data: dict):
 
     await sleep(0.2)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.SUGGEST_HELP, cabinet_menu_kb)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(
             text=texts.SUGGEST_HELP, keyboard=cabinet_menu_kb, min_api_version="3"
         ),

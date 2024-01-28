@@ -13,7 +13,6 @@ StateType = Optional[Union[str, State]]
 @dataclass(frozen=True)
 class StorageKey:
     bot_id: str
-    chat_id: Optional[str]
     user_id: str
     thread_id: Optional[int] = None
     destiny: str = DEFAULT_DESTINY

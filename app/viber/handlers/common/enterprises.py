@@ -2,6 +2,7 @@ from typing import Callable
 
 import texts
 from keyboards.enterprises import enterprises_list_kb, enterprises_rates_kb
+from services.database import update_last_message
 from utils.template_engine import render_template
 from viber import viber
 from viberio.fsm.context import FSMContext
@@ -29,11 +30,16 @@ class EnterprisesHandlers:
             )
             return await menu_callback()
 
+        sender_id = request.sender.id
+        kb = enterprises_list_kb(allowed_to_rate)
+
+        await update_last_message(sender_id, texts.ASKING_ENTERPRISE, kb)
+
         await viber.send_message(
             sender_id,
             messages.KeyboardMessage(
                 text=texts.ASKING_ENTERPRISE,
-                keyboard=enterprises_list_kb(allowed_to_rate),
+                keyboard=kb,
                 min_api_version="3",
             ),
         )
@@ -57,11 +63,17 @@ class EnterprisesHandlers:
 
         await state.set_state(new_state)
 
+        template = render_template("rate_enterprise.j2", title=enterprise_name)
+        kb = enterprises_rates_kb(enterprise_id=enterprise_id)
+
+        sender_id = request.sender.id
+        await update_last_message(sender_id, template, kb)
+
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(
-                text=render_template("rate_enterprise.j2", title=enterprise_name),
-                keyboard=enterprises_rates_kb(enterprise_id=enterprise_id),
+                text=template,
+                keyboard=kb,
                 min_api_version="3",
             ),
         )

@@ -7,6 +7,7 @@ from handlers.common.streets import StreetsHandlers
 from keyboards.common import back_kb, without_flat_back_kb
 from keyboards.user import edit_text, change_gender_kb
 from models import Gender
+from services.database import update_last_message
 from services.http_client import HttpChatBot
 from states.advanced import FullEditInfoStates
 from texts import WITHOUT_FLAT
@@ -24,6 +25,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["first_name_text"]:
         await state.set_state(FullEditInfoStates.waiting_first_name)
+        await update_last_message(sender_id, texts.ASKING_FIRST_NAME, back_kb)
+
         await viber.send_message(
             sender_id, messages.KeyboardMessage(text=texts.ASKING_FIRST_NAME, keyboard=back_kb)
         )
@@ -31,6 +34,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["middle_name_text"]:
         await state.set_state(FullEditInfoStates.waiting_middle_name)
+        await update_last_message(sender_id, texts.ASKING_MIDDLE_NAME, back_kb)
+
         await viber.send_message(
             sender_id, messages.KeyboardMessage(text=texts.ASKING_MIDDLE_NAME, keyboard=back_kb)
         )
@@ -38,13 +43,17 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["last_name_text"]:
         await state.set_state(FullEditInfoStates.waiting_last_name)
+        await update_last_message(sender_id, texts.ASKING_LAST_NAME, back_kb)
+
         await viber.send_message(
-            sender_id, messages.KeyboardMessage(text=texts.ASKING_MIDDLE_NAME, keyboard=back_kb)
+            sender_id, messages.KeyboardMessage(text=texts.ASKING_LAST_NAME, keyboard=back_kb)
         )
         return
 
     if button_type == edit_text["gender_text"]:
         await state.set_state(FullEditInfoStates.waiting_gender)
+        await update_last_message(sender_id, texts.ASKING_GENDER, change_gender_kb)
+
         await viber.send_message(
             sender_id, messages.KeyboardMessage(text=texts.ASKING_GENDER, keyboard=change_gender_kb)
         )
@@ -52,6 +61,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["street_text"]:
         await state.set_state(FullEditInfoStates.waiting_street_typing)
+        await update_last_message(sender_id, texts.ASKING_STREET, back_kb)
+
         await viber.send_message(
             sender_id, messages.KeyboardMessage(text=texts.ASKING_STREET, keyboard=back_kb)
         )
@@ -59,6 +70,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["house_text"]:
         await state.set_state(FullEditInfoStates.waiting_house)
+        await update_last_message(sender_id, texts.ASKING_HOUSE, back_kb)
+
         await viber.send_message(
             sender_id, messages.KeyboardMessage(text=texts.ASKING_HOUSE, keyboard=back_kb)
         )
@@ -66,6 +79,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["flat_text"]:
         await state.set_state(FullEditInfoStates.waiting_flat)
+        await update_last_message(sender_id, texts.ASKING_FLAT, without_flat_back_kb)
+
         await viber.send_message(
             sender_id,
             messages.KeyboardMessage(text=texts.ASKING_FLAT, keyboard=without_flat_back_kb),

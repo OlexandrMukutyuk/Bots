@@ -38,12 +38,12 @@ class DefaultKeyBuilder(KeyBuilder):
     """
 
     def __init__(
-            self,
-            *,
-            prefix: str = "fsm",
-            separator: str = ":",
-            with_bot_id: bool = False,
-            with_destiny: bool = False,
+        self,
+        *,
+        prefix: str = "fsm",
+        separator: str = ":",
+        with_bot_id: bool = False,
+        with_destiny: bool = False,
     ) -> None:
         """
         :param prefix: prefix for all records
@@ -60,7 +60,6 @@ class DefaultKeyBuilder(KeyBuilder):
         parts = [self.prefix]
         if self.with_bot_id:
             parts.append(str(key.bot_id))
-        parts.append(str(key.chat_id))
         if key.thread_id is not None:
             parts.append(str(key.thread_id))
         parts.append(str(key.user_id))
@@ -74,6 +73,7 @@ class DefaultKeyBuilder(KeyBuilder):
                 "E.g: `RedisStorage(redis, key_builder=DefaultKeyBuilder(with_destiny=True))`"
             )
         parts.append(part)
+
         return self.separator.join(parts)
 
 
@@ -83,13 +83,13 @@ class RedisStorage(BaseStorage):
     """
 
     def __init__(
-            self,
-            redis: Redis,
-            key_builder: Optional[KeyBuilder] = None,
-            state_ttl: Optional[Any] = None,
-            data_ttl: Optional[Any] = None,
-            json_loads: _JsonLoads = json.loads,
-            json_dumps: _JsonDumps = json.dumps,
+        self,
+        redis: Redis,
+        key_builder: Optional[KeyBuilder] = None,
+        state_ttl: Optional[Any] = None,
+        data_ttl: Optional[Any] = None,
+        json_loads: _JsonLoads = json.loads,
+        json_dumps: _JsonDumps = json.dumps,
     ) -> None:
         """
         :param redis: Instance of Redis connection
@@ -110,9 +110,9 @@ class RedisStorage(BaseStorage):
         await self.redis.close()
 
     async def set_state(
-            self,
-            key: StorageKey,
-            state: StateType = None,
+        self,
+        key: StorageKey,
+        state: StateType = None,
     ) -> None:
         redis_key = self.key_builder.build(key, "state")
         if state is None:
@@ -121,12 +121,12 @@ class RedisStorage(BaseStorage):
             await self.redis.set(
                 redis_key,
                 cast(str, state.state if isinstance(state, State) else state),
-                ex=self.state_ttl
+                ex=self.state_ttl,
             )
 
     async def get_state(
-            self,
-            key: StorageKey,
+        self,
+        key: StorageKey,
     ) -> Optional[str]:
         redis_key = self.key_builder.build(key, "state")
         value = await self.redis.get(redis_key)
@@ -136,9 +136,9 @@ class RedisStorage(BaseStorage):
         return cast(Optional[str], value)
 
     async def set_data(
-            self,
-            key: StorageKey,
-            data: Dict[str, Any],
+        self,
+        key: StorageKey,
+        data: Dict[str, Any],
     ) -> None:
         redis_key = self.key_builder.build(key, "data")
         if not data:
@@ -151,8 +151,8 @@ class RedisStorage(BaseStorage):
         )
 
     async def get_data(
-            self,
-            key: StorageKey,
+        self,
+        key: StorageKey,
     ) -> Dict[str, Any]:
         redis_key = self.key_builder.build(key, "data")
         value = await self.redis.get(redis_key)

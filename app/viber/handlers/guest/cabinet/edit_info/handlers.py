@@ -5,6 +5,7 @@ from handlers.common.streets import StreetsHandlers
 from handlers.guest.cabinet.menu.handlers import send_edit_guest_info, show_cabinet_menu
 from keyboards.common import back_kb
 from keyboards.guest import edit_text
+from services.database import update_last_message
 from services.http_client import HttpGuestBot
 from states import GuestEditInfoStates
 from viber import viber
@@ -21,6 +22,7 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["street_text"]:
         await state.set_state(GuestEditInfoStates.waiting_street_typing)
+        await update_last_message(sender_id, texts.ASKING_STREET, back_kb)
         await viber.send_message(
             sender_id, messages.KeyboardMessage(text=texts.ASKING_STREET, keyboard=back_kb)
         )
@@ -28,6 +30,7 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["house_text"]:
         await state.set_state(GuestEditInfoStates.waiting_house)
+        await update_last_message(sender_id, texts.ASKING_HOUSE, back_kb)
         await viber.send_message(
             sender_id, messages.KeyboardMessage(text=texts.ASKING_HOUSE, keyboard=back_kb)
         )
@@ -93,8 +96,8 @@ async def confirm(request: requests.ViberMessageRequest, data: dict):
         )
     )
 
-    await viber.send_message(
-        request.sender.id, messages.TextMessage(text=texts.EDITED_SUCCESSFULLY)
-    )
+    sender_id = request.sender.id
+
+    await viber.send_message(sender_id, messages.TextMessage(text=texts.EDITED_SUCCESSFULLY))
 
     return await show_cabinet_menu(request, data)

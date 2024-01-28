@@ -5,6 +5,7 @@ from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
 from keyboards.login import other_email_kb
 from keyboards.register import edit_register_info_kb, edit_text, phone_share_kb
+from services.database import DB, update_last_message
 from services.http_client import HttpChatBot
 from states import EditRegisterStates
 from utils.template_engine import render_template
@@ -22,6 +23,7 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["first_name_text"]:
         await state.set_state(EditRegisterStates.waiting_first_name)
+        await update_last_message(sender_id, texts.ASKING_FIRST_NAME)
         return await viber.send_message(
             sender_id,
             messages.TextMessage(text=texts.ASKING_FIRST_NAME),
@@ -29,6 +31,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["middle_name_text"]:
         await state.set_state(EditRegisterStates.waiting_middle_name)
+        await update_last_message(sender_id, texts.ASKING_MIDDLE_NAME)
+
         return await viber.send_message(
             sender_id,
             messages.TextMessage(text=texts.ASKING_MIDDLE_NAME),
@@ -36,6 +40,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["last_name_text"]:
         await state.set_state(EditRegisterStates.waiting_last_name)
+        await update_last_message(sender_id, texts.ASKING_LAST_NAME)
+
         return await viber.send_message(
             sender_id,
             messages.TextMessage(text=texts.ASKING_LAST_NAME),
@@ -43,8 +49,10 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["phone_text"]:
         await state.set_state(EditRegisterStates.waiting_phone)
+        await update_last_message(sender_id, texts.ASKING_PHONE, phone_share_kb)
+
         return await viber.send_messages(
-            request.sender.id,
+            sender_id,
             [
                 messages.TextMessage(text=texts.ASKING_PHONE),
                 messages.KeyboardMessage(
@@ -55,8 +63,10 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["password_text"]:
         await state.set_state(EditRegisterStates.waiting_password)
+        await update_last_message(sender_id, texts.ASKING_PASSWORD)
+
         return await viber.send_messages(
-            request.sender.id,
+            sender_id,
             [
                 messages.TextMessage(text=texts.ASKING_PASSWORD),
                 messages.TextMessage(text=texts.PASSWORD_REQS),
@@ -65,6 +75,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["street_text"]:
         await state.set_state(EditRegisterStates.waiting_street_typing)
+        await update_last_message(sender_id, texts.ASKING_STREET)
+
         return await viber.send_message(
             sender_id,
             messages.TextMessage(text=texts.ASKING_STREET),
@@ -72,6 +84,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["house_text"]:
         await state.set_state(EditRegisterStates.waiting_house)
+        await update_last_message(sender_id, texts.ASKING_HOUSE)
+
         return await viber.send_message(
             sender_id,
             messages.TextMessage(text=texts.ASKING_HOUSE),
@@ -79,6 +93,8 @@ async def handle_buttons(request: requests.ViberMessageRequest, data: dict):
 
     if button_type == edit_text["flat_text"]:
         await state.set_state(EditRegisterStates.waiting_flat)
+        await update_last_message(sender_id, texts.ASKING_FLAT)
+
         return await viber.send_message(
             sender_id,
             messages.TextMessage(text=texts.ASKING_FLAT),
@@ -98,8 +114,11 @@ async def send_user_info(request: requests.ViberMessageRequest, data: dict):
 
     info_template = render_template("register/confirming_info.j2", data=user_data)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, info_template, edit_register_info_kb)
+
     await viber.send_messages(
-        request.sender.id,
+        sender_id,
         [
             messages.TextMessage(text=info_template),
             messages.KeyboardMessage(
@@ -147,8 +166,11 @@ async def confirm_street(request: requests.ViberMessageRequest, data: dict):
     async def action():
         await state.set_state(EditRegisterStates.waiting_house)
 
+        sender_id = request.sender.id
+        await update_last_message(sender_id, texts.ASKING_HOUSE)
+
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.TextMessage(text=texts.ASKING_HOUSE),
         )
 
@@ -242,24 +264,23 @@ async def accept_info(request: requests.ViberMessageRequest, data: dict):
         )
     )
 
-    # users = json.loads(await redis_pool.get('users'))
-    #
-    # await redis_pool.set('users', json.dumps({
-    #     **users,
-    #     message.from_user.id: user_id
-    # }))
+    sender_id = request.sender.id
+
+    await DB.update("""UPDATE users SET user_id = ? WHERE sender_id = ?""", (user_id, sender_id))
 
     await state.update_data(UserId=user_id)
 
     await state.set_state(EditRegisterStates.waiting_email_confirming)
 
+    check_email_text = (
+        "Будь ласка, підтвердіть свою пошту (перейдіть за посиланням, яке ми вам відправили)"
+    )
+
     await viber.send_messages(
-        request.sender.id,
+        sender_id,
         [
             messages.TextMessage(text="Інформація для реєстрації відправлена успішно!"),
-            messages.TextMessage(
-                text="Будь ласка, підтвердіть свою пошту (перейдіть за посиланням, яке ми вам відправили)"
-            ),
+            messages.TextMessage(text=check_email_text),
             messages.KeyboardMessage(
                 text="Якщо лист не отримано - перевірте спам.",
                 keyboard=other_email_kb,
@@ -267,3 +288,5 @@ async def accept_info(request: requests.ViberMessageRequest, data: dict):
             ),
         ],
     )
+
+    await update_last_message(sender_id, check_email_text)

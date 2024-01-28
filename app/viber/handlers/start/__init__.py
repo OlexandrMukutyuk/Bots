@@ -12,8 +12,6 @@ from viberio.dispatcher.filters.builtin import StateFilter
 
 def prepare_router(dp: Dispatcher):
     message_list = [
-        # TEST
-        Handler(handlers.test, [lambda r: r.message.text == "/test"]),
         # Start
         Handler(handlers.greeting, [lambda r: r.message.text == "/reset"]),
         Handler(handlers.greeting, [StateFilter(None)]),

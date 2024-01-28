@@ -4,6 +4,7 @@ from typing import Optional
 import texts
 from dto.chat_bot import ParentIdDto
 from keyboards.reference_info import generate_ref_info_kb
+from services.database import update_last_message
 from services.http_client import HttpChatBot
 from utils.template_engine import render_template
 from viber import viber
@@ -21,6 +22,7 @@ class ReferenceInfoHandlers:
         parent_id: Optional[int],
         new_state: Optional[State],
     ):
+        sender_id = request.sender.id
         ref_info = await HttpChatBot.get_information(ParentIdDto(parent_id=parent_id))
 
         await state.update_data(ReferenceInfo=ref_info)
@@ -28,11 +30,15 @@ class ReferenceInfoHandlers:
         if new_state:
             await state.set_state(new_state)
 
+        kb = generate_ref_info_kb(ref_info)
+
+        await update_last_message(sender_id, texts.ASKING_REF_INFO, kb)
+
         await viber.send_messages(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(
                 text=texts.ASKING_REF_INFO,
-                keyboard=generate_ref_info_kb(ref_info),
+                keyboard=kb,
                 min_api_version="3",
             ),
         )
@@ -58,18 +64,23 @@ class ReferenceInfoHandlers:
             )
 
         else:
+            sender_id = request.sender.id
+
             await viber.send_message(
-                request.sender.id,
+                sender_id,
                 messages.TextMessage(text=render_template("show_ref_info.j2", info=target_info)),
             )
 
             await sleep(0.2)
+            kb = generate_ref_info_kb(ref_info)
+
+            await update_last_message(sender_id, texts.ASKING_REF_INFO, kb)
 
             await viber.send_message(
-                request.sender.id,
+                sender_id,
                 messages.KeyboardMessage(
                     text=texts.ASKING_REF_INFO,
-                    keyboard=generate_ref_info_kb(ref_info),
+                    keyboard=kb,
                     min_api_version="3",
                 ),
             )

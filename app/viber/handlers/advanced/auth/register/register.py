@@ -6,6 +6,7 @@ from keyboards.common import without_flat_kb, choose_gender_kb
 from keyboards.register import registration_agreement_kb
 from keyboards.streets import change_street_kb
 from models import Gender
+from services.database import update_last_message
 from states import AdvancedRegisterStates
 from utils.template_engine import render_template
 from viber import viber
@@ -22,9 +23,12 @@ async def save_phone(request: requests.ViberMessageRequest, data: dict):
     except:
         phone = request.message.text
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_STREET)
+
     await state.update_data(Phone=phone)
     await viber.send_messages(
-        request.sender.id,
+        sender_id,
         [
             messages.TextMessage(text="Ваш номер успішно відправлено"),
             messages.TextMessage(text=texts.ASKING_STREET),
@@ -55,8 +59,11 @@ async def confirm_street(request: requests.ViberMessageRequest, data: dict):
     async def action():
         await state.set_state(AdvancedRegisterStates.waiting_house)
 
+        sender_id = request.sender.id
+        await update_last_message(sender_id, texts.ASKING_HOUSE, change_street_kb)
+
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(text=texts.ASKING_HOUSE, keyboard=change_street_kb),
         )
 
@@ -71,8 +78,11 @@ async def change_street(request: requests.ViberMessageRequest, data: dict):
 
     await state.set_state(AdvancedRegisterStates.waiting_street_typing)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_STREET)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(text=texts.ASKING_STREET),
     )
 
@@ -82,8 +92,11 @@ async def save_house(request: requests.ViberMessageRequest, data: dict):
     state = dp_.current_state(request)
 
     async def callback():
+        sender_id = request.sender.id
+        await update_last_message(sender_id, texts.ASKING_FLAT, without_flat_kb)
+
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(text=texts.ASKING_FLAT, keyboard=without_flat_kb),
         )
 
@@ -100,8 +113,11 @@ async def save_flat(request: requests.ViberMessageRequest, data: dict):
     state = dp_.current_state(request)
 
     async def callback():
+        sender_id = request.sender.id
+        await update_last_message(sender_id, texts.ASKING_FIRST_NAME)
+
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.TextMessage(text=texts.ASKING_FIRST_NAME),
         )
 
@@ -122,8 +138,11 @@ async def save_first_name(request: requests.ViberMessageRequest, data: dict):
     await state.update_data(FirstName=first_name)
     await state.set_state(AdvancedRegisterStates.waiting_middle_name)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_MIDDLE_NAME)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(text=texts.ASKING_MIDDLE_NAME),
     )
 
@@ -137,8 +156,11 @@ async def save_middle_name(request: requests.ViberMessageRequest, data: dict):
     await state.update_data(MiddleName=middle_name)
     await state.set_state(AdvancedRegisterStates.waiting_last_name)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_MIDDLE_NAME)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(text=texts.ASKING_LAST_NAME),
     )
 
@@ -152,8 +174,11 @@ async def save_last_name(request: requests.ViberMessageRequest, data: dict):
     await state.update_data(LastName=last_name)
     await state.set_state(AdvancedRegisterStates.waiting_gender)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_GENDER, choose_gender_kb)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(
             text=texts.ASKING_GENDER, keyboard=choose_gender_kb, min_api_version="4"
         ),
@@ -168,8 +193,11 @@ async def save_gender(request: requests.ViberMessageRequest, data: dict):
     await state.update_data(Gender=gender)
     await state.set_state(AdvancedRegisterStates.waiting_password)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_PASSWORD)
+
     await viber.send_messages(
-        request.sender.id,
+        sender_id,
         [
             messages.TextMessage(text=texts.ASKING_PASSWORD),
             messages.TextMessage(text=texts.PASSWORD_REQS),
@@ -188,9 +216,12 @@ async def save_password(request: requests.ViberMessageRequest, data: dict):
 
 
 async def show_agreement(request: requests.ViberMessageRequest, data: dict):
+    template = render_template("register/agreement.j2")
+
+    sender_id = request.sender.id
+    await update_last_message(sender_id, template, registration_agreement_kb)
+
     await viber.send_message(
-        request.sender.id,
-        messages.KeyboardMessage(
-            text=render_template("register/agreement.j2"), keyboard=registration_agreement_kb
-        ),
+        sender_id,
+        messages.KeyboardMessage(text=template, keyboard=registration_agreement_kb),
     )

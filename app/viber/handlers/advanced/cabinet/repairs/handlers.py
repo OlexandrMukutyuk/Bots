@@ -15,7 +15,7 @@ async def my_address_repairs(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
     data = await state.get_data()
-
+    sender_id = request.sender.id
     print(data)
 
     repairs = await HttpChatBot.get_repairs(
@@ -27,7 +27,7 @@ async def my_address_repairs(request: requests.ViberMessageRequest, data: dict):
 
     if len(repairs) == 0:
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(text=texts.NO_REPAIRS),
         )
 
@@ -35,7 +35,7 @@ async def my_address_repairs(request: requests.ViberMessageRequest, data: dict):
         for repair in repairs:
             template = render_template("show_repair.j2", repair=repair)
             await viber.send_message(
-                request.sender.id,
+                sender_id,
                 messages.TextMessage(text=template),
             )
 
@@ -48,7 +48,7 @@ async def other_address_repairs(request: requests.ViberMessageRequest, data: dic
 
     await state.set_state(FullRepairsStates.waiting_street_typing)
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(text=texts.ASKING_STREET, keyboard=back_kb),
     )
 

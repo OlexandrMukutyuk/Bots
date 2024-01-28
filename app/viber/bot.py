@@ -3,28 +3,21 @@ import logging
 import sys
 
 from aiohttp import web
-from redis.asyncio import Redis
 
 from data import config
 from handlers import guest, start, advanced
+from services.database import DB
+from services.redis import redis_storage
 from viber import viber
 from viberio.dispatcher.dispatcher import Dispatcher
 from viberio.dispatcher.webhook import ViberWebhookView
-from viberio.fsm.storages.redis import RedisStorage, DefaultKeyBuilder
 from web_handlers.media import media
+from web_handlers.push_notification import push_notification
 
 loop = asyncio.get_event_loop()
 
 app = web.Application()
 
-redis_storage = RedisStorage(
-    redis=Redis(host=config.FSM_HOST, port=config.FSM_PORT, db=1, password=config.FSM_PASSWORD),
-    key_builder=DefaultKeyBuilder(
-        prefix="fsm",
-        separator=":",
-        with_bot_id=True,
-    ),
-)
 
 dispatcher = Dispatcher(viber, redis_storage)
 ViberWebhookView.bind(dispatcher, app, "/")
@@ -39,10 +32,9 @@ async def on_shutdown(application: web.Application):
     await viber.close()
 
 
-
 def setup_webhandlers(app: web.Application):
     app.router.add_route(method="GET", path="/media/{file_name}", handler=media)
-
+    app.router.add_route(method="POST", path="/push-notification", handler=push_notification)
 
 
 def register_handlers(dp: Dispatcher):
@@ -52,6 +44,7 @@ def register_handlers(dp: Dispatcher):
 
 
 if __name__ == "__main__":
+    loop.create_task(DB.setup_database())
     register_handlers(dispatcher)
     setup_webhandlers(app)
 

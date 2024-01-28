@@ -4,6 +4,7 @@ import texts
 from dto.chat_bot import EmailDto, CheckEmailDto
 from handlers.common.helpers import update_user_state_data, full_cabinet_menu
 from keyboards.login import other_email_kb
+from services.database import DB
 from services.http_client import HttpChatBot
 from viber import viber
 from viberio.fsm.context import FSMContext
@@ -14,7 +15,10 @@ from viberio.types import messages, requests
 class EmailHandlers:
     @staticmethod
     async def check_user(
-        request: requests.ViberMessageRequest, state: FSMContext, exist_state: State, action: Callable
+        request: requests.ViberMessageRequest,
+        state: FSMContext,
+        exist_state: State,
+        action: Callable,
     ):
         email = request.message.text
         sender_id = request.sender.id
@@ -70,6 +74,11 @@ class EmailHandlers:
                 sender_id=sender_id, state=state, email=email, new_state=failure_state
             )
             return
+
+        user_id = data.get("UserId")
+
+        await DB.update("""UPDATE users SET user_id = ? WHERE sender_id = ?""", (user_id, sender_id))
+
 
         await viber.send_messages(sender_id, messages.TextMessage(text=texts.SUCCESSFUL_AUTH))
 

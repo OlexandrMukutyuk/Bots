@@ -4,6 +4,7 @@ from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
 from handlers.guest.cabinet.menu.handlers import show_cabinet_menu
 from keyboards.streets import change_street_kb
+from services.database import update_last_message
 from services.http_client import HttpGuestBot
 from states.guest import GuestAuthStates, GuestCabinetStates
 from viber import viber
@@ -32,8 +33,11 @@ async def confirm_street(request: requests.ViberMessageRequest, data: dict):
     async def action():
         await state.set_state(GuestAuthStates.waiting_house)
 
+        sender_id = request.sender.id
+        await update_last_message(sender_id, texts.ASKING_HOUSE, change_street_kb)
+
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(text=texts.ASKING_HOUSE, keyboard=change_street_kb),
         )
 
@@ -48,8 +52,11 @@ async def change_street(request: requests.ViberMessageRequest, data: dict):
 
     await state.set_state(GuestAuthStates.waiting_street_typing)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_STREET)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(text=texts.ASKING_STREET),
     )
 

@@ -67,6 +67,13 @@ class ButtonsObj(ViberBaseObject):
     # OpenURLMediaType: str = attr.ib(default="middle")
     # TextShouldFit: bool = attr.ib(default=False)
 
+    def to_dict(self):
+        return attr.asdict(self)
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
+
 
 @attr.s
 class Keyboard(ViberBaseObject):
@@ -80,6 +87,16 @@ class Keyboard(ViberBaseObject):
     # HeightScale: int = attr.ib(default=100)
     # ButtonsGroupColumns: int = attr.ib(default=6)
     InputFieldState: str = attr.ib(default="regular")
+
+    def to_dict(self):
+        return attr.asdict(self, recurse=True)
+
+    @classmethod
+    def from_dict(cls, data):
+        data["Buttons"] = [
+            ButtonsObj.from_dict(button_data) for button_data in data.get("Buttons", [])
+        ]
+        return cls(**data)
 
 
 @attr.s

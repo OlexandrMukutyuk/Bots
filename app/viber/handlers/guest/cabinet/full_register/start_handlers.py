@@ -6,6 +6,7 @@ from handlers.common.email import EmailHandlers
 from keyboards.common import yes_n_no
 from keyboards.register import phone_share_kb
 from keyboards.start import start_again_kb, is_register_on_site
+from services.database import update_last_message
 from states import GuestFullRegisterStates
 from texts import YES, NO
 from utils.template_engine import render_template
@@ -18,8 +19,11 @@ async def asking_email(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_EMAIL)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(text=texts.ASKING_EMAIL),
     )
 
@@ -61,13 +65,14 @@ async def answer_if_register(request: requests.ViberMessageRequest, data: dict):
     state = dp_.current_state(request)
 
     message_text = request.message.text
+    sender_id = request.sender.id
 
     if message_text == YES:
         await asking_if_email_confirmed(request, data)
 
     if message_text == NO:
         await viber.send_messages(
-            request.sender.id,
+            sender_id,
             [
                 messages.TextMessage(text=texts.NEED_REGISTER),
                 messages.TextMessage(text=texts.ASKING_PHONE),
@@ -76,10 +81,14 @@ async def answer_if_register(request: requests.ViberMessageRequest, data: dict):
 
         await sleep(0.2)
         await viber.send_message(
-            request.sender.id,
-            messages.KeyboardMessage(text=texts.PHONE_EXAMPLE, keyboard=phone_share_kb, min_api_version='3'),
+            sender_id,
+            messages.KeyboardMessage(
+                text=texts.PHONE_EXAMPLE, keyboard=phone_share_kb, min_api_version="3"
+            ),
         )
         await state.set_state(GuestFullRegisterStates.waiting_phone)
+
+        await update_last_message(sender_id, texts.ASKING_PHONE)
 
 
 async def answer_if_confirmed_email(request: requests.ViberMessageRequest, data: dict):
@@ -87,20 +96,22 @@ async def answer_if_confirmed_email(request: requests.ViberMessageRequest, data:
     state = dp_.current_state(request)
 
     message_text = request.message.text
+    sender_id = request.sender.id
 
     if message_text == YES:
         await viber.send_messages(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(text=texts.CALL_SUPPORT, keyboard=start_again_kb),
         )
+        await update_last_message(sender_id, texts.CALL_SUPPORT, start_again_kb)
 
     if message_text == NO:
+        template = render_template("website_link.j2", url=WEBSITE_URL)
         await viber.send_messages(
-            request.sender.id,
-            messages.KeyboardMessage(
-                text=render_template("website_link.j2", url=WEBSITE_URL), keyboard=start_again_kb
-            ),
+            sender_id,
+            messages.KeyboardMessage(text=template, keyboard=start_again_kb),
         )
+        await update_last_message(sender_id, template, start_again_kb)
 
 
 async def start_again(request: requests.ViberMessageRequest, data: dict):
@@ -116,8 +127,11 @@ async def asking_if_register(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.IS_REGISTER_ON_SITE, is_register_on_site)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(text=texts.IS_REGISTER_ON_SITE, keyboard=is_register_on_site),
     )
     await state.set_state(GuestFullRegisterStates.answering_if_register)
@@ -127,8 +141,11 @@ async def asking_if_email_confirmed(request: requests.ViberMessageRequest, data:
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.IS_REGISTER_ON_SITE, yes_n_no)
+
     await state.set_state(GuestFullRegisterStates.answering_if_confirmed_email)
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(text=texts.IS_REGISTER_ON_SITE, keyboard=yes_n_no),
     )

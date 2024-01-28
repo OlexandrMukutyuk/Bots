@@ -10,6 +10,7 @@ from keyboards.create_request import generate_problem_kb
 from keyboards.repairs import repairs_kb
 from keyboards.user import edit_profile_kb
 from models import Gender
+from services.database import update_last_message
 from services.http_client import HttpChatBot
 from states import (
     FullRateEnterpriseStates,
@@ -38,9 +39,6 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == cabinet_menu_text["report_issue"]:
         return await report_issue(request, data)
 
-    # if button_text == cabinet_menu_text["share_chatbot"]:
-    #     return await share_chatbot(request, data)
-
     if button_text == cabinet_menu_text["review_enterprises"]:
         return await rate_enterprises(request, data)
 
@@ -61,8 +59,11 @@ async def repairs(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_REPAIRS, repairs_kb)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(
             text=texts.ASKING_REPAIRS, keyboard=repairs_kb, min_api_version="3"
         ),
@@ -75,22 +76,14 @@ async def report_issue(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_TECH_PROBLEMS, back_kb)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(text=texts.ASKING_TECH_PROBLEMS, keyboard=back_kb),
     )
     return await state.set_state(FullIssueReportStates.waiting_issue_report)
-
-
-#
-# async def share_chatbot(message: types.Message, state: FSMContext):
-#     await message.answer(text=texts.SHARE_BOT, reply_markup=ReplyKeyboardRemove())
-#     await message.answer(text=texts.USE_BUTTONS, reply_markup=share_chatbot_kb)
-#
-#     return await state.set_state(FullShareChatbotStates.waiting_back)
-#
-#
-# viber://forward?text=<Your Text>
 
 
 async def create_request(request: requests.ViberMessageRequest, data: dict):
@@ -99,10 +92,10 @@ async def create_request(request: requests.ViberMessageRequest, data: dict):
 
     user_id = (await state.get_data()).get("UserId")
 
-    print("Завантажую теми для звернень")
+    sender_id = request.sender.id
 
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(text="Завантажую теми для звернень"),
     )
 
@@ -110,10 +103,14 @@ async def create_request(request: requests.ViberMessageRequest, data: dict):
 
     await state.update_data(Problems=problems)
 
+    kb = generate_problem_kb(problems)
+
     await viber.send_message(
-        request.sender.id,
-        messages.KeyboardMessage(text=texts.ASKING_PROBLEM, keyboard=generate_problem_kb(problems)),
+        sender_id,
+        messages.KeyboardMessage(text=texts.ASKING_PROBLEM, keyboard=kb),
     )
+
+    await update_last_message(sender_id, texts.ASKING_PROBLEM, kb)
 
     await state.set_state(CreateRequestStates.waiting_problem)
 
@@ -163,11 +160,12 @@ async def history_requests(request: requests.ViberMessageRequest, data: dict):
         await full_cabinet_menu(request, data)
         return
 
+    kb = generate_archive_req_kb(archived_reqs)
+    await update_last_message(sender_id, "Показую архівовані заявки", kb)
+
     await viber.send_message(
         sender_id,
-        messages.KeyboardMessage(
-            text="Показую архівовані заявки", keyboard=generate_archive_req_kb(archived_reqs)
-        ),
+        messages.KeyboardMessage(text="Показую архівовані заявки", keyboard=kb),
     )
 
     await state.update_data(ArchiveRequests=archived_reqs)
@@ -202,8 +200,13 @@ async def send_edit_user_info(request: requests.ViberMessageRequest, data: dict)
     await state.set_state(FullEditInfoStates.waiting_acceptation)
 
     template = render_template("edit_user_info.j2", data=data)
+
+    sender_id = request.sender.id
+
+    await update_last_message(sender_id, template, edit_profile_kb)
+
     await viber.send_message(
-        request.sender.id, messages.KeyboardMessage(text=template, keyboard=edit_profile_kb)
+        sender_id, messages.KeyboardMessage(text=template, keyboard=edit_profile_kb)
     )
 
 

@@ -2,6 +2,7 @@ import texts
 from dto.chat_bot import RateRequestDto
 from handlers.common.helpers import full_cabinet_menu
 from keyboards.archive_requests import confirm_archive_req_kb, rate_request_kb
+from services.database import update_last_message
 from services.http_client import HttpChatBot
 from states import ArchiveRequestsStates
 from utils.template_engine import render_template
@@ -37,12 +38,16 @@ async def show_basic_info(request: requests.ViberMessageRequest, data: dict):
     }
 
     template = render_template("archive_requests.j2", data=data)
+    kb = confirm_archive_req_kb(request_id, can_review)
+    sender_id = request.sender.id
+
+    await update_last_message(sender_id, template, kb)
 
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(
             text=template,
-            keyboard=confirm_archive_req_kb(request_id, can_review),
+            keyboard=kb,
             min_api_version="4",
         ),
     )
@@ -64,8 +69,6 @@ async def request_details(request: requests.ViberMessageRequest, data: dict):
         if req.get("Id") == request_id:
             current_req = req
 
-    print(current_req)
-
     data = {
         "Id": current_req.get("Id"),
         "Problem": current_req.get("Problem"),
@@ -75,9 +78,10 @@ async def request_details(request: requests.ViberMessageRequest, data: dict):
     }
 
     template = render_template("archive_requests_details.j2", data=data)
+    sender_id = request.sender.id
 
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(text=template),
     )
 
@@ -94,10 +98,15 @@ async def review_request(request: requests.ViberMessageRequest, data: dict):
 
     await state.update_data(RequestReviewId=req_id)
 
+    sender_id = request.sender.id
+
+    text = f"Дайте оцінку роботам по зверненню #{req_id}"
+    await update_last_message(sender_id, text, rate_request_kb)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(
-            text=f"Дайте оцінку роботам по зверненню #{req_id}",
+            text=text,
             keyboard=rate_request_kb,
             min_api_version="4",
         ),
@@ -111,10 +120,11 @@ async def save_rate(request: requests.ViberMessageRequest, data: dict):
     state = dp_.current_state(request)
 
     rate = request.message.text
+    sender_id = request.sender.id
 
     if rate == texts.LATER:
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.TextMessage(
                 text='Ви завжди зможете оцінити виконання в розділі "Історія звернень"',
             ),
@@ -124,8 +134,10 @@ async def save_rate(request: requests.ViberMessageRequest, data: dict):
     await state.update_data(RequestRate=rate)
     await state.set_state(ArchiveRequestsStates.waiting_comment)
 
+    await update_last_message(sender_id, "Напишіть свій коментар ⬇️")
+
     await viber.send_messages(
-        request.sender.id,
+        sender_id,
         [
             messages.TextMessage(
                 text="Ваша оцінка прийнята",
@@ -150,8 +162,10 @@ async def save_comment(request: requests.ViberMessageRequest, data: dict):
         )
     )
 
+    sender_id = request.sender.id
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.TextMessage(
             text="Ви успішно оцінили виконня запиту",
         ),

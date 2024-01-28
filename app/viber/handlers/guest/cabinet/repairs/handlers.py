@@ -3,6 +3,7 @@ from dto.dto.guest.repairs_guest import RepairsGuestDto
 from handlers.common.streets import StreetsHandlers
 from handlers.guest.cabinet.menu.handlers import show_cabinet_menu
 from keyboards.common import back_kb
+from services.database import update_last_message
 from services.http_client import HttpGuestBot
 from states import RepairsStates
 from utils.template_engine import render_template
@@ -22,9 +23,11 @@ async def my_address_repairs(request: requests.ViberMessageRequest, data: dict):
         )
     )
 
+    sender_id = request.sender.id
+
     if len(repairs) == 0:
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.KeyboardMessage(text=texts.NO_REPAIRS),
         )
 
@@ -32,7 +35,7 @@ async def my_address_repairs(request: requests.ViberMessageRequest, data: dict):
         for repair in repairs:
             template = render_template("show_repair.j2", repair=repair)
             await viber.send_message(
-                request.sender.id,
+                sender_id,
                 messages.TextMessage(text=template),
             )
 
@@ -44,8 +47,12 @@ async def other_address_repairs(request: requests.ViberMessageRequest, data: dic
     state = dp_.current_state(request)
 
     await state.set_state(RepairsStates.waiting_street_typing)
+
+    sender_id = request.sender.id
+    await update_last_message(sender_id, texts.ASKING_STREET, back_kb)
+
     await viber.send_message(
-        request.sender.id,
+        sender_id,
         messages.KeyboardMessage(text=texts.ASKING_STREET, keyboard=back_kb),
     )
 
@@ -71,8 +78,12 @@ async def confirm_street(request: requests.ViberMessageRequest, data: dict):
     async def action():
         await state.update_data(RepairStreetId=street_id, Streets=None)
         await state.set_state(RepairsStates.waiting_house)
+
+        sender_id = request.sender.id
+        await update_last_message(sender_id, texts.ASKING_HOUSE)
+
         await viber.send_message(
-            request.sender.id,
+            sender_id,
             messages.TextMessage(text=texts.ASKING_HOUSE),
         )
 
