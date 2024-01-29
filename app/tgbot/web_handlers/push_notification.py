@@ -52,6 +52,7 @@ async def register_notification(data: dict):
     try:
         chat_id = user_info[0]
     except:
+        print('user not found')
         return web.Response(status=200)
 
     bot_id = int(config.BOT_TOKEN.split(':')[0])
@@ -73,6 +74,7 @@ async def single_notification(data: dict):
     try:
         users = [(user_info[0])]
     except:
+        print('user not found')
         return web.Response(status=200)
 
     text = data.get('payload').get('result_text_ua')

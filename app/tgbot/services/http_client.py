@@ -126,6 +126,8 @@ class HttpChatBot(HttpClient):
     @staticmethod
     async def register(dto: RegisterDto):
         data = await HttpChatBot.request("/Register", dto)
+
+        print(f'/Registter Data: {data}')
         return data.get("UserId")
 
     @staticmethod
