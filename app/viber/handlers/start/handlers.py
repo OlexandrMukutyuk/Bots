@@ -1,3 +1,5 @@
+from asyncio import sleep
+
 import texts
 from data.config import WEBSITE_URL
 from handlers.common.email import EmailHandlers
@@ -43,13 +45,17 @@ async def introduction(request: requests.ViberMessageRequest, data: dict):
         [
             messages.TextMessage(text=texts.INTRODUCTION),
             messages.TextMessage(text=texts.PICK_AUTH_TYPE),
-            messages.KeyboardMessage(
-                text=texts.ADVANCED_INFO, keyboard=auth_types_kb, min_api_version="4"
-            ),
-            messages.KeyboardMessage(
-                text=texts.SUBSCRIPTION_INFO, keyboard=auth_types_kb, min_api_version="4"
-            ),
+            messages.TextMessage(text=texts.ADVANCED_INFO),
         ],
+    )
+
+    await sleep(0.2)
+
+    await viber.send_message(
+        sender_id,
+        messages.KeyboardMessage(
+            text=texts.SUBSCRIPTION_INFO, keyboard=auth_types_kb, min_api_version="4"
+        ),
     )
 
     await update_last_message(sender_id, texts.SUBSCRIPTION_INFO, auth_types_kb)
