@@ -2,6 +2,7 @@ from typing import Callable
 
 import texts
 from dto.chat_bot import SearchDto
+from handlers.common.helpers import loading_msg
 from keyboards.streets import streets_keyboard
 from services.database import update_last_message
 from services.http_client import HttpChatBot, HttpInfoClient
@@ -16,6 +17,8 @@ class StreetsHandlers:
     async def choose_street(
         request: requests.ViberMessageRequest, state: FSMContext, new_state: State
     ):
+        await loading_msg(request)
+
         streets_data = await HttpChatBot.fetch_streets(SearchDto(search=request.message.text))
 
         sender_id = request.sender.id

@@ -1,3 +1,5 @@
+from asyncio import sleep
+
 import texts
 from dto.guest import GuestIdDto
 from handlers.common.enterprises import EnterprisesHandlers
@@ -29,6 +31,8 @@ async def show_cabinet_menu(request: requests.ViberMessageRequest, data: dict):
 
     sender_id = request.sender.id
     await update_last_message(sender_id, texts.SUGGEST_HELP, guest_menu_kb)
+
+    await sleep(0.2)
 
     await viber.send_message(
         sender_id,
@@ -106,6 +110,7 @@ async def send_edit_guest_info(request: requests.ViberMessageRequest, data: dict
 
     sender_id = request.sender.id
     await update_last_message(sender_id, template, edit_guest_kb)
+
 
     return await viber.send_message(
         sender_id,

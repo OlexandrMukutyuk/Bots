@@ -1,5 +1,6 @@
 from typing import Union, Optional
 
+import texts.colors
 from viberio.types.messages.keyboard_message import Keyboard, ButtonsObj, InternalBrowser
 
 
@@ -30,12 +31,12 @@ class KeyboardConstructor:
                 ButtonsObj(
                     Columns=btn.get("Columns") or 6,
                     Rows=btn.get("Rows") or 1,
-                    Text=btn.get("Text"),
+                    Text=f"<b>{btn.get('Text')}</b>",
                     ActionBody=btn.get("ActionBody") or btn.get("Text"),
                     ActionType=btn.get("ActionType") or "reply",
                     InternalBrowser=internal_browser,
                     TextSize="regular",
-                    BgColor="#c6e6f8",
+                    BgColor=btn.get("Color") or texts.GREY,
                 )
             )
 

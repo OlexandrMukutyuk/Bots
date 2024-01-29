@@ -1,3 +1,4 @@
+import texts
 from keyboards.constructor import KeyboardConstructor
 from texts import BACK
 from viberio.types.messages.keyboard_message import Keyboard
@@ -13,7 +14,7 @@ def enterprises_list_kb(enterprises: list[dict]) -> Keyboard:
             {"Text": enterprise.get("Name"), "ActionBody": f"ENTERPRISE_ID:{enterprise.get('Id')}"}
         )
 
-    buttons.append({"Text": BACK, "ActionBody": "back"})
+    buttons.append({"Text": BACK, "ActionBody": "back", "Color": texts.RED})
 
     return KeyboardConstructor.generate_kb(buttons, {"InputFieldState": "hidden"})
 
@@ -32,6 +33,6 @@ def enterprises_rates_kb(enterprise_id: int):
             }
         )
 
-    buttons.append({"Text": BACK, "Columns": 3, "ActionBody": "back"})
+    buttons.append({"Text": BACK, "Columns": 3, "ActionBody": "back", "Color": texts.RED})
 
     return KeyboardConstructor.generate_kb(buttons, {"InputFieldState": "hidden"})

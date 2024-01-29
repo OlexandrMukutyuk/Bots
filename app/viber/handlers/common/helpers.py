@@ -64,3 +64,8 @@ async def full_cabinet_menu(request: requests.ViberMessageRequest, data: dict):
             text=texts.SUGGEST_HELP, keyboard=cabinet_menu_kb, min_api_version="3"
         ),
     )
+
+
+
+async def loading_msg(request: requests.ViberMessageRequest):
+    await viber.send_message(request.sender.id, messages.TextMessage(text=texts.LOADING))

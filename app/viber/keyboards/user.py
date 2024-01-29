@@ -1,3 +1,4 @@
+import texts
 from keyboards.constructor import KeyboardConstructor
 from models import Gender
 from texts import BACK
@@ -15,7 +16,7 @@ edit_text = {
 
 edit_profile_kb = KeyboardConstructor.generate_kb(
     buttons=[
-        {"Text": edit_text["accept_info_text"], "Columns": 3},
+        {"Text": edit_text["accept_info_text"], "Columns": 3, "Color": texts.GREEN},
         {"Text": edit_text["first_name_text"], "Columns": 3},
         {"Text": edit_text["last_name_text"], "Columns": 3},
         {"Text": edit_text["middle_name_text"], "Columns": 3},
@@ -36,5 +37,3 @@ change_gender_kb = KeyboardConstructor.generate_kb(
     ],
     {"InputFieldState": "hidden"},
 )
-
-

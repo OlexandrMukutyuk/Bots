@@ -1,4 +1,5 @@
 from .asking import *
+from .colors import *
 from .general import *
 from .keyboards import *
 from .register import *

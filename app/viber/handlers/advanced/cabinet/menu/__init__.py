@@ -17,8 +17,10 @@ def prepare_router(dp: Dispatcher):
 
     dp.text_messages_handler.subscribe(
         helpers.full_cabinet_menu,
-        [
-            StateFilter(FullCabinetStates.waiting_menu)
-        ],
-    )
+        [StateFilter(FullCabinetStates.waiting_menu)],
+    ),
 
+    dp.text_messages_handler.subscribe(
+        helpers.full_cabinet_menu,
+        [lambda r: r.message.text == "/full_menu"],
+    )

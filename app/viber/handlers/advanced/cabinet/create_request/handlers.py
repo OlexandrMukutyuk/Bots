@@ -1,4 +1,5 @@
 import os
+from asyncio import sleep
 
 import texts
 from data import config
@@ -107,6 +108,8 @@ async def confirm_reason(request: requests.ViberMessageRequest, data: dict):
     address_text = f"Місце де все трапилось {street} {house}?"
 
     await update_last_message(sender_id, address_text, request_yes_no_kb)
+
+    await sleep(0.2)
 
     await viber.send_message(
         sender_id,
@@ -358,6 +361,8 @@ async def save_showing_status(request: requests.ViberMessageRequest, data: dict)
     else:
         show_on_site = False
 
+    print(text)
+
     await state.update_data(ShowOnSite=show_on_site)
 
     sender_id = request.sender.id
@@ -368,6 +373,9 @@ async def save_showing_status(request: requests.ViberMessageRequest, data: dict)
         sender_id,
         messages.TextMessage(text=text),
     )
+
+    await sleep(0.2)
+
 
     await viber.send_message(
         sender_id,
@@ -426,6 +434,8 @@ async def showing_request_info(request: requests.ViberMessageRequest, data: dict
         messages.TextMessage(text=template),
     )
 
+    await sleep(0.2)
+
     await viber.send_message(
         sender_id,
         messages.KeyboardMessage(text="Відправити звернення?", keyboard=yes_n_no),
@@ -466,15 +476,12 @@ async def confirm_request(request: requests.ViberMessageRequest, data: dict):
     )
 
     if not request_id:
-
         error = "Виникла помилка з запитом. Спробувати ще раз?"
         await update_last_message(sender_id, error, yes_n_no)
 
         return await viber.send_message(
             sender_id,
-            messages.KeyboardMessage(
-                text=error, keyboard=yes_n_no
-            ),
+            messages.KeyboardMessage(text=error, keyboard=yes_n_no),
         )
 
     await viber.send_message(
@@ -514,12 +521,10 @@ async def manually_address_back(request: requests.ViberMessageRequest, data: dic
 
     await update_last_message(sender_id, texts.ASKING_REASON, kb)
 
-
     await viber.send_message(
         sender_id,
         messages.KeyboardMessage(text=texts.ASKING_REASON, keyboard=kb),
     )
-
 
 
 async def flat_back(request: requests.ViberMessageRequest, data: dict):
@@ -545,12 +550,11 @@ async def flat_back(request: requests.ViberMessageRequest, data: dict):
 
     await update_last_message(sender_id, text, request_yes_no_kb)
 
+    await sleep(0.2)
 
     await viber.send_message(
         sender_id,
-        messages.KeyboardMessage(
-            text=text, keyboard=request_yes_no_kb
-        ),
+        messages.KeyboardMessage(text=text, keyboard=request_yes_no_kb),
     )
 
 
@@ -562,7 +566,6 @@ async def showing_status_back(request: requests.ViberMessageRequest, data: dict)
     sender_id = request.sender.id
 
     await update_last_message(sender_id, "Залиште коментар стосовно проблеми", request_comment_kb)
-
 
     await viber.send_message(
         sender_id,
@@ -579,8 +582,9 @@ async def saving_images_back(request: requests.ViberMessageRequest, data: dict):
 
     sender_id = request.sender.id
 
-    await update_last_message(sender_id, "Потрібно відображати цю проблему на сайті?", request_yes_no_kb)
-
+    await update_last_message(
+        sender_id, "Потрібно відображати цю проблему на сайті?", request_yes_no_kb
+    )
 
     await viber.send_message(
         sender_id,
@@ -588,4 +592,3 @@ async def saving_images_back(request: requests.ViberMessageRequest, data: dict):
             text="Потрібно відображати цю проблему на сайті?", keyboard=request_yes_no_kb
         ),
     )
-

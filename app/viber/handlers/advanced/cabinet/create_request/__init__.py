@@ -64,7 +64,8 @@ def prepare_router(dp: Dispatcher):
         ),
         # Choose address
         Handler(
-            handlers.flat_back, [StateFilter(CreateRequestStates.waiting_address), BackFilter()]
+            handlers.manually_address_back,
+            [StateFilter(CreateRequestStates.waiting_address), BackFilter()],
         ),
         Handler(
             handlers.request_on_my_site,

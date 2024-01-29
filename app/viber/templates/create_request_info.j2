@@ -4,7 +4,7 @@
 Причина: {{ data.get('ReasonName') }}
 
 Коментар: {{ data.get('Comment') }}
-{% if data.get('ShowOnSite') != None %}
+{% if data.get('ShowOnSite') != False %}
 Відображати на сайті
 {% else %}
 Не відображати на сайті

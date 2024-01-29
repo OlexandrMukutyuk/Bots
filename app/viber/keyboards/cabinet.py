@@ -1,3 +1,4 @@
+import texts
 from data import config
 from keyboards.constructor import KeyboardConstructor
 from texts import START_FULL_REGISTRATION, GO_BACK
@@ -32,7 +33,7 @@ guest_menu_kb = KeyboardConstructor.generate_kb(
 
 full_registration_kb = KeyboardConstructor.generate_kb(
     [
-        {"Text": START_FULL_REGISTRATION},
+        {"Text": START_FULL_REGISTRATION, "Color": texts.RED},
         {"Text": GO_BACK},
     ]
 )

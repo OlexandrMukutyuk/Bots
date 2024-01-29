@@ -1,3 +1,4 @@
+import texts
 from keyboards.constructor import KeyboardConstructor
 from texts import TO_MENU
 from viberio.types.messages.keyboard_message import Keyboard
@@ -17,6 +18,6 @@ def generate_ref_info_kb(ref_info: list[dict]) -> Keyboard:
             }
         )
 
-    buttons.append({"Text": TO_MENU, "Columns": 3, "ActionBody": "to_menu"})
+    buttons.append({"Text": TO_MENU, "Columns": 3, "ActionBody": "to_menu", "Color": texts.LIGHT})
 
     return KeyboardConstructor.generate_kb(buttons, {"InputFieldState": "hidden"})

@@ -1,6 +1,7 @@
 import random
 import string
 
+import texts
 from keyboards.constructor import KeyboardConstructor
 from texts import HELLO, AuthTypes, START_AGAIN, YES, NO, OTHER_MAIL
 
@@ -20,9 +21,9 @@ auth_types_kb = KeyboardConstructor.generate_kb(
 
 is_register_on_site = KeyboardConstructor.generate_kb(
     buttons=[
-        {"Text": YES, "Columns": 3, "Rows": 1},
-        {"Text": NO, "Columns": 3, "Rows": 1},
-        {"Text": OTHER_MAIL, "Columns": 6, "Rows": 1},
+        {"Text": YES, "Columns": 3},
+        {"Text": NO, "Columns": 3},
+        {"Text": OTHER_MAIL, "Columns": 6, "Color": texts.LIGHT},
     ],
     options={"InputFieldState": "hidden"},
 )

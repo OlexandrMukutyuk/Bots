@@ -1,3 +1,4 @@
+import texts
 from keyboards.constructor import KeyboardConstructor
 from models import Gender
 from texts import YES, NO, BACK, WITHOUT_FLAT
@@ -53,7 +54,7 @@ without_flat_kb = KeyboardConstructor.generate_kb([WITHOUT_FLAT])
 
 without_flat_back_kb = KeyboardConstructor.generate_kb(
     [
-        {"Text": BACK, "Columns": 3},
+        {"Text": BACK, "Columns": 3, "Color": texts.RED},
         {"Text": WITHOUT_FLAT, "Columns": 3},
     ]
 )

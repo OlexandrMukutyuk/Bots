@@ -1,3 +1,4 @@
+import texts
 from keyboards.constructor import KeyboardConstructor
 from texts import SHARE_CONTACT, AGREEMENT
 
@@ -25,7 +26,7 @@ edit_text = {
 
 edit_register_info_kb = KeyboardConstructor.generate_kb(
     [
-        {"Text": edit_text["accept_info_text"], "Columns": 3},
+        {"Text": edit_text["accept_info_text"], "Columns": 6, "Color": texts.GREEN},
         {"Text": edit_text["first_name_text"], "Columns": 3},
         {"Text": edit_text["last_name_text"], "Columns": 3},
         {"Text": edit_text["middle_name_text"], "Columns": 3},
@@ -33,7 +34,7 @@ edit_register_info_kb = KeyboardConstructor.generate_kb(
         {"Text": edit_text["street_text"], "Columns": 3},
         {"Text": edit_text["house_text"], "Columns": 3},
         {"Text": edit_text["flat_text"], "Columns": 3},
-        {"Text": edit_text["password_text"], "Columns": 6},
+        {"Text": edit_text["password_text"], "Columns": 3},
     ],
     {"InputFieldState": "hidden"},
 )

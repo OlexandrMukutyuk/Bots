@@ -1,3 +1,5 @@
+from asyncio import sleep
+
 import texts
 from dto.chat_bot import RegisterDto
 from handlers.common.flat import FlatHandlers
@@ -117,16 +119,20 @@ async def send_user_info(request: requests.ViberMessageRequest, data: dict):
     sender_id = request.sender.id
     await update_last_message(sender_id, info_template, edit_register_info_kb)
 
-    await viber.send_messages(
+    await viber.send_message(
         sender_id,
-        [
-            messages.TextMessage(text=info_template),
-            messages.KeyboardMessage(
-                text=texts.IS_EVERYTHING_CORRECT,
-                keyboard=edit_register_info_kb,
-                min_api_version="4",
-            ),
-        ],
+        messages.TextMessage(text=info_template),
+    )
+
+    await sleep(0.2)
+
+    await viber.send_message(
+        sender_id,
+        messages.KeyboardMessage(
+            text=texts.IS_EVERYTHING_CORRECT,
+            keyboard=edit_register_info_kb,
+            min_api_version="4",
+        ),
     )
 
 
