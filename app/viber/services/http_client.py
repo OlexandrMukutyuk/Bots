@@ -21,9 +21,9 @@ from dto.chat_bot import (
     ParentIdDto,
 )
 from dto.chat_bot.register import RegisterDto
-from dto.dto.chat_bot.repairs import RepairsDto
-from dto.dto.guest.repairs_guest import RepairsGuestDto
+from dto.chat_bot.repairs import RepairsDto
 from dto.guest import UpdateGuestDto, GuestIdDto, RegisterGuestDto, RateEnterpriseGuestDto
+from dto.guest.repairs_guest import RepairsGuestDto
 
 
 class HttpClient:
@@ -80,6 +80,7 @@ class HttpGuestBot(HttpClient):
 
     @staticmethod
     async def register(dto: RegisterGuestDto):
+        print(dto.to_payload())
         return await HttpGuestBot.request("/Register", dto)
 
     @staticmethod
@@ -168,11 +169,7 @@ class HttpChatBot(HttpClient):
 
     @staticmethod
     async def create_request(dto: CreateRequestDto):
-        print(dto.to_payload())
-
         data = await HttpChatBot.request("/CreateRequest", dto)
-
-        print(data)
 
         return data.get("Id")
 

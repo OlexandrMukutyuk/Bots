@@ -1,5 +1,5 @@
 import texts
-from dto.dto.guest.repairs_guest import RepairsGuestDto
+from dto.guest.repairs_guest import RepairsGuestDto
 from handlers.common.streets import StreetsHandlers
 from handlers.guest.cabinet.menu.handlers import show_cabinet_menu
 from keyboards.common import back_kb

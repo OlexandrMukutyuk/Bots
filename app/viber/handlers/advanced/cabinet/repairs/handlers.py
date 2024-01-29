@@ -1,5 +1,5 @@
 import texts
-from dto.dto.chat_bot.repairs import RepairsDto
+from dto.chat_bot.repairs import RepairsDto
 from handlers.common.helpers import full_cabinet_menu
 from handlers.common.streets import StreetsHandlers
 from keyboards.common import back_kb
