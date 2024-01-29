@@ -1,6 +1,5 @@
 import logging
 from asyncio import sleep
-from typing import Union
 
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
@@ -41,12 +40,7 @@ async def push_notification(req: web.Request):
 
 
 async def register_notification(data: dict):
-    segment: Union[str, None] = data.get('segment', None)
-
-    if not segment:
-        return web.Response(status=400)
-
-    user_id = int(segment.split("=")[1])
+    user_id = data.get('payload').get('user_id')
 
     user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
     chat_id = user_info[0]
