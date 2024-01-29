@@ -46,6 +46,8 @@ async def other_address_repairs(request: requests.ViberMessageRequest, data: dic
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
+    sender_id = request.sender.id
+
     await state.set_state(FullRepairsStates.waiting_street_typing)
     await viber.send_message(
         sender_id,

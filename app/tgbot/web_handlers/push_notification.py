@@ -20,6 +20,7 @@ async def push_notification(req: web.Request):
     if req.body_exists:
         data: dict = await req.json()
 
+        print(data)
         api_key = data.get('apiKey')
 
         if api_key == config.APIKEY_FOR_SERVER:
