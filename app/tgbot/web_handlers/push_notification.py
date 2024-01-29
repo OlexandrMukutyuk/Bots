@@ -34,6 +34,10 @@ async def push_notification(req: web.Request):
 
             if segment is not None and map != ACTIVATE_USER:
                 return await single_notification(data)
+            
+            return web.Response(text="Wrong Payload", status=400)
+
+        return web.Response(text="Wrong API KEY", status=400)
 
     return web.Response(text="Bad request", status=400)
 
