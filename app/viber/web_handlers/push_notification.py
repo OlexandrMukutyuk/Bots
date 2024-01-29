@@ -25,7 +25,7 @@ async def push_notification(req: web.Request):
     if req.body_exists:
         data: dict = await req.json()
 
-        api_key = data.get("apiKey")
+        api_key = data.get("apikey")
 
         if api_key == config.APIKEY_FOR_SERVER:
             segment = data.get("segment")
@@ -44,10 +44,13 @@ async def push_notification(req: web.Request):
 
 
 async def register_notification(data: dict):
-    user_id = data.get('payload').get('user_id')
+    user_id = data.get("payload").get("user_id")
 
     user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
-    sender_id = user_info[0]
+    try:
+        sender_id = user_info[0]
+    except:
+        return web.Response(status=200)
 
     bot_id = config.BOT_TOKEN.split(":")[0]
 
@@ -72,7 +75,10 @@ async def single_notification(data: dict):
 
     user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
 
-    users = [(user_info[0])]
+    try:
+        users = [(user_info[0])]
+    except:
+        return web.Response(status=200)
 
     text = data.get("payload").get("result_text_ua")
 

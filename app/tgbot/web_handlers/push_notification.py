@@ -48,7 +48,11 @@ async def register_notification(data: dict):
     user_id = data.get('payload').get('user_id')
 
     user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
-    chat_id = user_info[0]
+
+    try:
+        chat_id = user_info[0]
+    except:
+        return web.Response(status=200)
 
     bot_id = int(config.BOT_TOKEN.split(':')[0])
 
@@ -66,7 +70,10 @@ async def single_notification(data: dict):
 
     user_id = int(segment.split("=")[1])
     user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
-    users = [(user_info[0])]
+    try:
+        users = [(user_info[0])]
+    except:
+        return web.Response(status=200)
 
     text = data.get('payload').get('result_text_ua')
 
