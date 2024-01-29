@@ -85,7 +85,7 @@ async def mass_notification(data: dict):
     user_info = await DB.select_all("SELECT sender_id FROM users")
     users = [item for tuple in user_info for item in tuple]
 
-    text = data.get('payload').get('result_text_ua')
+    text = data.get("text")
 
     for i, user in enumerate(users):
 
