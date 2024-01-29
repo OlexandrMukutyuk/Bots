@@ -80,7 +80,6 @@ class HttpGuestBot(HttpClient):
 
     @staticmethod
     async def register(dto: RegisterGuestDto):
-        print(dto.to_payload())
         return await HttpGuestBot.request("/Register", dto)
 
     @staticmethod
@@ -130,7 +129,7 @@ class HttpChatBot(HttpClient):
     async def register(dto: RegisterDto):
         print(dto.to_payload())
         data = await HttpChatBot.request("/Register", dto)
-        return data.get("Correct")
+        return data.get("UserId")
 
     @staticmethod
     async def check_email(dto: CheckEmailDto):
