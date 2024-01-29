@@ -128,6 +128,7 @@ class HttpChatBot(HttpClient):
 
     @staticmethod
     async def register(dto: RegisterDto):
+        print(dto.to_payload())
         data = await HttpChatBot.request("/Register", dto)
         return data.get("Correct")
 

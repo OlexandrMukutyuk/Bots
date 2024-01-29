@@ -286,13 +286,18 @@ async def accept_info(request: requests.ViberMessageRequest, data: dict):
         sender_id,
         [
             messages.TextMessage(text="Інформація для реєстрації відправлена успішно!"),
-            messages.TextMessage(text=check_email_text),
-            messages.KeyboardMessage(
-                text="Якщо лист не отримано - перевірте спам.",
-                keyboard=other_email_kb,
-                min_api_version="4",
-            ),
+            messages.TextMessage(text=check_email_text)
         ],
     )
+
+    await sleep(0.2)
+
+    await viber.send_message(
+        sender_id,
+        messages.KeyboardMessage(
+            text="Якщо лист не отримано - перевірте спам.",
+            keyboard=other_email_kb,
+            min_api_version="4",
+        ))
 
     await update_last_message(sender_id, check_email_text)
