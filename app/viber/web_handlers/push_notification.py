@@ -17,8 +17,8 @@ from viberio.fsm.storages.base import StorageKey
 from viberio.types import messages
 from viberio.types.messages.keyboard_message import Keyboard
 
-ACTIVATE_USER = "Activate User"
-PUSH_NOTIFICATION = "Push Notification"
+ACTIVATE_USER = "KC Activate User"
+PUSH_NOTIFICATION = "KC Show Result about Request"
 
 
 async def push_notification(req: web.Request):
@@ -28,10 +28,17 @@ async def push_notification(req: web.Request):
         api_key = data.get("apiKey")
 
         if api_key == config.APIKEY_FOR_SERVER:
-            if data.get("map") == ACTIVATE_USER:
+            segment = data.get("segment")
+            map = data.get("map")
+
+            if segment is not None and map == ACTIVATE_USER:
                 return await register_notification(data)
-            else:
-                return await notification(data)
+
+            if segment is None and map == ACTIVATE_USER:
+                return await mass_notification(data)
+
+            if segment is not None and map != ACTIVATE_USER:
+                return await single_notification(data)
 
     return web.Response(text="Bad request", status=400)
 
@@ -63,18 +70,14 @@ async def register_notification(data: dict):
     return web.Response(status=200)
 
 
-async def notification(data: dict):
+async def single_notification(data: dict):
     segment: Union[str, None] = data.get("segment", None)
 
-    if not segment:
-        user_info = await DB.select_all("SELECT sender_id FROM users")
-        users = [item for tuple in user_info for item in tuple]
-    else:
-        user_id = int(segment.split("=")[1])
+    user_id = int(segment.split("=")[1])
 
-        user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
+    user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
 
-        users = [(user_info[0])]
+    users = [(user_info[0])]
 
     text = data.get("payload").get("result_text_ua")
 
@@ -101,7 +104,51 @@ async def notification(data: dict):
 
         if keyboard_data:
             keyboard = Keyboard.from_dict(json.loads(keyboard_data))
-            message = messages.KeyboardMessage(text=text, keyboard=keyboard, min_api_version='3')
+            message = messages.KeyboardMessage(text=text, keyboard=keyboard, min_api_version="3")
+        else:
+            message = messages.TextMessage(text=text)
+
+        try:
+            await viber.send_message(
+                user,
+                message,
+            )
+        except:
+            logging.warn("Block by user")
+
+    return web.Response(status=200)
+
+
+async def mass_notification(data: dict):
+    user_info = await DB.select_all("SELECT sender_id FROM users")
+    users = [item for tuple in user_info for item in tuple]
+
+    text = data.get("payload").get("result_text_ua")
+
+    for i, user in enumerate(users):
+        if i != 0 and i % 20 == 0:
+            await sleep(1)
+
+        try:
+            await viber.send_message(
+                user,
+                messages.TextMessage(text=text),
+            )
+        except:
+            logging.warn("Block by user")
+
+    for user in users:
+        last_msg = await DB.select_one("SELECT * FROM messages WHERE sender_id = ?", (user,))
+
+        if last_msg is None:
+            continue
+
+        text = last_msg[1]
+        keyboard_data = last_msg[2]
+
+        if keyboard_data:
+            keyboard = Keyboard.from_dict(json.loads(keyboard_data))
+            message = messages.KeyboardMessage(text=text, keyboard=keyboard, min_api_version="3")
         else:
             message = messages.TextMessage(text=text)
 
