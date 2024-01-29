@@ -90,11 +90,17 @@ async def answer_if_register(request: requests.ViberMessageRequest, data: dict):
             [
                 messages.TextMessage(text=texts.NEED_REGISTER),
                 messages.TextMessage(text=texts.ASKING_PHONE),
-                messages.KeyboardMessage(
-                    text=texts.PHONE_EXAMPLE, keyboard=phone_share_kb, min_api_version="4"
-                ),
             ],
         )
+        await sleep(0.2)
+
+        await viber.send_message(
+            sender_id,
+            messages.KeyboardMessage(
+                text=texts.PHONE_EXAMPLE, keyboard=phone_share_kb, min_api_version="4"
+            ),
+        )
+
         await state.set_state(AdvancedRegisterStates.waiting_phone)
 
         await update_last_message(sender_id, texts.ASKING_PHONE, phone_share_kb)
