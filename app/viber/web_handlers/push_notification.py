@@ -23,8 +23,6 @@ PUSH_NOTIFICATION = "KC Show Result about Request"
 
 async def push_notification(req: web.Request):
     if req.body_exists:
-
-
         data: dict = await req.json()
 
         api_key = data.get("apiKey")
