@@ -212,12 +212,18 @@ async def send_edit_user_info(state: FSMContext, **kwargs):
 # Back button handlers
 
 async def to_main_menu_inline(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except:
+        print("Already deleted")
 
     return await full_cabinet_menu(state, bot=bot, chat_id=callback.from_user.id)
 
 
 async def to_main_menu_reply(message: types.Message, state: FSMContext):
-    await message.delete()
+    try:
+        await message.delete()
+    except:
+        print("Already deleted")
 
     return await full_cabinet_menu(state=state, message=message)
