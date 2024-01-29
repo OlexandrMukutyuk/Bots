@@ -31,6 +31,10 @@ async def update_user_state_data(state: FSMContext):
 
     user_params = await HttpChatBot.get_user_params(UserIdDto(user_id=id))
 
+    for key in user_params:
+        if user_params[key] in ["", "0"]:
+            user_params[key] = None
+
     await state.set_data({"UserId": id, **user_params})
 
 

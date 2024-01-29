@@ -7,7 +7,7 @@ from aiohttp import web
 
 from bot import bot
 from data import config
-from handlers.common.helpers import full_cabinet_menu
+from handlers.common.helpers import full_cabinet_menu, update_user_state_data
 from services.database import DB
 from services.redis import redis_storage
 
@@ -45,7 +45,9 @@ async def push_notification(req: web.Request):
 async def register_notification(data: dict):
     print(f"REGISTER: {data}")
 
-    user_id = data.get('payload').get('user_id')
+    segment = data.get('segment')
+    user_id = int(segment.split("=")[1])
+    updated_user_id = data.get('payload').get('user_id')
 
     user_info = await DB.select_one("SELECT sender_id FROM users WHERE user_id = ?", (user_id,))
 
@@ -58,6 +60,9 @@ async def register_notification(data: dict):
     bot_id = int(config.BOT_TOKEN.split(':')[0])
 
     state = FSMContext(storage=redis_storage, key=StorageKey(chat_id=chat_id, bot_id=bot_id, user_id=chat_id))
+
+    await state.update_data(UserId=updated_user_id)
+    await update_user_state_data(state)
 
     await full_cabinet_menu(state, bot=bot, chat_id=chat_id)
 
