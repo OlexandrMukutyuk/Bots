@@ -53,7 +53,7 @@ async def full_cabinet_menu(request: requests.ViberMessageRequest, data: dict):
 
     await state.set_state(FullCabinetStates.waiting_menu)
 
-    await sleep(0.2)
+    await sleep(0.4)
 
     sender_id = request.sender.id
     await update_last_message(sender_id, texts.SUGGEST_HELP, cabinet_menu_kb)
@@ -64,7 +64,6 @@ async def full_cabinet_menu(request: requests.ViberMessageRequest, data: dict):
             text=texts.SUGGEST_HELP, keyboard=cabinet_menu_kb, min_api_version="3"
         ),
     )
-
 
 
 async def loading_msg(request: requests.ViberMessageRequest):
