@@ -45,8 +45,8 @@ async def main_handler(message: types.Message, state: FSMContext):
     if button_text == cabinet_menu_text["share_chatbot"]:
         return await share_chatbot(message, state)
 
-    if button_text == cabinet_menu_text["review_enterprises"]:
-        return await rate_enterprises(message, state)
+    # if button_text == cabinet_menu_text["review_enterprises"]:
+    #     return await rate_enterprises(message, state)
 
     if button_text == cabinet_menu_text["history_requests"]:
         return await history_requests(message, state)
@@ -57,8 +57,8 @@ async def main_handler(message: types.Message, state: FSMContext):
     if button_text == cabinet_menu_text["reference_info"]:
         return await reference_info(message, state)
 
-    if button_text == cabinet_menu_text["repairs"]:
-        return await repairs(message, state)
+    # if button_text == cabinet_menu_text["repairs"]:
+    #     return await repairs(message, state)
 
 
 async def repairs(message: types.Message, state: FSMContext):

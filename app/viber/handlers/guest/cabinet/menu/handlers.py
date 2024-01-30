@@ -45,16 +45,16 @@ async def show_cabinet_menu(request: requests.ViberMessageRequest, data: dict):
 async def main_handler(request: requests.ViberMessageRequest, data: dict):
     button_text = request.message.text
 
-    if button_text == guest_menu_text["review_enterprises"]:
-        return await rate_enterprises_list(request, data)
+    # if button_text == guest_menu_text["review_enterprises"]:
+    #     return await rate_enterprises_list(request, data)
     if button_text == guest_menu_text["reference_info"]:
         return await reference_info(request, data)
 
     if button_text == guest_menu_text["change_info"]:
         return await change_user_info(request, data)
 
-    if button_text == guest_menu_text["repairs"]:
-        return await repairs(request, data)
+    # if button_text == guest_menu_text["repairs"]:
+    #     return await repairs(request, data)
 
     if button_text == guest_menu_text["full_registration"]:
         return await full_registration(request, data)

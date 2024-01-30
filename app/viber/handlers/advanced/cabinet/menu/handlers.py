@@ -39,8 +39,8 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == cabinet_menu_text["report_issue"]:
         return await report_issue(request, data)
 
-    if button_text == cabinet_menu_text["review_enterprises"]:
-        return await rate_enterprises(request, data)
+    # if button_text == cabinet_menu_text["review_enterprises"]:
+    #     return await rate_enterprises(request, data)
 
     if button_text == cabinet_menu_text["history_requests"]:
         return await history_requests(request, data)
@@ -51,8 +51,8 @@ async def main_handler(request: requests.ViberMessageRequest, data: dict):
     if button_text == cabinet_menu_text["reference_info"]:
         return await reference_info(request, data)
 
-    if button_text == cabinet_menu_text["repairs"]:
-        return await repairs(request, data)
+    # if button_text == cabinet_menu_text["repairs"]:
+    #     return await repairs(request, data)
 
 
 async def repairs(request: requests.ViberMessageRequest, data: dict):
