@@ -66,7 +66,7 @@ cabinet_menu_kb = KeyboardConstructor.generate_kb(
             "Columns": 3,
         },
         {"Text": cabinet_menu_text["reference_info"], "Columns": 3, "Rows": 1},
-        {"Text": cabinet_menu_text["report_issue"], "Columns": 3, "Rows": 1},
+        {"Text": cabinet_menu_text["report_issue"], "Columns": 6, "Rows": 1},
         # {"Text": cabinet_menu_text["review_enterprises"], "Columns": 6, "Rows": 1},
     ],
     {"InputFieldState": "hidden"},
