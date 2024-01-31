@@ -28,7 +28,8 @@ def generate_archive_req_kb(requests: list[dict]) -> Keyboard:
 def confirm_archive_req_kb(req_id: int, can_review: bool) -> Keyboard:
     extra = []
     if can_review:
-        extra = [{"Text": "Залишити відгук та оцінити", "ActionBody": f"REVIEW:{req_id}"}]
+        pass
+        # extra = [{"Text": "Залишити відгук та оцінити", "ActionBody": f"REVIEW:{req_id}"}]
 
     buttons = [
         *extra,

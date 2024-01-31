@@ -29,14 +29,15 @@ def confirm_archive_req_kb(req_id: int, can_review: bool):
     schema = [2]
 
     if can_review:
-        actions = [
-            {
-                "text": "Залишити відгук та оцінити",
-                "callback_data": ArchiveReqCallbackFactory(req_id=req_id, review=True)
-            },
-            *actions
-        ]
-        schema = [1] + schema
+        pass
+        # actions = [
+        #     {
+        #         "text": "Залишити відгук та оцінити",
+        #         "callback_data": ArchiveReqCallbackFactory(req_id=req_id, review=True)
+        #     },
+        #     *actions
+        # ]
+        # schema = [1] + schema
 
     return InlineConstructor.create_kb(
         actions=actions,
