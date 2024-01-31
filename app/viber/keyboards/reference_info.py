@@ -18,6 +18,13 @@ def generate_ref_info_kb(ref_info: list[dict]) -> Keyboard:
             }
         )
 
-    buttons.append({"Text": TO_MENU, "Columns": 3, "ActionBody": "to_menu", "Color": texts.LIGHT})
+    if len(buttons) % 2 == 0:
+        buttons.append(
+            {"Text": TO_MENU, "Columns": 6, "ActionBody": "to_menu", "Color": texts.LIGHT}
+        )
+    else:
+        buttons.append(
+            {"Text": TO_MENU, "Columns": 3, "ActionBody": "to_menu", "Color": texts.LIGHT}
+        )
 
     return KeyboardConstructor.generate_kb(buttons, {"InputFieldState": "hidden"})
