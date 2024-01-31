@@ -3,7 +3,13 @@ import json
 import aiofiles
 import aiohttp
 
-from data.config import SERVER_TOKEN, SERVER_BASE_URL, SERVER_BASE_SERVICE, SERVER_GUEST_SERVICE
+from data.config import (
+    SERVER_BASE_URL,
+    SERVER_BASE_SERVICE,
+    SERVER_GUEST_SERVICE,
+    SERVER_USER,
+    SERVER_PASSWORD,
+)
 from dto import AbstractDto
 from dto.chat_bot import (
     SearchDto,
@@ -19,6 +25,7 @@ from dto.chat_bot import (
     UpdateUserDto,
     RateEnterpriseDto,
     ParentIdDto,
+    GenerateTokenDto,
 )
 from dto.chat_bot.register import RegisterDto
 from dto.chat_bot.repairs import RepairsDto
@@ -27,15 +34,27 @@ from dto.guest.repairs_guest import RepairsGuestDto
 
 
 class HttpClient:
-    basic_headers = {"Token": SERVER_TOKEN, "Content-Type": "application/json"}
+    access_token = ""
 
     @staticmethod
     async def make_request(path: str, service: str, dto: AbstractDto):
         res = await HttpClient.post(data=dto.to_payload(), path=path, service=service)
 
-        # print(f"{path}: {res}")
+        if res.get("Code") == 103 and res.get("Message") == "Token is not valid":
+            await HttpClient.update_token()
+            res = await HttpClient.post(data=dto.to_payload(), path=path, service=service)
 
         return res
+
+    @staticmethod
+    async def update_token():
+        dto = GenerateTokenDto(SERVER_USER, SERVER_PASSWORD)
+
+        res = await HttpClient.make_request("/GetToken", SERVER_BASE_SERVICE, dto)
+
+        token = res.get("Token")
+
+        HttpClient.access_token = token
 
     @staticmethod
     async def post(data: dict, **kwargs) -> dict:
@@ -43,7 +62,9 @@ class HttpClient:
 
         full_url: str = kwargs.get("full_url")
 
-        async with aiohttp.ClientSession(headers=HttpClient.basic_headers) as session:
+        headers = {"Token": HttpClient.access_token, "Content-Type": "application/json"}
+
+        async with aiohttp.ClientSession(headers=headers) as session:
             if not full_url:
                 full_url = f'{SERVER_BASE_URL}/{kwargs.get("service")}{kwargs.get("path")}'
 
@@ -127,7 +148,6 @@ class HttpChatBot(HttpClient):
 
     @staticmethod
     async def register(dto: RegisterDto):
-        print(dto.to_payload())
         data = await HttpChatBot.request("/Register", dto)
         return data.get("UserId")
 
@@ -135,14 +155,11 @@ class HttpChatBot(HttpClient):
     async def check_email(dto: CheckEmailDto):
         data = await HttpChatBot.request("/CheckEmail", dto)
 
-        print(data)
-
         return data.get("Registration")
 
     @staticmethod
     async def code_to_email(dto: EmailDto):
         data = await HttpChatBot.request("/SendCode", dto)
-        print(data)
         return data
 
     @staticmethod
@@ -217,8 +234,6 @@ class HttpChatBot(HttpClient):
     @staticmethod
     async def get_repairs(dto: RepairsDto):
         data = await HttpChatBot.request("/GetCrashWorks", dto)
-
-        print(data)
 
         return data.get("Items")
 
