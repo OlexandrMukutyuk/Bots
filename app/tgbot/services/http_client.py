@@ -163,7 +163,7 @@ class HttpChatBot(HttpClient):
     @staticmethod
     async def get_user_params(dto: UserIdDto):
         data = await HttpChatBot.request("/GetUserParams", dto)
-        
+
         print(data)
         return data
 
@@ -190,6 +190,7 @@ class HttpChatBot(HttpClient):
         print(dto.to_payload())
         data = await HttpChatBot.request("/CreateRequest", dto)
 
+        print(data)
         return data.get("Id")
 
     @staticmethod
