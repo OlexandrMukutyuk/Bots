@@ -142,6 +142,7 @@ class HttpChatBot(HttpClient):
 
     @staticmethod
     async def register(dto: RegisterDto):
+        print(dto.to_payload())
         data = await HttpChatBot.request("/Register", dto)
 
         print(f'/Registter Data: {data}')
@@ -150,6 +151,7 @@ class HttpChatBot(HttpClient):
     @staticmethod
     async def check_email(dto: CheckEmailDto):
         data = await HttpChatBot.request("/CheckEmail", dto)
+        print(data)
         return data.get("Registration")
 
     @staticmethod
@@ -161,6 +163,8 @@ class HttpChatBot(HttpClient):
     @staticmethod
     async def get_user_params(dto: UserIdDto):
         data = await HttpChatBot.request("/GetUserParams", dto)
+        
+        print(data)
         return data
 
     @staticmethod
