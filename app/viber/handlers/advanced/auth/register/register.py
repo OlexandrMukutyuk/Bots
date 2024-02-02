@@ -1,12 +1,16 @@
+from asyncio import sleep
+
 import texts
+from dto.chat_bot import PhoneDto
 from handlers.common.flat import FlatHandlers
 from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
 from keyboards.common import without_flat_kb, choose_gender_kb
-from keyboards.register import registration_agreement_kb
+from keyboards.register import registration_agreement_kb, phone_share_kb
 from keyboards.streets import change_street_kb
 from models import Gender
 from services.database import update_last_message
+from services.http_client import HttpChatBot
 from states import AdvancedRegisterStates
 from utils.template_engine import render_template
 from viber import viber
@@ -17,13 +21,29 @@ from viberio.types import requests, messages
 async def save_phone(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
+    sender_id = request.sender.id
 
     try:
         phone = request.message.contact.phone_number
     except:
         phone = request.message.text
 
-    sender_id = request.sender.id
+    unique_phone = await HttpChatBot.unique_phone(PhoneDto(phone=phone))
+    if not unique_phone:
+        await viber.send_message(
+            sender_id,
+            messages.TextMessage(text=texts.UNIQUE_PHONE),
+        )
+
+        await sleep(0.2)
+
+        await viber.send_message(
+            sender_id,
+            messages.KeyboardMessage(text=texts.UNIQUE_PHONE, keyboard=phone_share_kb, min_api_version="4"),
+        )
+
+        return
+
     await update_last_message(sender_id, texts.ASKING_STREET)
 
     await state.update_data(Phone=phone)

@@ -16,7 +16,7 @@ from dto.chat_bot import (
     CreateRequestDto,
     RateRequestDto,
     UpdateUserDto,
-    RateEnterpriseDto, ParentIdDto, GenerateTokenDto,
+    RateEnterpriseDto, ParentIdDto, GenerateTokenDto, PhoneDto,
 )
 from dto.chat_bot.register import RegisterDto
 from dto.chat_bot.repairs import RepairsDto
@@ -247,3 +247,11 @@ class HttpChatBot(HttpClient):
         data = await HttpChatBot.request("/GetAllCrashWorks", dto)
 
         return data.get('Items')
+
+    @staticmethod
+    async def unique_phone(dto: PhoneDto):
+        print(dto.to_payload())
+        data = await HttpChatBot.request("/ValidateNumber", dto)
+        print(data)
+
+        return data.get('IsUniq')

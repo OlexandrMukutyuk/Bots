@@ -1,7 +1,7 @@
 from asyncio import sleep
 
 import texts
-from dto.chat_bot import RegisterDto
+from dto.chat_bot import RegisterDto, PhoneDto
 from handlers.common.flat import FlatHandlers
 from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
@@ -140,10 +140,30 @@ async def edit_phone(request: requests.ViberMessageRequest, data: dict):
     dp_ = Dispatcher.get_current()
     state = dp_.current_state(request)
 
+    sender_id = request.sender.id
+
     try:
         phone = request.message.contact.phone_number
     except:
         phone = request.message.text
+
+    unique_phone = await HttpChatBot.unique_phone(PhoneDto(phone=phone))
+    if not unique_phone:
+        await viber.send_message(
+            sender_id,
+            messages.TextMessage(text=texts.UNIQUE_PHONE),
+        )
+
+        await sleep(0.2)
+
+        await viber.send_message(
+            sender_id,
+            messages.KeyboardMessage(
+                text=texts.UNIQUE_PHONE, keyboard=phone_share_kb, min_api_version="4"
+            ),
+        )
+
+        return
 
     await state.update_data(Phone=phone)
     await state.set_state(EditRegisterStates.waiting_accepting)
@@ -286,7 +306,7 @@ async def accept_info(request: requests.ViberMessageRequest, data: dict):
         sender_id,
         [
             messages.TextMessage(text="Інформація для реєстрації відправлена успішно!"),
-            messages.TextMessage(text=check_email_text)
+            messages.TextMessage(text=check_email_text),
         ],
     )
 
@@ -298,6 +318,7 @@ async def accept_info(request: requests.ViberMessageRequest, data: dict):
             text="Якщо лист не отримано - перевірте спам.",
             keyboard=other_email_kb,
             min_api_version="4",
-        ))
+        ),
+    )
 
     await update_last_message(sender_id, check_email_text)

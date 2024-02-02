@@ -3,22 +3,30 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
+from dto.chat_bot import PhoneDto
 from handlers.common.flat import FlatHandlers
 from handlers.common.house import HouseHandlers
 from handlers.common.streets import StreetsHandlers
 from keyboards.default.auth.register import (
     choose_gender_kb,
-    registration_agreement_kb,
+    registration_agreement_kb, phone_share_kb,
 )
 from keyboards.default.common import change_street_kb, without_flat_kb
 from keyboards.inline.callbacks import StreetCallbackFactory
 from models import Gender
+from services.http_client import HttpChatBot
 from states.advanced import AdvancedRegisterStates
 from utils.template_engine import render_template
 
 
 async def save_phone(message: types.Message, state: FSMContext):
     phone = message.text or message.contact.phone_number
+
+    unique_phone = await HttpChatBot.unique_phone(PhoneDto(phone=phone))
+    if not unique_phone:
+        await message.answer(texts.UNIQUE_PHONE)
+        await message.answer(texts.ASKING_PHONE, reply_markup=phone_share_kb)
+        return
 
     await state.update_data(Phone=phone)
     await message.answer("Ваш номер успішно відправлено")
@@ -40,7 +48,7 @@ async def show_street_list(callback: types.InlineQuery, state: FSMContext):
 
 
 async def confirm_street(
-    callback: types.CallbackQuery, callback_data: StreetCallbackFactory, state: FSMContext, bot: Bot
+        callback: types.CallbackQuery, callback_data: StreetCallbackFactory, state: FSMContext, bot: Bot
 ):
     async def action():
         await bot.send_message(

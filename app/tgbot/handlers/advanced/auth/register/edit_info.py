@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 import texts
-from dto.chat_bot import RegisterDto
+from dto.chat_bot import RegisterDto, PhoneDto
 from handlers.common.flat import FlatHandlers
 from handlers.common.helpers import independent_message
 from handlers.common.house import HouseHandlers
@@ -86,6 +86,13 @@ async def send_user_info(state: FSMContext, **kwargs):
 
 async def edit_phone(message: types.Message, state: FSMContext):
     phone = message.text or message.contact.phone_number
+
+    unique_phone = await HttpChatBot.unique_phone(PhoneDto(phone=phone))
+
+    if not unique_phone:
+        await message.answer(texts.UNIQUE_PHONE)
+        await message.answer(texts.ASKING_PHONE, reply_markup=phone_share_kb)
+        return
 
     await state.update_data(Phone=phone)
     await state.set_state(EditRegisterStates.waiting_accepting)
