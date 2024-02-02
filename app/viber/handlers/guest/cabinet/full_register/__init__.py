@@ -110,13 +110,6 @@ def prepare_router(dp: Dispatcher):
             register.save_password,
             [StateFilter(GuestFullRegisterStates.waiting_password), StrongPasswordFilter()],
         ),
-        Handler(
-            register.show_agreement,
-            [
-                StateFilter(GuestFullRegisterStates.waiting_agreement),
-                lambda r: r.message.text != AGREEMENT,
-            ],
-        ),
     ]
 
     edit_handlers = [

@@ -9,7 +9,7 @@ from handlers.start import handlers as start
 from keyboards.register import edit_text
 from models import Gender
 from states import AdvancedRegisterStates, EditRegisterStates
-from texts import CHANGE_STREET, WITHOUT_FLAT, AGREEMENT
+from texts import CHANGE_STREET, WITHOUT_FLAT, AGREEMENT, OTHER_MAIL
 from viberio.dispatcher.dispatcher import Dispatcher
 from viberio.dispatcher.filters.builtin import StateFilter
 
@@ -142,7 +142,13 @@ def prepare_router(dp: Dispatcher):
             [StateFilter(EditRegisterStates.waiting_password), StrongPasswordFilter()],
         ),
         # Start again
-        Handler(start.start_again, [StateFilter(EditRegisterStates.waiting_email_confirming)]),
+        Handler(
+            start.start_again,
+            [
+                StateFilter(EditRegisterStates.waiting_email_confirming),
+                lambda r: r.message.text == OTHER_MAIL,
+            ],
+        ),
     ]
 
     validation_message_list = [

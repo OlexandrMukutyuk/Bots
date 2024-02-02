@@ -14,7 +14,7 @@ from keyboards.default.auth.edit_info import edit_text
 from keyboards.inline.callbacks import StreetCallbackFactory
 from models import Gender
 from states.advanced import AdvancedRegisterStates, EditRegisterStates
-from texts.keyboards import CHANGE_STREET, AGREEMENT, WITHOUT_FLAT
+from texts.keyboards import CHANGE_STREET, AGREEMENT, WITHOUT_FLAT, OTHER_MAIL
 
 
 def prepare_router() -> Router:
@@ -110,7 +110,7 @@ def prepare_router() -> Router:
             edit_info.edit_password, [EditRegisterStates.waiting_password, StrongPasswordFilter()]
         ),
         # Start again
-        Handler(start.start_again, [EditRegisterStates.waiting_email_confirming]),
+        Handler(start.start_again, [EditRegisterStates.waiting_email_confirming, F.text == OTHER_MAIL]),
     ]
 
     inline_list = [

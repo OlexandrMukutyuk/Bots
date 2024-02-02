@@ -86,10 +86,7 @@ def prepare_router() -> Router:
         Handler(
             register.save_password,
             [GuestFullRegisterStates.waiting_password, StrongPasswordFilter()],
-        ),
-        Handler(
-            register.show_agreement, [GuestFullRegisterStates.waiting_password, F.text != AGREEMENT]
-        ),
+        )
     ]
 
     edit_handlers = [
