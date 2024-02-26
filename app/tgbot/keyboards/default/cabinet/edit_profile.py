@@ -5,8 +5,8 @@ from texts.keyboards import BACK
 edit_text = {
     "accept_info_text": "Все вірно ✅",
     "first_name_text": "Ім'я",
-    "last_name_text": "Прізвище",
-    "middle_name_text": "По батькові",
+    "middle_name_text": "Прізвище",
+    "last_name_text": "По батькові",
     "gender_text": "Стать",
     "street_text": "Вулиця",
     "house_text": "Номер будинку",
@@ -26,7 +26,6 @@ edit_profile_kb = DefaultConstructor.create_kb(
     ],
     schema=[2, 2, 2, 2],
 )
-
 
 change_gender_kb = DefaultConstructor.create_kb(
     actions=[Gender.values["male"], Gender.values["female"], BACK], schema=[2, 1]
