@@ -17,8 +17,8 @@ edit_profile_kb = DefaultConstructor.create_kb(
     actions=[
         edit_text["accept_info_text"],
         edit_text["first_name_text"],
-        edit_text["last_name_text"],
         edit_text["middle_name_text"],
+        edit_text["last_name_text"],
         edit_text["gender_text"],
         edit_text["street_text"],
         edit_text["house_text"],
