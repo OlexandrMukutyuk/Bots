@@ -74,8 +74,6 @@ class HttpInfoClient(HttpClient):
             full_url=f"{SERVER_BASE_URL}/Services/Dictionary/json/getstreetbyid",
         )
 
-        print(response)
-
         return response.get("list")[0]
 
     @staticmethod

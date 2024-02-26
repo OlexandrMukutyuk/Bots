@@ -106,7 +106,7 @@ class StreetsHandlers:
         city_id = callback_data.city_id
 
         street = await HttpInfoClient.get_street_by_id(street_id)
-        city = await HttpInfoClient.get_street_by_id(city_id)
+        city = await HttpInfoClient.get_city_by_id(city_id)
 
         data = await StreetsHandlers.delete_message(
             chat_id=callback.from_user.id, state=state, bot=bot, key=StreetsHandlers.ConfirmCallback
