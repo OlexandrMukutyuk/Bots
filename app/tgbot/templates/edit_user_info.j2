@@ -3,8 +3,15 @@
 Ім'я: {{ data.get('FirstName') }}
 Прізвище: {{ data.get('MiddleName') }}
 По батькові: {{ data.get('LastName') }}
+{% if data.get('City') != None %}
+Нас. пункт: {{ data.get('City') }}
+{% endif %}
+{% if data.get('Street') != None %}
 Вулиця: {{ data.get('Street') }}
+{% endif %}
+{% if data.get('House') != None %}
 Номер будинку: {{ data.get('House') }}
+{% endif %}
 {% if data.get('Flat') != None %}
 Квартира {{ data.get('Flat') }}
 {% endif %}

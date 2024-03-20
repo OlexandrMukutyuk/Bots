@@ -111,7 +111,15 @@ async def send_edit_guest_info(state: FSMContext, **kwargs):
         "House": user_data.get("House"),
     }
 
-    template = render_template("edit_guest_info.j2", data=data)
+    data_City = {
+        "City": user_data.get("City"),
+    }
+
+    is_City = user_data.get("Is_City")
+    if is_City:
+        template = render_template("edit_guest_info_City.j2", data=data_City)
+    else:
+        template = render_template("edit_guest_info.j2", data=data)
 
     await state.set_state(GuestEditInfoStates.waiting_acceptation)
     return await independent_message(template, edit_guest_kb, **kwargs)

@@ -1,11 +1,10 @@
+import texts
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
-
-import texts
 from data.config import WEBSITE_URL
 from handlers.common.email import EmailHandlers
-from keyboards.default.auth.register import phone_share_kb
+from keyboards.default.auth.register import phone_share_kb, choice_region_kb
 from keyboards.default.basic import yes_n_no
 from keyboards.default.start import greeting_kb, auth_types_kb
 from keyboards.default.start import is_register_on_site, start_again_kb, YES
@@ -92,6 +91,6 @@ async def asking_if_email_confirmed(message: types.Message, state: FSMContext):
 
 
 async def subscription_auth(message: types.Message, state: FSMContext):
-    await message.answer(text=texts.ASKING_STREET, reply_markup=ReplyKeyboardRemove())
+    await message.answer(text=texts.ASKING_COOISE_REGION, reply_markup=choice_region_kb)
 
-    await state.set_state(GuestAuthStates.waiting_street_typing)
+    await state.set_state(GuestAuthStates.waiting_choice_region)

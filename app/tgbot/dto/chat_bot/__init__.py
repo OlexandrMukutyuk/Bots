@@ -4,6 +4,7 @@ from .create_request import CreateRequestDto
 from .generate_token import GenerateTokenDto
 from .rate_entrprise import RateEnterpriseDto
 from .rate_request import RateRequestDto
+from .region import ChooseRegionDto
 from .register import RegisterDto
 from .report_issue import ReportIssueDto
 from .single.email import EmailDto

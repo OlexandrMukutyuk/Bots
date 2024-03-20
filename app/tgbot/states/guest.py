@@ -2,6 +2,12 @@ from aiogram.fsm.state import StatesGroup, State
 
 
 class GuestAuthStates(StatesGroup):
+    waiting_choice_region = State()
+    waiting_show_menu = State()
+    waiting_city_typing = State()
+    waiting_city_selected = State()
+    waiting_other_location = State()
+
     waiting_street_typing = State()
     waiting_street_selected = State()
 

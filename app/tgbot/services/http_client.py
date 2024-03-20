@@ -1,7 +1,6 @@
 import json
 
 import aiohttp
-
 from data.config import SERVER_BASE_URL, SERVER_BASE_SERVICE, SERVER_GUEST_SERVICE, SERVER_USER, SERVER_PASSWORD
 from dto import AbstractDto
 from dto.chat_bot import (
@@ -16,6 +15,7 @@ from dto.chat_bot import (
     CreateRequestDto,
     RateRequestDto,
     UpdateUserDto,
+    ChooseRegionDto,
     RateEnterpriseDto, ParentIdDto, GenerateTokenDto, PhoneDto,
 )
 from dto.chat_bot.register import RegisterDto
@@ -255,3 +255,16 @@ class HttpChatBot(HttpClient):
         print(data)
 
         return data.get('IsUniq')
+
+    @staticmethod
+    async def choise_region(dto: ChooseRegionDto):
+        return await HttpGuestBot.request("/ChoiseRegion", dto)
+
+    @staticmethod
+    async def get_all_city(data) -> dict:
+        response = await HttpInfoClient.post(
+            data=data,
+            full_url=f"{SERVER_BASE_URL}/Services/Dictionary/json/getcities",
+        )
+
+        return response.get("list")

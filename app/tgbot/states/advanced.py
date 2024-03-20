@@ -12,10 +12,17 @@ class LoginState(StatesGroup):
 
 
 class AdvancedRegisterStates(StatesGroup):
-    waiting_phone = State()
-    waiting_street_typing = State()
+    waiting_choice_region = State()
 
+    waiting_phone = State()
+
+    waiting_city_typing = State()
+    waiting_city_selected = State()
+
+    waiting_street_typing = State()
     waiting_street_selected = State()
+
+    waiting_other_location = State()
 
     waiting_house = State()
     waiting_flat = State()

@@ -1,5 +1,4 @@
 from aiogram import Router, F
-
 from filters.strong_password import StrongPasswordFilter
 from filters.valid_flat import ValidFlatFilter
 from filters.valid_name import ValidNameFilter
@@ -7,6 +6,7 @@ from filters.valid_phone import ValidPhoneFilter
 from handlers import validation
 from handlers.advanced.auth.register import edit_info
 from handlers.advanced.auth.register import register
+from handlers.common.city import CityHandlers
 from handlers.common.helpers import Handler
 from handlers.common.streets import StreetsHandlers
 from handlers.start import handlers as start
@@ -21,10 +21,27 @@ def prepare_router() -> Router:
     router = Router()
 
     register_message_list = [
+        Handler(
+            register.choice_region,
+            [AdvancedRegisterStates.waiting_choice_region, F.text.len() >= 3],
+        ),
         # Get phone
         Handler(register.save_phone, [AdvancedRegisterStates.waiting_phone, F.contact]),
         Handler(register.save_phone, [AdvancedRegisterStates.waiting_phone, ValidPhoneFilter()]),
-        # Get street
+        # Get city
+        Handler(
+            register.choose_city,
+            [AdvancedRegisterStates.waiting_city_typing, F.text.len() >= 3],
+        ),
+        Handler(
+            CityHandlers.message_via_bot,
+            [AdvancedRegisterStates.waiting_city_selected, F.via_bot],
+        ),
+        Handler(
+            register.choose_city,
+            [AdvancedRegisterStates.waiting_city_selected, F.text.len() >= 3, ~F.via_bot],
+        ),
+        # Get streets
         Handler(
             register.choose_street,
             [AdvancedRegisterStates.waiting_street_typing, F.text.len() >= 3],
@@ -36,6 +53,11 @@ def prepare_router() -> Router:
         Handler(
             register.choose_street,
             [AdvancedRegisterStates.waiting_street_selected, F.text.len() >= 3, ~F.via_bot],
+        ),
+        # Get Other Location
+        Handler(
+            register.choose_other_location,
+            [AdvancedRegisterStates.waiting_other_location, F.text.len() >= 3],
         ),
         # Change street
         Handler(
@@ -115,6 +137,7 @@ def prepare_router() -> Router:
 
     inline_list = [
         Handler(register.show_street_list, [AdvancedRegisterStates.waiting_street_selected]),
+        Handler(register.show_city_list, [AdvancedRegisterStates.waiting_city_selected]),
         Handler(edit_info.show_street_list, [EditRegisterStates.waiting_street_selected]),
     ]
 
@@ -122,6 +145,14 @@ def prepare_router() -> Router:
         Handler(
             register.confirm_street,
             [StreetCallbackFactory.filter(), AdvancedRegisterStates.waiting_street_selected],
+        ),
+        Handler(
+            register.confirm_city,
+            [StreetCallbackFactory.filter(), AdvancedRegisterStates.waiting_city_selected],
+        ),
+        Handler(
+            register.confirm_other_location,
+            [StreetCallbackFactory.filter(), AdvancedRegisterStates.waiting_other_location],
         ),
         Handler(
             edit_info.confirm_street,
@@ -137,6 +168,12 @@ def prepare_router() -> Router:
             validation.not_valid_street_name,
             [AdvancedRegisterStates.waiting_street_selected, ~F.via_bot],
         ),
+        Handler(validation.not_valid_street_name, [AdvancedRegisterStates.waiting_city_typing]),
+        Handler(
+            validation.not_valid_street_name,
+            [AdvancedRegisterStates.waiting_city_selected, ~F.via_bot],
+        ),
+        Handler(validation.not_valid_street_name, [AdvancedRegisterStates.waiting_other_location]),
         Handler(validation.not_valid_street_name, [EditRegisterStates.waiting_street_typing]),
         Handler(
             validation.not_valid_street_name,
